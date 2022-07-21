@@ -1,3 +1,13 @@
+/*
+ * @Author: Clover 304363641@qq.com
+ * @Date: 2022-07-20 17:08:38
+ * @LastEditors: Clover 304363641@qq.com
+ * @LastEditTime: 2022-07-21 13:24:03
+ * @FilePath: \storyline-generater\app.js
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by Clover 304363641@qq.com, All Rights Reserved. 
+ */
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -7,6 +17,8 @@ var ejs = require('ejs')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+require('./models/index.js')
 
 var app = express();
 
