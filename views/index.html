@@ -2,8 +2,8 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-21 13:17:54
- * @FilePath: \storyline-generater\views\index.html
+ * @LastEditTime: 2022-07-21 16:37:35
+ * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
  * Copyright (c) 2022 by Clover 304363641@qq.com, All Rights Reserved. 
@@ -15,10 +15,13 @@
 	<title>$N Recognizer</title>
 	<link href="css/styles.css" rel="stylesheet" type="text/css" />
 	<!--[if IE]><script src="excanvas.js"></script><![endif]-->
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
+	<script type="text/javascript" src="js/database.js"></script>
+
 	<script type="text/javascript">
 		//
 		// Startup
@@ -160,6 +163,7 @@
 							console.log(result);
 							switch (result.Name) {
 								case 'line/person':
+									var person = new Object()
 									for(let item of _strokes[0]){
 										const el = document.elementsFromPoint(item.X+8,item.Y)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
@@ -168,9 +172,16 @@
 									}
 									_text = Array.from(new Set(text)).join('')
 									document.getElementById('person').innerText = _text
-									session.person = _text
+									person.value = _text
+									person.stroke = {
+										pageNum:1,//TODO
+										points:_strokes[0]
+									}
+									session.person = person
+									console.log(session);
 									break;
 								case 'circle/time':
+									var time = new Object()
 									var max_x=-Infinity,max_y=-Infinity;
 									var min_x=Infinity,min_y=Infinity;
 									for (const item of _strokes[0]) {
@@ -194,9 +205,15 @@
 									_text.shift();
 									_text= _text.join('')
 									document.getElementById('time').innerText = _text
-									session.time = _text
+									time.value = _text
+									time.stroke = {
+										pageNum:1,//TODO
+										points:_strokes[0]
+									}
+									session.time = time
 									break;		
 								case 'wave/content':
+									var event = new Object()
 									for(let item of _strokes[0]){
 										const el_half = document.elementsFromPoint(item.X+8,item.Y)
 										if(el_half[1].innerText && el_half[1].innerText.length===1 && !reg.test(el_half[1].innerText)){
@@ -209,9 +226,15 @@
 									}
 									_text = Array.from(new Set(text)).join('')
 									document.getElementById('event').innerText = _text
-									session.event = _text
+									event.value = _text
+									event.stroke = {
+										pageNum:1,//TODO
+										points:_strokes[0]
+									}
+									session.event = event
 									break;
 								case 'brkoen/place':
+									var place = new Object()
 									for(let item of _strokes[0]){
 										const el = document.elementsFromPoint(item.X+8,item.Y)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
@@ -225,17 +248,30 @@
 										_text.shift()
 									}
 									_text=_text.join('')
-									document.getElementById('place').innerText = _text			
-									session.place = _text														
+									document.getElementById('place').innerText = _text		
+									place.value = _text
+									place.stroke = {
+										pageNum:1,//TODO
+										points:_strokes[0]
+									}	
+									session.place = place														
 									break;		
 								case 'left/start':
 									_isStart = true
 									session = new Session();
 									break;
 								case 'right/end':
-									console.log(session);
 									_g.clearRect(0, 0, _rc.width, _rc.height);
 									sessionList[sessionList.length] = session
+									
+									let output = session
+									console.log(output);
+									saveObjectIntoDatabase(output).then((status)=>{
+										if(status === 200)	console.log('Save successfully !!!');
+									})
+									getObjectFromDatabase().then(res=>{
+										console.log(res);
+									})
 									console.log(sessionList);
 									break;
 								default:
@@ -449,5 +485,18 @@ reader.onload = ()=>{
 
 }
 }, false)
+		// ServiceWorker
+
+if ('serviceWorker' in navigator) {
+
+	try {
+
+		navigator.serviceWorker.register('sw.js');
+
+	} catch (error) {
+
+	}
+
+}
 </script>
 </html>

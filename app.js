@@ -2,8 +2,8 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-20 17:08:38
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-21 13:24:03
- * @FilePath: \storyline-generater\app.js
+ * @LastEditTime: 2022-07-21 16:05:20
+ * @FilePath: \storyline-generator\app.js
  * @Description: 
  * 
  * Copyright (c) 2022 by Clover 304363641@qq.com, All Rights Reserved. 
@@ -34,7 +34,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
