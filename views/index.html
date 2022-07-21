@@ -1,0 +1,453 @@
+<!--
+ * @Author: error: git config user.name && git config user.email & please set dead value or install git
+ * @Date: 2022-07-21 11:53:13
+ * @LastEditors: error: git config user.name && git config user.email & please set dead value or install git
+ * @LastEditTime: 2022-07-21 12:44:28
+ * @FilePath: \Generater\views\index.html
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by error: git config user.name && git config user.email & please set dead value or install git, All Rights Reserved. 
+-->
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>$N Recognizer</title>
+	<link href="css/styles.css" rel="stylesheet" type="text/css" />
+	<!--[if IE]><script src="excanvas.js"></script><![endif]-->
+	<script type="text/javascript" src="js/canvas.text.js"></script>
+	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/ndollar.js"></script>
+	<script type="text/javascript">
+		//
+		// Startup
+		//
+		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,session,sessionList; // global variables
+		function Session(time=null,person=null,event=null,place=null){
+			this.time = time
+			this.person = person
+			this.event = event
+			this.place = place
+		}
+		function onLoadEvent()
+		{
+			_points = new Array(); // point array for current stroke
+			_strokes = new Array(); // array of point arrays
+			_text = new Array();//array of regonize text
+			_r = new NDollarRecognizer(false);
+
+			var canvas = document.getElementById('myCanvas');
+			_g = canvas.getContext('2d');
+			_g.lineWidth = 2;
+			_g.font = "16px Gentilis";
+			_rc = getCanvasRect(canvas); // canvas rect on page
+			_g.fillStyle = "rgb(255,255,136)";
+			_g.fillRect(0, 0, _rc.width, 20);
+
+			_isDown = false;
+			_isStart = false
+			sessionList = new Array()
+			session = new Session()			
+		}
+		function getCanvasRect(canvas)
+		{
+			var w = canvas.width;
+			var h = canvas.height;
+
+			var cx = canvas.offsetLeft;
+			var cy = canvas.offsetTop;
+			while (canvas.offsetParent != null)
+			{
+				canvas = canvas.offsetParent;
+				cx += canvas.offsetLeft;
+				cy += canvas.offsetTop;
+			}
+			return {x: cx, y: cy, width: w, height: h};
+		}
+		function getScrollX()
+		{
+			var scrollX = $(window).scrollLeft();
+			return scrollX;
+		}
+		function getScrollY()
+		{
+			var scrollY = $(window).scrollTop();
+			return scrollY;
+		}
+		//
+		// Checkbox option for using limited rotation invariance requires rebuilding the recognizer.
+		//
+		function confirmRebuild()
+		{
+			if (confirm("Changing this option will discard any user-defined gestures you may have made."))
+			{
+				_r = new NDollarRecognizer(document.getElementById('useBoundedRotationInvariance').checked);
+			}
+			else
+			{
+				var chk = document.getElementById('useBoundedRotationInvariance');
+				chk.checked = !chk.checked; // undo click
+			}
+		}
+		//
+		// Mouse Events
+		//
+		function mouseDownEvent(x, y, button)
+		{
+			document.onselectstart = function() { return false; } // disable drag-select
+			document.onmousedown = function() { return false; } // disable drag-select
+			if (button <= 1)
+			{
+				_isDown = true;
+				x -= _rc.x - getScrollX();
+				y -= _rc.y - getScrollY();
+				if (_points.length == 0)
+				{
+					_strokes.length = 0;
+					// _g.clearRect(0, 0, _rc.width, _rc.height);
+				}
+				_points.length = 1; // clear
+				_points[0] = new Point(x, y);
+				drawText("Recording stroke #" + (_strokes.length + 1) + "...");
+				var clr = "rgb(" + rand(0,200) + "," + rand(0,200) + "," + rand(0,200) + ")";
+				_g.strokeStyle = clr;
+				_g.fillStyle = clr;
+				_g.fillRect(x - 4, y - 3, 3, 3);
+			}
+			else if (button == 2)
+			{
+				drawText("Recognizing gesture...");
+			}
+		}
+		function mouseMoveEvent(x, y, button)
+		{
+			if (_isDown)
+			{
+				x -= _rc.x - getScrollX();
+				y -= _rc.y - getScrollY();
+				_points[_points.length] = new Point(x, y); // append
+				drawConnectedPoint(_points.length - 2, _points.length - 1);
+			}
+		}
+		function mouseUpEvent(x, y, button)
+		{
+			document.onselectstart = function() { return true; } // enable drag-select
+			document.onmousedown = function() { return true; } // enable drag-select
+			if (button <= 1)
+			{
+				if (_isDown)
+				{
+					_isDown = false;
+					_strokes[_strokes.length] = _points.slice(); // add new copy to set
+					drawText("Stroke #" + _strokes.length + " recorded.");
+				}
+				setTimeout(()=>{
+					if(_isDown){
+						console.log('isDown');
+					}else{
+						if (_strokes.length > 1 || (_strokes.length == 1 && _strokes[0].length >= 10))
+						{
+							var text = new Array();
+							var reg = /[\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/;
+							var result = _r.Recognize(
+								_strokes,
+								false,
+								true,
+								false
+								);
+							drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
+							console.log(result);
+							switch (result.Name) {
+								case 'line/person':
+									for(let item of _strokes[0]){
+										const el = document.elementsFromPoint(item.X+8,item.Y)
+										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
+											text[text.length] = el[1].innerText
+										}
+									}
+									_text = Array.from(new Set(text)).join('')
+									document.getElementById('person').innerText = _text
+									session.person = _text
+									break;
+								case 'circle/time':
+									var max_x=-Infinity,max_y=-Infinity;
+									var min_x=Infinity,min_y=Infinity;
+									for (const item of _strokes[0]) {
+										if(item.X>max_x) max_x = item.X
+										if(item.Y>max_y) max_y = item.Y
+										if(item.X<min_x) min_x = item.X
+										if(item.Y<min_y) min_y = item.Y
+									}
+									console.log(min_x,max_x);
+									console.log(min_y,max_y);
+									for (let x = min_x; x < max_x; x++) {
+										for (let y = min_y; y < max_y; y++) {
+											const el = document.elementsFromPoint(x+8,y+8)
+											if(el[1].innerText && el[1].innerText.length===1){
+											text[text.length] = el[1].innerText
+											}
+										}
+									}
+									_text = Array.from(new Set(text))
+									_text.pop();
+									_text.shift();
+									_text= _text.join('')
+									document.getElementById('time').innerText = _text
+									session.time = _text
+									break;		
+								case 'wave/content':
+									for(let item of _strokes[0]){
+										const el_half = document.elementsFromPoint(item.X+8,item.Y)
+										if(el_half[1].innerText && el_half[1].innerText.length===1 && !reg.test(el_half[1].innerText)){
+											text[text.length] = el_half[1].innerText
+										}
+										const el_all = document.elementsFromPoint(item.X+8,item.Y-8)
+										if(el_all[1].innerText && el_all[1].innerText.length===1 && !reg.test(el_all[1].innerText)){
+											text[text.length] = el_all[1].innerText
+										}
+									}
+									_text = Array.from(new Set(text)).join('')
+									document.getElementById('event').innerText = _text
+									session.event = _text
+									break;
+								case 'brkoen/place':
+									for(let item of _strokes[0]){
+										const el = document.elementsFromPoint(item.X+8,item.Y)
+										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
+											text[text.length] = el[1].innerText
+										}
+									}
+									_text = Array.from(new Set(text))
+									const el = document.elementsFromPoint(_strokes[0][0].X+8,_strokes[0][0].Y)
+									console.log(document.elementsFromPoint(_strokes[0][0].X+8,_strokes[0][0].Y));
+									if(el[1].innerText.length === 1){
+										_text.shift()
+									}
+									_text=_text.join('')
+									document.getElementById('place').innerText = _text			
+									session.place = _text														
+									break;		
+								case 'left/start':
+									_isStart = true
+									session = new Session();
+									break;
+								case 'right/end':
+									console.log(session);
+									_g.clearRect(0, 0, _rc.width, _rc.height);
+									sessionList[sessionList.length] = session
+									console.log(sessionList);
+									break;
+								default:
+									break;
+							}
+						}
+						else
+						{
+							drawText("Too little input made. Please try again.");
+						}
+						_points.length = 0; // clear and signal to clear strokes on next mousedown
+					}
+				},1000)
+			}
+			else if (button == 2) // segmentation with right-click
+			{
+				if (_strokes.length > 1 || (_strokes.length == 1 && _strokes[0].length >= 10))
+				{
+					var text = new Array();
+					for(let item of _strokes[0]){
+						const el = document.elementsFromPoint(item.X+8,item.Y)
+						if(el[1].innerText && el[1].innerText.length===1){
+							text[text.length] = el[1].innerText
+						}
+					}
+					_text = Array.from(new Set(text)).join('')
+					console.log(_text);
+					// alert(_text)
+					var result = _r.Recognize(
+						_strokes,
+						false,
+						true,
+						false
+						);
+					drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
+				}
+				else
+				{
+					drawText("Too little input made. Please try again.");
+				}
+				_points.length = 0; // clear and signal to clear strokes on next mousedown
+			}
+		}
+		function drawConnectedPoint(from, to)
+		{
+			_g.beginPath();
+			_g.moveTo(_points[from].X, _points[from].Y);
+			_g.lineTo(_points[to].X, _points[to].Y);
+			_g.closePath();
+			_g.stroke();
+		}
+		function drawText(str)
+		{
+			_g.fillStyle = "rgb(255,255,136)";
+			_g.fillRect(0, 0, _rc.width, 20);
+			_g.fillStyle = "rgb(0,0,255)";
+			_g.fillText(str, 1, 14);
+		}
+		function rand(low, high)
+		{
+			return Math.floor((high - low + 1) * Math.random()) + low;
+		}
+		function round(n, d) // round 'n' to 'd' decimals
+		{
+			d = Math.pow(10, d);
+			return Math.round(n * d) / d;
+		}
+		//
+		// Multistroke Adding and Clearing
+		//
+		function onClickAddExisting()
+		{
+			if (_strokes.length > 0)
+			{
+				if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
+				{
+					console.log(_strokes);
+					var multistrokes = document.getElementById('multistrokes');
+					var name = multistrokes[multistrokes.selectedIndex].value;
+					var num = _r.AddGesture(name, false, _strokes);
+					drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
+					_points.length = 0; // clear and signal to clear strokes on next mousedown
+				}
+			}
+		}
+		function onClickAddCustom()
+		{
+			var name = document.getElementById('custom').value;
+			if (_strokes.length > 0 && name.length > 0)
+			{
+				if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
+				{
+					console.log(_strokes);
+					var num = _r.AddGesture(name, false, _strokes);
+					drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
+					_points.length = 0; // clear and signal to clear strokes on next mousedown
+				}
+			}
+		}
+		function onClickCustom()
+		{
+			document.getElementById('custom').select();
+		}
+		function onClickDelete()
+		{
+			var num = _r.DeleteUserGestures(); // deletes any user-defined multistrokes
+			alert("All user-defined gestures have been deleted. Only the 1 predefined gesture remains for each of the " + num + " types.");
+			_points.length = 0; // clear and signal to clear strokes on next mousedown
+		}
+		function onClickClearStrokes()
+		{
+			console.log(_r);
+			_points.length = 0; // clear and signal to clear strokes on next mousedown
+			_g.clearRect(0, 0, _rc.width, _rc.height);
+			drawText("Canvas cleared.");
+		}
+	// -->
+	</script>
+</head>
+<body onload="onLoadEvent()">
+
+
+	<div id="Content">
+		<div id="text"></div>
+
+		<canvas id="myCanvas" width="1000" height="700"
+		onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
+		onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
+		onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
+		oncontextmenu="return false;">
+			<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
+		</canvas>
+
+		<table border="0" width="420" style="font-size:10pt" id="table">
+			<tr>
+				<td valign="top" align="left">Add as example of existing type:</td>
+				<td valign="top" align="right">
+					<select id="multistrokes" style="width:136px" onkeypress="if (event.keyCode == 13) onClickAddExisting()">
+						<option selected value="T">T</option>
+						<option value="N">N</option>
+						<option value="D">D</option>
+						<option value="P">P</option>
+						<option value="X">X</option>
+						<option value="H">H</option>
+						<option value="I">I</option>
+						<option value="exclamation">exclamation</option>
+						<option value="line">line</option>
+						<option value="five-point star">five-point star</option>
+						<option value="null">null</option>
+						<option value="arrowhead">arrowhead</option>
+						<option value="pitchfork">pitchfork</option>
+						<option value="six-point star">six-point star</option>
+						<option value="asterisk">asterisk</option>
+						<option value="half-note">half-note</option>
+					</select>
+				</td>
+				<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddExisting()" /></td>
+			</tr>
+			<tr>
+				<td valign="top" align="left">Add as example of custom type:</td>
+				<td valign="top" align="right"><input type="text" id="custom" style="width:130px" value="Type name here..." onclick="onClickCustom()" onkeypress="if (event.keyCode == 13) onClickAddCustom()" /></td>
+				<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddCustom()" /></td>
+			</tr>
+			<tr>
+				<td valign="top" align="left">Delete all user-defined gestures:</td>
+				<td valign="top" align="right">&nbsp;</td>
+				<td valign="top" align="right"><input type="button" style="width:64px" value="Delete" onclick="onClickDelete()" /></td>
+			</tr>
+			<tr>
+				<td valign="top" align="left"><input type="button" style="width:64px;float:right" value=" Clear  " onclick="onClickClearStrokes()"></td>
+			</tr>
+			<tr>
+				<td valign="top" align="left"><input id="textInput" type="file"></td>
+			</tr>
+		</table>
+
+		<div id="identify">
+			<div>时间：</div>
+			<div id="time"></div>
+			<div>人物：</div>
+			<div id="person"></div>
+			<div>事件：</div>
+			<div id="event"></div>
+			<div>地点：</div>
+			<div id="place"></div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+const input = document.getElementById('textInput')
+
+input.addEventListener('change', ()=>{
+const reader = new FileReader()
+reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
+reader.onload = ()=>{
+	var lines = reader.result.split("\n")
+	var str = ''
+	lines.forEach(element => {
+		var p = document.createElement('p')
+		if(element.length !== 1){
+			for(let char of element){
+				if(char !== ""){
+					var e = document.createElement('div')
+					e.innerHTML = char
+					p.appendChild(e)
+				}
+			}
+			document.getElementById('text').appendChild(p)
+		}
+	});
+
+}
+}, false)
+</script>
+</html>

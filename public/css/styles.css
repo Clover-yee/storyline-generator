@@ -1,0 +1,52 @@
+@charset "utf-8";
+/* CSS Document */
+
+.subhead {
+	font-size: large;
+	font-weight: bolder;
+}
+#heading {
+	font-size:36px;
+	font-weight:bolder;
+}
+body {
+	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+#myCanvas{
+	position:absolute;
+	top:10px;
+	left:10px;
+}
+
+#table{
+	position:absolute;
+	top:730px;
+	left:10px
+}
+
+#text{
+	position:absolute;
+	top:30px;
+	left:10px;
+	width: 1000px;
+	height: 700px;
+	overflow: hidden;
+}
+
+#text div{
+	display: inline-block;
+	margin: 3px 0 3px 0;
+}
+
+p{
+	margin: auto;
+}
+
+#identify {
+	position: relative;
+	left: 1050px;
+	width: 300px;
+	border: 2px;
+	border-color: black;
+}
