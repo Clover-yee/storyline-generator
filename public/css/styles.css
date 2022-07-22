@@ -207,22 +207,13 @@ body {
 }
 
 #myCanvas{
-	position:absolute;
-
-}
-
-#table{
-	position:absolute;
-	top:730px;
-	left:10px
+	position:relative;
 }
 
 #text{
 	position:absolute;
-	top:30px;
-	left:10px;
-	width: 1000px;
-	height: 700px;
+	width: 100%;
+	height: calc(100% - 35px - 26px);;
 	overflow: hidden;
 }
 

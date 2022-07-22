@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-22 17:14:02
+ * @LastEditTime: 2022-07-22 18:42:24
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -45,8 +45,8 @@
 			_g.lineWidth = 2;
 			_g.font = "16px Gentilis";
 			_rc = getCanvasRect(canvas); // canvas rect on page
-			_g.fillStyle = "rgb(255,255,136)";
-			_g.fillRect(0, 0, _rc.width, 20);
+			// _g.fillStyle = "rgb(255,255,136)";
+			// _g.fillRect(0, 0, _rc.width, 20);
 
 			_isDown = false;
 			_isStart = false
@@ -77,6 +77,11 @@
 		{
 			var scrollY = $(window).scrollTop();
 			return scrollY;
+		}
+		function getDomElements(x,y){
+			var left = $("#text").offset().left
+			var top = $("#text").offset().top
+			return document.elementsFromPoint(x+left,y+top)
 		}
 		//
 		// Checkbox option for using limited rotation invariance requires rebuilding the recognizer.
@@ -114,7 +119,7 @@
 				}
 				_points.length = 1; // clear
 				_points[0] = new Point(x, y);
-				drawText("Recording stroke #" + (_strokes.length + 1) + "...");
+				// drawText("Recording stroke #" + (_strokes.length + 1) + "...");
 				var clr = "rgb(" + rand(0,200) + "," + rand(0,200) + "," + rand(0,200) + ")";
 				_g.strokeStyle = clr;
 				_g.fillStyle = clr;
@@ -122,7 +127,7 @@
 			}
 			else if (button == 2)
 			{
-				drawText("Recognizing gesture...");
+				// drawText("Recognizing gesture...");
 			}
 		}
 		function mouseMoveEvent(x, y, button)
@@ -145,7 +150,7 @@
 				{
 					_isDown = false;
 					_strokes[_strokes.length] = _points.slice(); // add new copy to set
-					drawText("Stroke #" + _strokes.length + " recorded.");
+					// drawText("Stroke #" + _strokes.length + " recorded.");
 				}
 				setTimeout(()=>{
 					if(_isDown){
@@ -161,13 +166,13 @@
 								true,
 								false
 								);
-							drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
+							// drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
 							console.log(result);
 							switch (result.Name) {
 								case 'line/person':
 									var person = new Object()
 									for(let item of _strokes[0]){
-										const el = document.elementsFromPoint(item.X+8,item.Y)
+										const el = getDomElements(item.X+8,item.Y)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
 											text[text.length] = el[1].innerText
 										}
@@ -196,7 +201,7 @@
 									console.log(min_y,max_y);
 									for (let x = min_x; x < max_x; x++) {
 										for (let y = min_y; y < max_y; y++) {
-											const el = document.elementsFromPoint(x+8,y+8)
+											const el = getDomElements(x+8,y+8)
 											if(el[1].innerText && el[1].innerText.length===1){
 											text[text.length] = el[1].innerText
 											}
@@ -217,11 +222,11 @@
 								case 'wave/content':
 									var event = new Object()
 									for(let item of _strokes[0]){
-										const el_half = document.elementsFromPoint(item.X+8,item.Y)
+										const el_half = getDomElements(item.X+8,item.Y)
 										if(el_half[1].innerText && el_half[1].innerText.length===1 && !reg.test(el_half[1].innerText)){
 											text[text.length] = el_half[1].innerText
 										}
-										const el_all = document.elementsFromPoint(item.X+8,item.Y-8)
+										const el_all = getDomElements(item.X+8,item.Y-8)
 										if(el_all[1].innerText && el_all[1].innerText.length===1 && !reg.test(el_all[1].innerText)){
 											text[text.length] = el_all[1].innerText
 										}
@@ -238,7 +243,7 @@
 								case 'brkoen/place':
 									var place = new Object()
 									for(let item of _strokes[0]){
-										const el = document.elementsFromPoint(item.X+8,item.Y)
+										const el = getDomElements(item.X+8,item.Y)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
 											text[text.length] = el[1].innerText
 										}
@@ -271,6 +276,10 @@
 									break;
 								case 'right/end':
 									_g.clearRect(0, 0, _rc.width, _rc.height);
+									document.getElementById('person').innerText = ''
+									document.getElementById('event').innerText = ''
+									document.getElementById('time').innerText = ''
+									document.getElementById('place').innerText = ''
 									var end = new Object()
 									end.stroke = {
 										pageNum:1,//TODO
@@ -290,7 +299,7 @@
 						}
 						else
 						{
-							drawText("Too little input made. Please try again.");
+							// drawText("Too little input made. Please try again.");
 						}
 						_points.length = 0; // clear and signal to clear strokes on next mousedown
 					}
@@ -316,11 +325,11 @@
 						true,
 						false
 						);
-					drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
+					// drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
 				}
 				else
 				{
-					drawText("Too little input made. Please try again.");
+					// drawText("Too little input made. Please try again.");
 				}
 				_points.length = 0; // clear and signal to clear strokes on next mousedown
 			}
@@ -343,7 +352,7 @@
 		}
 		function drawText(str)
 		{
-			_g.fillStyle = "rgb(255,255,136)";
+			_g.fillStyle = "rgb(255,255,255)";
 			_g.fillRect(0, 0, _rc.width, 20);
 			_g.fillStyle = "rgb(0,0,255)";
 			_g.fillText(str, 1, 14);
