@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-22 12:38:36
+ * @LastEditTime: 2022-07-22 17:14:02
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -102,6 +102,8 @@
 			document.onmousedown = function() { return false; } // disable drag-select
 			if (button <= 1)
 			{
+			console.log(getScrollX(),getScrollY());
+
 				_isDown = true;
 				x -= _rc.x - getScrollX();
 				y -= _rc.y - getScrollY();
@@ -404,6 +406,35 @@
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawText("Canvas cleared.");
 		}
+		function onClickImportText()
+		{
+			const input = document.createElement('input')
+			input.setAttribute('type','file')
+			input.click()
+			input.addEventListener('change', ()=>{
+			const reader = new FileReader()
+			reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
+			reader.onload = ()=>{
+				var lines = reader.result.split("\n")
+				var str = ''
+				lines.forEach(element => {
+					var p = document.createElement('p')
+					if(element.length !== 1){
+						for(let char of element){
+							if(char !== ""){
+								var e = document.createElement('div')
+								e.innerHTML = char
+								p.appendChild(e)
+							}
+						}
+						document.getElementById('text').appendChild(p)
+					}
+				});
+
+				getAllObjects()
+			}
+			}, false)
+		}
 		function getAllObjects() {
 			getObjectFromDatabase().then(res=>{
 				sessionList = res.data
@@ -435,114 +466,135 @@
 	</script>
 </head>
 <body onload="onLoadEvent()">
-
-
-	<div id="Content">
-		<div id="text"></div>
-
-		<canvas id="myCanvas" width="1000" height="700"
-		onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
-		onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
-		onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
-		oncontextmenu="return false;">
-			<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
-		</canvas>
-
-		<table border="0" width="420" style="font-size:10pt" id="table">
-			<tr>
-				<td valign="top" align="left">Add as example of existing type:</td>
-				<td valign="top" align="right">
-					<select id="multistrokes" style="width:136px" onkeypress="if (event.keyCode == 13) onClickAddExisting()">
-						<option selected value="T">T</option>
-						<option value="N">N</option>
-						<option value="D">D</option>
-						<option value="P">P</option>
-						<option value="X">X</option>
-						<option value="H">H</option>
-						<option value="I">I</option>
-						<option value="exclamation">exclamation</option>
-						<option value="line">line</option>
-						<option value="five-point star">five-point star</option>
-						<option value="null">null</option>
-						<option value="arrowhead">arrowhead</option>
-						<option value="pitchfork">pitchfork</option>
-						<option value="six-point star">six-point star</option>
-						<option value="asterisk">asterisk</option>
-						<option value="half-note">half-note</option>
-					</select>
-				</td>
-				<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddExisting()" /></td>
-			</tr>
-			<tr>
-				<td valign="top" align="left">Add as example of custom type:</td>
-				<td valign="top" align="right"><input type="text" id="custom" style="width:130px" value="Type name here..." onclick="onClickCustom()" onkeypress="if (event.keyCode == 13) onClickAddCustom()" /></td>
-				<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddCustom()" /></td>
-			</tr>
-			<tr>
-				<td valign="top" align="left">Delete all user-defined gestures:</td>
-				<td valign="top" align="right">&nbsp;</td>
-				<td valign="top" align="right"><input type="button" style="width:64px" value="Delete" onclick="onClickDelete()" /></td>
-			</tr>
-			<tr>
-				<td valign="top" align="left"><input type="button" style="width:64px;float:right" value=" Clear  " onclick="onClickClearStrokes()"></td>
-			</tr>
-			<tr>
-				<td valign="top" align="left"><input id="textInput" type="file"></td>
-			</tr>
-			<tr>
-				<td valign="top" align="left"> <div id="fragments"></div> </td>
-			</tr>
-		</table>
-
-		<div id="identify">
-			<div>时间：</div>
-			<div id="time"></div>
-			<div>人物：</div>
-			<div id="person"></div>
-			<div>事件：</div>
-			<div id="event"></div>
-			<div>地点：</div>
-			<div id="place"></div>
+	<div class="outer-wrapper">
+		<div class="nav">
+			<span class="nav-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
+		</div>
+		<div class="panel-wrapper flex-panel-wrapper inner-wrapper">
+			<div class="panel h-fix-panel" id="panel-left">
+				<div class="panel-wrapper">
+					<div class="panel v-panel panel-left-top" id="panel-left-top" >
+						<div class="view">
+							<div class="view-title-container">
+								<span class="view-title-text">Fragment</span>
+							</div>
+							<div id="fragment-view" class="view-content fragment-view-content">
+								<div>时间：</div>
+								<div id="time"></div>
+								<div>人物：</div>
+								<div id="person"></div>
+								<div>事件：</div>
+								<div id="event"></div>
+								<div>地点：</div>
+								<div id="place"></div>
+							</div>
+						</div>
+					</div>
+					<div class="divider-w"></div>
+					<div class="panel v-panel panel-left-bottom" id="panel-left-bottom" >
+						<div class="view">
+							<div class="view-title-container">
+								<span class="view-title-text">Table</span>
+							</div>
+							<div id="table-view" class="view-content table-view-content">
+								<div id="fragments"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="divider-h"></div>
+			<div class="panel h-flex-panel">
+				<div class="panel-wrapper">
+					<div class="panel v-panel panel-right-top" id="panel-right-top" >
+						<div class="view">
+							<div class="view-title-container">
+								<span class="view-title-text">Text</span>
+								<div class="view-tool-container">
+									<span class="tool-separator"></span>
+									<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
+								</div>
+							</div>
+							<div id="text-view" class="view-content text-view-content">
+								
+								<div id="text"></div>
+						
+								<canvas id="myCanvas" width="1000" height="550"
+								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
+								onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
+								onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
+								oncontextmenu="return false;">
+									<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
+								</canvas>
+						
+								<!-- <table border="0" width="350" style="font-size:10pt" id="table">
+									<tr>
+										<td valign="top" align="left">Add as example of existing type:</td>
+										<td valign="top" align="right">
+											<select id="multistrokes" style="width:136px" onkeypress="if (event.keyCode == 13) onClickAddExisting()">
+												<option selected value="T">T</option>
+												<option value="N">N</option>
+												<option value="D">D</option>
+												<option value="P">P</option>
+												<option value="X">X</option>
+												<option value="H">H</option>
+												<option value="I">I</option>
+												<option value="exclamation">exclamation</option>
+												<option value="line">line</option>
+												<option value="five-point star">five-point star</option>
+												<option value="null">null</option>
+												<option value="arrowhead">arrowhead</option>
+												<option value="pitchfork">pitchfork</option>
+												<option value="six-point star">six-point star</option>
+												<option value="asterisk">asterisk</option>
+												<option value="half-note">half-note</option>
+											</select>
+										</td>
+										<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddExisting()" /></td>
+									</tr>
+									<tr>
+										<td valign="top" align="left">Add as example of custom type:</td>
+										<td valign="top" align="right"><input type="text" id="custom" style="width:130px" value="Type name here..." onclick="onClickCustom()" onkeypress="if (event.keyCode == 13) onClickAddCustom()" /></td>
+										<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddCustom()" /></td>
+									</tr>
+									<tr>
+										<td valign="top" align="left">Delete all user-defined gestures:</td>
+										<td valign="top" align="right">&nbsp;</td>
+										<td valign="top" align="right"><input type="button" style="width:64px" value="Delete" onclick="onClickDelete()" /></td>
+									</tr>
+									<tr>
+										<td valign="top" align="left"><input type="button" style="width:64px;float:right" value=" Clear  " onclick="onClickClearStrokes()"></td>
+									</tr>
+									<tr>
+										<td valign="top" align="left"><input id="textInput" type="file"></td>
+									</tr>
+									<tr>
+										<td valign="top" align="left"> <div id="fragments"></div> </td>
+									</tr>
+								</table> -->
+							
+							
+								
+							</div>
+						</div>
+					</div>
+					<div class="divider-w"></div>
+					<div class="panel v-panel panel-right-bottom" id="panel-right-bottom" >
+						<div class="view">
+							<div class="view-title-container">
+								<span class="view-title-text">Storyline</span>
+							</div>
+							<div id="storyline-view" class="view-content storyline-view-content"></div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
+
+
 </body>
 <script type="text/javascript">
-const input = document.getElementById('textInput')
-input.addEventListener('change', ()=>{
-const reader = new FileReader()
-reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
-reader.onload = ()=>{
-	var lines = reader.result.split("\n")
-	var str = ''
-	lines.forEach(element => {
-		var p = document.createElement('p')
-		if(element.length !== 1){
-			for(let char of element){
-				if(char !== ""){
-					var e = document.createElement('div')
-					e.innerHTML = char
-					p.appendChild(e)
-				}
-			}
-			document.getElementById('text').appendChild(p)
-		}
-	});
 
-	getAllObjects()
-}
-}, false)
-		// ServiceWorker
-
-if ('serviceWorker' in navigator) {
-
-	try {
-
-		navigator.serviceWorker.register('sw.js');
-
-	} catch (error) {
-
-	}
-
-}
 </script>
 </html>

@@ -1,22 +1,214 @@
 @charset "utf-8";
 /* CSS Document */
-
-.subhead {
-	font-size: large;
-	font-weight: bolder;
-}
-#heading {
-	font-size:36px;
-	font-weight:bolder;
+:root{
+	--nav-content-height: 20px;
+    --widget-font-size: 11pt;
+    --title-height: 26px;
+    --geforce-font: "geforce";
+    --mono-font: "mono";
+    --gray1: #ffffff;
+    --gray2: #f7f7f7;
+    --gray3: #f2f2f2;
+    --gray4: #ededed;
+    --gray5: #e6e6e6;
+    --gray6: #e2e2e2;
+    --gray7: #dadada;
+    --gray8: #d2d2d2;
+    --gray9: #c2c2c2;
+    --gray10: #a5a5a5;
+    --gray11: #a3a3a3;
+    --gray12: #939393;
+    --gray13: #676767;
+    --gray14: #484848;
+    --gray15: #383838;
+    --gray16: #000000;
+    --highlight-blue: #2196f3;
+    --highlight-orange: #ff9246;
+    --selected-bg: #cbeaff;
 }
 body {
 	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+	margin: 0;
+	overflow: hidden;
+}
+
+.outer-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+}
+
+.nav {
+	width: 100%;
+	height: 40px;
+	background-color: var(--gray13);
+	display: flex;
+	flex-direction: row;
+	color: var(--gray7);
+	z-index: 99999;
+	box-shadow: 0 2px 2px rgb(0 0 0 0.2);
+}
+
+.nav-btn {
+    width: var(--nav-content-height);
+    height: var(--nav-content-height);
+    padding: 6px;
+    margin: 4px 0;
+    display: inline-block;
+}
+
+.nav-btn .open-icon {
+	width: 100%;
+    height: 100%;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-position: center;
+    filter: invert(90%);
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHRpdGxlPmljb25zPC90aXRsZT48cGF0aCBkPSJNMTAuNzEwNDUsMTMuNzVsLTUuNTM4NTgsMTJIMjEuNTkwOTNhLjc1Ljc1LDAsMCwwLC42ODEtLjQzNTdMMjcuNjA5MzgsMTMuNzVaIi8+PHBhdGggZD0iTTEwLjA3MDgsMTIuNzVIMjIuMzkwNjJWMTBhLjc1Ljc1LDAsMCwwLS43NS0uNzVoLTguMjV2LTFhMiwyLDAsMCwwLTItMmgtNWEyLDIsMCwwLDAtMiwyVjI1LjA1NzI1WiIvPjwvc3ZnPg==);
+}
+
+.panel-wrapper {
+	width: 100%;
+	height: 100%;
+}
+
+.flex-panel-wrapper {
+    display: flex;
+}
+
+.inner-wrapper {
+    flex: 1;
+}
+
+.h-fix-panel {
+    width: 300px;
+}
+
+.h-flex-panel {
+    width: calc(100% - 303px);
+}
+
+.divider-h {
+	width: 3px;
+	height: 100%;
+	background: var(--gray7);
+}
+
+.divider-w {
+	height: 3px;
+	width: 100%;
+	background: var(--gray7);
+	float: left;
+}
+.panel {
+    background: var(--gray6);
+    position: relative;
+    float: left;
+    z-index: 99;
+}
+
+.v-panel {
+    max-height: calc(100% - 300px);
+    min-height: 300px;
+}
+
+.view {
+    width: 100%;
+    height: 100%;
+    background: var(--gray5);
+}
+
+.panel-left-top {
+	height: calc(50% - 0.5px);
+	width: 100%;
+}
+
+.panel-left-bottom {
+	height: calc(50% - 0.5px);
+	width: 100%;
+}
+
+.panel-right-top {
+	height: calc(70% - 0.5px);
+	width: 100%;
+}
+
+.panel-right-bottom {
+	height: calc(30% - 0.5px);
+	width: 100%;
+}
+
+.view-title-container {
+    display: flex;
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 999999;
+    width: 100%;
+    height: var(--title-height);
+    padding-left: 10px;
+    font-size: 11pt;
+    font-weight: 600;
+    line-height: var(--title-height);
+    color: var(--gray14);
+    background: var(--gray3);
+    box-shadow: 0 0 5px rgb(0 0 0 / 10%);
+}
+
+.view-title-container .view-title-text {
+    height: var(--title-height);
+    line-height: var(--title-height);
+    float: left;
+    padding: 0 20px 0 0;
+}
+
+.view-tool-container {
+    float: left;
+    display: flex;
+}
+
+.view-tool-container .tool-separator {
+    float: left;
+    height: 14px;
+    margin: 6px 2px;
+    width: 0px;
+    border-left: 1px solid var(--gray9);
+}
+
+.view-tool-container .tool-btn {
+    float: left;
+    width: 18px;
+    height: 18px;
+    padding: 4px;
+    margin: 0 2px;
+}
+
+.view-tool-container .tool-btn .svg-icon {
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 94%;
+    filter: invert(70%);
+}
+
+.view-content, .table-view-content, .text-view-content, .fragment-view-content, .storyline-view-content{
+    --view-content-margin-v: 5px;
+    float: left;
+    width: calc(100% - 12px);
+    height: calc(100% - 8px);
+    margin: calc(var(--title-height) + 4px + var(--view-content-margin-v)) 6px 0;
+}
+
+.table-view-content, .text-view-content, .fragment-view-content, .storyline-view-content {
+    background: var(--gray1);
+    height: calc(100% - 35px - 26px);
 }
 
 #myCanvas{
 	position:absolute;
-	top:10px;
-	left:10px;
+
 }
 
 #table{
