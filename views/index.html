@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-21 16:37:35
+ * @LastEditTime: 2022-07-22 12:38:36
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -257,22 +257,30 @@
 									session.place = place														
 									break;		
 								case 'left/start':
+									var start = new Object()
 									_isStart = true
 									session = new Session();
+									let stroke = _strokes[0].concat(_strokes[1])
+									start.stroke = {
+										pageNum:1,//TODO
+										points:stroke
+									}	
+									session.start = start	
 									break;
 								case 'right/end':
 									_g.clearRect(0, 0, _rc.width, _rc.height);
-									sessionList[sessionList.length] = session
-									
+									var end = new Object()
+									end.stroke = {
+										pageNum:1,//TODO
+										points:_strokes[0]
+									}
+									session.end = end	
 									let output = session
 									console.log(output);
 									saveObjectIntoDatabase(output).then((status)=>{
 										if(status === 200)	console.log('Save successfully !!!');
+										getAllObjects()
 									})
-									getObjectFromDatabase().then(res=>{
-										console.log(res);
-									})
-									console.log(sessionList);
 									break;
 								default:
 									break;
@@ -320,6 +328,14 @@
 			_g.beginPath();
 			_g.moveTo(_points[from].X, _points[from].Y);
 			_g.lineTo(_points[to].X, _points[to].Y);
+			_g.closePath();
+			_g.stroke();
+		}
+		function drawConnectedPointByPoints(points,from, to)
+		{
+			_g.beginPath();
+			_g.moveTo(points[from].X, points[from].Y);
+			_g.lineTo(points[to].X, points[to].Y);
 			_g.closePath();
 			_g.stroke();
 		}
@@ -388,6 +404,33 @@
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawText("Canvas cleared.");
 		}
+		function getAllObjects() {
+			getObjectFromDatabase().then(res=>{
+				sessionList = res.data
+				var el = document.getElementById('fragments')
+				el.innerHTML = ''
+				for (const session of sessionList) {
+					var btn = document.createElement('button')
+					btn.innerText = session._id
+					btn.onclick = (event)=>{
+						console.log(session);
+						_g.clearRect(0, 0, _rc.width, _rc.height);
+						for (const key in session) {
+							if (Object.hasOwnProperty.call(session, key)) {
+								const element = session[key];
+								if(element.stroke && element.stroke.points){
+									var points = element.stroke.points
+									for (let index = 0; index < points.length-1; index++) {
+										drawConnectedPointByPoints(points,index,index+1)
+									}
+								}
+							}
+						}
+					}
+					el.appendChild(btn)
+				}
+			})	
+		}
 	// -->
 	</script>
 </head>
@@ -446,6 +489,9 @@
 			<tr>
 				<td valign="top" align="left"><input id="textInput" type="file"></td>
 			</tr>
+			<tr>
+				<td valign="top" align="left"> <div id="fragments"></div> </td>
+			</tr>
 		</table>
 
 		<div id="identify">
@@ -462,7 +508,6 @@
 </body>
 <script type="text/javascript">
 const input = document.getElementById('textInput')
-
 input.addEventListener('change', ()=>{
 const reader = new FileReader()
 reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
@@ -483,6 +528,7 @@ reader.onload = ()=>{
 		}
 	});
 
+	getAllObjects()
 }
 }, false)
 		// ServiceWorker

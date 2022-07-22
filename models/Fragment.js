@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 14:15:18
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-21 16:19:12
+ * @LastEditTime: 2022-07-22 12:40:30
  * @FilePath: \storyline-generator\models\Fragment.js
  * @Description: 
  * 
@@ -13,6 +13,8 @@ const Schema = mongoose.Schema;
 
 const FragmentSchema = new Schema({
     
+    start:Object,
+    end:Object,
     time:Object,
     place: Object,
     person: Object,
