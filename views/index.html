@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-22 18:42:24
+ * @LastEditTime: 2022-07-23 14:03:54
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -21,6 +21,8 @@
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
 	<script type="text/javascript" src="js/database.js"></script>
+	<script type="text/javascript" src="js/utils.js"></script>
+
 
 	<script type="text/javascript">
 		//
@@ -170,14 +172,22 @@
 							console.log(result);
 							switch (result.Name) {
 								case 'line/person':
+									var textDoms = [{id:''}]
+									var _text = []
 									var person = new Object()
 									for(let item of _strokes[0]){
-										const el = getDomElements(item.X+8,item.Y)
+										const el = getDomElements(item.X,item.Y-8)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
-											text[text.length] = el[1].innerText
+											if(el[1].id !== textDoms[textDoms.length-1].id){
+													textDoms[textDoms.length] = el[1]
+												}
 										}
 									}
-									_text = Array.from(new Set(text)).join('')
+									textDoms.shift()
+									textDoms.forEach(dom => {
+										_text[_text.length] = dom.innerText
+									});
+									_text= _text.join('')
 									document.getElementById('person').innerText = _text
 									person.value = _text
 									person.stroke = {
@@ -188,6 +198,8 @@
 									console.log(session);
 									break;
 								case 'circle/time':
+									var textDoms = [{id:''}]
+									var _text = []
 									var time = new Object()
 									var max_x=-Infinity,max_y=-Infinity;
 									var min_x=Infinity,min_y=Infinity;
@@ -201,15 +213,20 @@
 									console.log(min_y,max_y);
 									for (let x = min_x; x < max_x; x++) {
 										for (let y = min_y; y < max_y; y++) {
-											const el = getDomElements(x+8,y+8)
+											const el = getDomElements(x,y)
 											if(el[1].innerText && el[1].innerText.length===1){
-											text[text.length] = el[1].innerText
+												if(el[1].id !== textDoms[textDoms.length-1].id){
+													textDoms[textDoms.length] = el[1]
+												}
 											}
 										}
 									}
-									_text = Array.from(new Set(text))
-									_text.pop();
-									_text.shift();
+									textDoms.shift()
+									textDoms.shift()
+									textDoms.pop()
+									textDoms.forEach(dom => {
+										_text[_text.length] = dom.innerText
+									});
 									_text= _text.join('')
 									document.getElementById('time').innerText = _text
 									time.value = _text
@@ -222,11 +239,11 @@
 								case 'wave/content':
 									var event = new Object()
 									for(let item of _strokes[0]){
-										const el_half = getDomElements(item.X+8,item.Y)
+										const el_half = getDomElements(item.X,item.Y-8)
 										if(el_half[1].innerText && el_half[1].innerText.length===1 && !reg.test(el_half[1].innerText)){
 											text[text.length] = el_half[1].innerText
 										}
-										const el_all = getDomElements(item.X+8,item.Y-8)
+										const el_all = getDomElements(item.X,item.Y-16)
 										if(el_all[1].innerText && el_all[1].innerText.length===1 && !reg.test(el_all[1].innerText)){
 											text[text.length] = el_all[1].innerText
 										}
@@ -241,20 +258,26 @@
 									session.event = event
 									break;
 								case 'brkoen/place':
+									var textDoms = [{id:''}]
+									var _text = []
 									var place = new Object()
 									for(let item of _strokes[0]){
-										const el = getDomElements(item.X+8,item.Y)
+										const el = getDomElements(item.X,item.Y-8)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
-											text[text.length] = el[1].innerText
+											if(el[1].id !== textDoms[textDoms.length-1].id){
+													textDoms[textDoms.length] = el[1]
+												}
 										}
 									}
-									_text = Array.from(new Set(text))
-									const el = document.elementsFromPoint(_strokes[0][0].X+8,_strokes[0][0].Y)
-									console.log(document.elementsFromPoint(_strokes[0][0].X+8,_strokes[0][0].Y));
+									textDoms.shift()
+									const el = document.elementsFromPoint(_strokes[0][0].X,_strokes[0][0].Y)
 									if(el[1].innerText.length === 1){
-										_text.shift()
+										textDoms.shift()
 									}
-									_text=_text.join('')
+									textDoms.forEach(dom => {
+										_text[_text.length] = dom.innerText
+									});
+									_text= _text.join('')
 									document.getElementById('place').innerText = _text		
 									place.value = _text
 									place.stroke = {
@@ -432,6 +455,7 @@
 						for(let char of element){
 							if(char !== ""){
 								var e = document.createElement('div')
+								e.id = guid()
 								e.innerHTML = char
 								p.appendChild(e)
 							}

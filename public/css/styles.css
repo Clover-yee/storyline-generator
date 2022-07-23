@@ -212,8 +212,8 @@ body {
 
 #text{
 	position:absolute;
-	width: 100%;
-	height: calc(100% - 35px - 26px);;
+	width: 1000px;
+	height: 550px;;
 	overflow: hidden;
 }
 
@@ -224,12 +224,4 @@ body {
 
 p{
 	margin: auto;
-}
-
-#identify {
-	position: relative;
-	left: 1050px;
-	width: 300px;
-	border: 2px;
-	border-color: black;
 }
