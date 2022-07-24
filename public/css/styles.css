@@ -26,10 +26,11 @@
     --highlight-orange: #ff9246;
     --selected-bg: #cbeaff;
 }
-body {
+body html {
 	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
 	margin: 0;
 	overflow: hidden;
+    line-height: 20px;  /* 文字行高 */
 }
 
 .outer-wrapper {
@@ -213,15 +214,27 @@ body {
 #text{
 	position:absolute;
 	width: 1000px;
-	height: 550px;;
+	height: 300px;
 	overflow: hidden;
+    line-height:25px;  /*设置文字行高， 可被高度整除*/
+    white-space: pre-wrap;	/*设置文本换行*/
+    word-wrap:break-word; 
+}
+#test0{
+	position:absolute;
+	width: 1000px;
+	height: 300px;
+    opacity:0;
+	overflow: hidden;
+	line-height: 25px;  /*设置文字行高， 可被高度整除*/
+    white-space: pre-wrap;
+    word-wrap:break-word; 
 }
 
 #text div{
-	display: inline-block;
+	display: inline;
 	margin: 3px 0 3px 0;
 }
-
 p{
 	margin: auto;
 }

@@ -29,6 +29,10 @@
 		// Startup
 		//
 		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,session,sessionList; // global variables
+		var page=0;
+		var textArray = []
+	    var pattern = new RegExp("[A-Za-z]+");
+
 		function Session(time=null,person=null,event=null,place=null){
 			this.time = time
 			this.person = person
@@ -444,30 +448,109 @@
 			input.setAttribute('type','file')
 			input.click()
 			input.addEventListener('change', ()=>{
-			const reader = new FileReader()
+            const reader = new FileReader()
 			reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
 			reader.onload = ()=>{
-				var lines = reader.result.split("\n")
-				var str = ''
-				lines.forEach(element => {
-					var p = document.createElement('p')
-					if(element.length !== 1){
-						for(let char of element){
-							if(char !== ""){
-								var e = document.createElement('div')
-								e.id = guid()
-								e.innerHTML = char
-								p.appendChild(e)
-							}
+                const text0=reader.result;
+                const containerh=300;
+				const fontPerLineNum = 100// 每行字数65
+				const colPerPageNum = 12 // 每页行数15
+				var fontPerPageNum =  fontPerLineNum * colPerPageNum // 每页最大字数
+				let startIndex = 0 // text下标开始位置
+				let endnum;
+				const test0 = document.getElementById("test0")
+				while(startIndex < text0.length) 
+				{
+					   
+				        test0.innerHTML="";
+				        var splitNum = fontPerPageNum // 首先使用最大字数测试
+				        test0.innerHTML= text0.substr(startIndex, splitNum)
+				       while(test0.scrollHeight < containerh && startIndex + splitNum - 1 <text0.length)
+						{
+							splitNum=splitNum+fontPerLineNum
+							test0.innerHTML="";
+							test0.innerHTML = text0.substr(startIndex, splitNum)
 						}
-						document.getElementById('text').appendChild(p)
-					}
-				});
-
-				getAllObjects()
+						while (test0.scrollHeight > containerh) {
+						splitNum =splitNum-20 // 如果高度超过，则每次减少一行字数的量
+						test0.innerHTML="";
+						test0.innerHTML= text0.substr(startIndex, splitNum)
+						}
+						while (test0.scrollHeight == containerh && startIndex + splitNum - 1 <text0.length) {
+						//console.log(text0.substr(splitNum,1))
+						splitNum += 1 // 高度<=页面高度，则每次增加1字符直到正好填满
+						test0.innerHTML="";
+						test0.innerHTML = text0.substr(startIndex, splitNum)
+						}
+						//判断最后一个字符即下一页第一个字符
+						endnum=startIndex+splitNum
+						if(pattern.test(text0.substr(endnum-1,1)))
+						{
+							while(1)
+							{
+								if(pattern.test(text0.substr(endnum-2,1)))
+								{
+									splitNum=splitNum-1
+									endnum=endnum-1
+									
+							     
+								}
+								else 
+								{
+									
+									break;
+								}
+								
+							}
+							
+						}
+				textArray.push(text0.substr(startIndex, splitNum - 1))
+				startIndex += splitNum - 1
+			   }
+         divfuzhi(page)
+		// document.getElementById('text').innerHTML = str  // reader.result为获取结果
+	   }, false})
+	   getAllObjects()
+	}
+	    function divfuzhi(i)
+		{
+		document.getElementById("text").innerText="";
+		var lines = textArray[i].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
+		var str = ''
+		lines.forEach(element => {
+			var p = document.createElement('p')
+			if(element.length >0){
+				for(let char of element){
+					var e = document.createElement('div')
+						e.id = guid()
+						e.innerHTML = char
+						p.appendChild(e)
+					
+				}
+				// var e = document.createElement('div')
+				// e.innerHTML = "\r"
+				document.getElementById('text').appendChild(p)
 			}
-			}, false)
-		}
+		});
+	    test0.innerHTML="";
+		test0.innerHTML = textArray[page]
+    }
+	function prepage() 
+	{ 
+		if(page-1>=0)
+	    {
+			page=page-1
+			divfuzhi(page);
+		} 
+	}
+		
+	function nextpage() 
+	{ 
+
+		page=page+1
+		divfuzhi(page)
+	}
+
 		function getAllObjects() {
 			getObjectFromDatabase().then(res=>{
 				sessionList = res.data
@@ -502,6 +585,8 @@
 	<div class="outer-wrapper">
 		<div class="nav">
 			<span class="nav-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
+			<button class="nextpage" onclick="nextpage()" >下一页</button>
+			<button class="prepage" onclick="prepage()" >上一页</button>
 		</div>
 		<div class="panel-wrapper flex-panel-wrapper inner-wrapper">
 			<div class="panel h-fix-panel" id="panel-left">
@@ -549,7 +634,8 @@
 								</div>
 							</div>
 							<div id="text-view" class="view-content text-view-content">
-								
+								<div id="test0" >
+			                    </div>
 								<div id="text"></div>
 						
 								<canvas id="myCanvas" width="1000" height="550"
