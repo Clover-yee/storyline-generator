@@ -180,7 +180,7 @@
 									var _text = []
 									var person = new Object()
 									for(let item of _strokes[0]){
-										const el = getDomElements(item.X,item.Y-8)
+										const el = getDomElements(item.X,item.Y-10)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
 											if(el[1].id !== textDoms[textDoms.length-1].id){
 													textDoms[textDoms.length] = el[1]
@@ -243,11 +243,11 @@
 								case 'wave/content':
 									var event = new Object()
 									for(let item of _strokes[0]){
-										const el_half = getDomElements(item.X,item.Y-8)
+										const el_half = getDomElements(item.X,item.Y-10)
 										if(el_half[1].innerText && el_half[1].innerText.length===1 && !reg.test(el_half[1].innerText)){
 											text[text.length] = el_half[1].innerText
 										}
-										const el_all = getDomElements(item.X,item.Y-16)
+										const el_all = getDomElements(item.X,item.Y-20)
 										if(el_all[1].innerText && el_all[1].innerText.length===1 && !reg.test(el_all[1].innerText)){
 											text[text.length] = el_all[1].innerText
 										}
@@ -266,7 +266,7 @@
 									var _text = []
 									var place = new Object()
 									for(let item of _strokes[0]){
-										const el = getDomElements(item.X,item.Y-8)
+										const el = getDomElements(item.X,item.Y-10)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
 											if(el[1].id !== textDoms[textDoms.length-1].id){
 													textDoms[textDoms.length] = el[1]
@@ -452,9 +452,9 @@
 			reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
 			reader.onload = ()=>{
                 const text0=reader.result;
-                const containerh=300;
+                const containerh=550;
 				const fontPerLineNum = 100// 每行字数65
-				const colPerPageNum = 12 // 每页行数15
+				const colPerPageNum = 22 // 每页行数15
 				var fontPerPageNum =  fontPerLineNum * colPerPageNum // 每页最大字数
 				let startIndex = 0 // text下标开始位置
 				let endnum;
@@ -634,9 +634,9 @@
 								</div>
 							</div>
 							<div id="text-view" class="view-content text-view-content">
+								<div id="text"></div>
 								<div id="test0" >
 			                    </div>
-								<div id="text"></div>
 						
 								<canvas id="myCanvas" width="1000" height="550"
 								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"

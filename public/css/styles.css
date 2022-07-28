@@ -26,11 +26,12 @@
     --highlight-orange: #ff9246;
     --selected-bg: #cbeaff;
 }
-body html {
+
+body {
 	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
-	margin: 0;
 	overflow: hidden;
     line-height: 20px;  /* 文字行高 */
+    margin: 0;
 }
 
 .outer-wrapper {
@@ -204,7 +205,7 @@ body html {
 
 .table-view-content, .text-view-content, .fragment-view-content, .storyline-view-content {
     background: var(--gray1);
-    height: calc(100% - 35px - 26px);
+    height: calc(100% - 15px - 26px);
 }
 
 #myCanvas{
@@ -214,7 +215,7 @@ body html {
 #text{
 	position:absolute;
 	width: 1000px;
-	height: 300px;
+	height: 550px;
 	overflow: hidden;
     line-height:25px;  /*设置文字行高， 可被高度整除*/
     white-space: pre-wrap;	/*设置文本换行*/
@@ -223,12 +224,13 @@ body html {
 #test0{
 	position:absolute;
 	width: 1000px;
-	height: 300px;
+	height: 550px;
     opacity:0;
 	overflow: hidden;
 	line-height: 25px;  /*设置文字行高， 可被高度整除*/
     white-space: pre-wrap;
     word-wrap:break-word; 
+    z-index: -1;
 }
 
 #text div{
