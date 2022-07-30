@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-30 13:28:29
+ * @LastEditTime: 2022-07-30 16:15:56
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -188,7 +188,7 @@
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
 											if(el[1].id !== textDoms[textDoms.length-1].id){
 													textDoms[textDoms.length] = el[1]
-												}
+											}
 										}
 									}
 									textDoms.shift()
@@ -245,18 +245,30 @@
 									session.time = time
 									break;		
 								case 'wave/content':
+									var textDoms = [{id:''}]
+									var _text = []
 									var event = new Object()
 									for(let item of _strokes[0]){
 										const el_half = getDomElements(item.X,item.Y-10)
 										if(el_half[1].innerText && el_half[1].innerText.length===1 && !reg.test(el_half[1].innerText)){
-											text[text.length] = el_half[1].innerText
+											if(el_half[1].id !== textDoms[textDoms.length-1].id){
+													textDoms[textDoms.length] = el_half[1]
+											}
+											// text[text.length] = el_half[1].innerText
 										}
 										const el_all = getDomElements(item.X,item.Y-20)
 										if(el_all[1].innerText && el_all[1].innerText.length===1 && !reg.test(el_all[1].innerText)){
-											text[text.length] = el_all[1].innerText
+											if(el_all[1].id !== textDoms[textDoms.length-1].id){
+													textDoms[textDoms.length] = el_all[1]
+											}
+											// text[text.length] = el_all[1].innerText
 										}
 									}
-									_text = Array.from(new Set(text)).join('')
+									textDoms.shift()
+									textDoms.forEach(dom => {
+										_text[_text.length] = dom.innerText
+									});
+									_text= _text.join('')
 									document.getElementById('event').innerText = _text
 									event.value = _text
 									event.stroke = {
@@ -486,52 +498,51 @@
 				const test0 = document.getElementById("test0")
 				while(startIndex < text0.length) 
 				{
-					   
-				        test0.innerHTML="";
-				        var splitNum = fontPerPageNum // 首先使用最大字数测试
-				        test0.innerHTML= text0.substr(startIndex, splitNum)
-				       while(test0.scrollHeight < containerh && startIndex + splitNum - 1 <text0.length)
-						{
-							splitNum=splitNum+fontPerLineNum
-							test0.innerHTML="";
-							test0.innerHTML = text0.substr(startIndex, splitNum)
-						}
-						while (test0.scrollHeight > containerh) {
-						splitNum =splitNum-20 // 如果高度超过，则每次减少一行字数的量
-						test0.innerHTML="";
-						test0.innerHTML= text0.substr(startIndex, splitNum)
-						}
-						while (test0.scrollHeight == containerh && startIndex + splitNum - 1 <text0.length) {
-						//console.log(text0.substr(splitNum,1))
-						splitNum += 1 // 高度<=页面高度，则每次增加1字符直到正好填满
+					test0.innerHTML="";
+					var splitNum = fontPerPageNum // 首先使用最大字数测试
+					test0.innerHTML= text0.substr(startIndex, splitNum)
+					while(test0.scrollHeight < containerh && startIndex + splitNum - 1 <text0.length)
+					{
+						splitNum=splitNum+fontPerLineNum
 						test0.innerHTML="";
 						test0.innerHTML = text0.substr(startIndex, splitNum)
-						}
-						//判断最后一个字符即下一页第一个字符
-						endnum=startIndex+splitNum
-						if(pattern.test(text0.substr(endnum-1,1)))
+					}
+					while (test0.scrollHeight > containerh) {
+					splitNum =splitNum-20 // 如果高度超过，则每次减少一行字数的量
+					test0.innerHTML="";
+					test0.innerHTML= text0.substr(startIndex, splitNum)
+					}
+					while (test0.scrollHeight == containerh && startIndex + splitNum - 1 <text0.length) {
+					//console.log(text0.substr(splitNum,1))
+					splitNum += 1 // 高度<=页面高度，则每次增加1字符直到正好填满
+					test0.innerHTML="";
+					test0.innerHTML = text0.substr(startIndex, splitNum)
+					}
+					//判断最后一个字符即下一页第一个字符
+					endnum=startIndex+splitNum
+					if(pattern.test(text0.substr(endnum-1,1)))
+					{
+						while(1)
 						{
-							while(1)
+							if(pattern.test(text0.substr(endnum-2,1)))
 							{
-								if(pattern.test(text0.substr(endnum-2,1)))
-								{
-									splitNum=splitNum-1
-									endnum=endnum-1
-									
-							     
-								}
-								else 
-								{
-									
-									break;
-								}
+								splitNum=splitNum-1
+								endnum=endnum-1
 								
+								
+							}
+							else 
+							{
+								
+								break;
 							}
 							
 						}
-				textArray.push(text0.substr(startIndex, splitNum - 1))
-				startIndex += splitNum - 1
-			   }
+						
+					}
+					textArray.push(text0.substr(startIndex, splitNum - 1))
+					startIndex += splitNum - 1
+				}
          divfuzhi(page)
 		// document.getElementById('text').innerHTML = str  // reader.result为获取结果
 	   }, false})
@@ -560,7 +571,7 @@
 	    test0.innerHTML="";
 		test0.innerHTML = textArray[page]
     }
-	function prepage(a) 
+	function prepage() 
 	{ 
 		if(page-1>=0)
 	    {
@@ -568,15 +579,19 @@
 			divfuzhi(page);
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawConnectedPointByPage()
+			document.getElementById('curpage').innerText = page+1
 		} 
 	}
 		
 	function nextpage() 
 	{ 
-		page=page+1
-		divfuzhi(page)
-		_g.clearRect(0, 0, _rc.width, _rc.height);
-		drawConnectedPointByPage()
+		if( page+1 < textArray.length){			
+			page=page+1
+			divfuzhi(page)
+			_g.clearRect(0, 0, _rc.width, _rc.height);
+			drawConnectedPointByPage()
+			document.getElementById('curpage').innerText = page+1
+		}
 	}
 
 	function getAllObjects() {
@@ -594,7 +609,13 @@
 					for (const key in eachSession) {
 						if (Object.hasOwnProperty.call(eachSession, key)) {
 							const element = eachSession[key];
-							if(element.value) document.getElementById(key).innerText = element.value
+							if(document.getElementById(key)) {
+								if(element.value){
+									document.getElementById(key).innerText = element.value
+								}else{
+									document.getElementById(key).innerText = element
+								}
+							}
 							drawConnectedPointByPage()
 						}
 					}
@@ -610,8 +631,6 @@
 	<div class="outer-wrapper">
 		<div class="nav">
 			<span class="nav-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
-			<button class="nextpage" onclick="nextpage()" >下一页</button>
-			<button class="prepage" onclick="prepage()" >上一页</button>
 		</div>
 		<div class="panel-wrapper flex-panel-wrapper inner-wrapper">
 			<div class="panel h-fix-panel" id="panel-left">
@@ -638,7 +657,11 @@
 									<div>地点：</div>
 									<div id="place"></div>
 								</div>
-								<button type="button" class="btn btn-outline-secondary btn-sm" onclick="onClickCustomConfirm()">Confirm</button>
+								<div class="fragment-wrapper">
+									<div>创建时间：</div>
+									<div id="curtime"></div>
+								</div>
+								<!-- <button type="button" class="btn btn-outline-secondary btn-sm" onclick="onClickCustomConfirm()">Confirm</button> -->
 								
 							</div>
 						</div>
@@ -729,8 +752,13 @@
 										<td valign="top" align="left"> <div id="fragments"></div> </td>
 									</tr>
 								</table> -->
+								<div class="page-container">
+									<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow.png"></span>
+									<span class="tool-text" id="curpage">1</span>
+									<span class="tool-btn" title="nextpage" id="nextpage" onclick="nextpage()"><img style="transform: rotateY(-180deg);" class="svg-icon" src="/img/arrow.png"></span>
+								</div>
 							
-							
+								
 								
 							</div>
 						</div>
