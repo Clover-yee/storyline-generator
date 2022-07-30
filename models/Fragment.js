@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 14:15:18
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-22 12:40:30
+ * @LastEditTime: 2022-07-29 11:24:47
  * @FilePath: \storyline-generator\models\Fragment.js
  * @Description: 
  * 
@@ -18,7 +18,8 @@ const FragmentSchema = new Schema({
     time:Object,
     place: Object,
     person: Object,
-    event: Object
+    event: Object,
+    curtime:Object
 
 }, {
     minimize: false,

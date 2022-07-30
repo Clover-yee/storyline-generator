@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-23 13:15:25
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-23 13:15:28
+ * @LastEditTime: 2022-07-29 11:35:41
  * @FilePath: \storyline-generator\public\js\utils.js
  * @Description: 
  * 
@@ -15,3 +15,41 @@ function guid() {
         return v.toString(16);
     });
 }
+
+/**
+ * UTC时间转换
+ * @returns {string}
+ * @param dateSeprator 日期拼接符
+ * @param timeSeprator 时间拼接符
+ * @Eexample dateFormat("2021-09-03T22:42:05.659+00:00", "/", ":")
+ *           dateFormat("2021-09-03T22:42:05.659+00:00")
+ */
+function transTimestamp(dateSeprator = '/', timeSeprator = ':') {
+    const date = new Date(new Date().getTime()+(parseInt(new Date().getTimezoneOffset()/60) + 8)*3600*1000)
+    const year = `${date.getUTCFullYear()}`
+    let month = `${date.getUTCMonth() + 1}`
+    let day = `${date.getUTCDate()}`
+    let hour = `${date.getUTCHours()}`
+    let minute = `${date.getUTCMinutes()}`
+    let second = `${date.getUTCSeconds()}`
+
+    if (month.length === 1) {
+    month = `0${month}`
+    }
+    if (day.length === 1) {
+    day = `0${day}`
+    }
+    if (day.length === 1) {
+    day = `0${day}`
+    }
+    if (hour.length === 1) {
+    hour = `0${hour}`
+    }
+    if (minute.length === 1) {
+    minute = `0${minute}`
+    }
+    if (second.length === 1) {
+    second = `0${second}`
+    }
+    return `${year}${dateSeprator}${month}${dateSeprator}${day} ${hour}${timeSeprator}${minute}${timeSeprator}${second}`
+  }

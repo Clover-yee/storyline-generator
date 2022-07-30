@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-23 14:03:54
+ * @LastEditTime: 2022-07-29 14:24:09
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -13,14 +13,21 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>$N Recognizer</title>
-	<link href="css/styles.css" rel="stylesheet" type="text/css" />
 	<!--[if IE]><script src="excanvas.js"></script><![endif]-->
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<!-- 新 Bootstrap5 核心 CSS 文件 -->
+	<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+	<!--  popper.min.js 用于弹窗、提示、下拉菜单 -->
+	<script src="https://cdn.staticfile.org/popper.js/2.9.3/umd/popper.min.js"></script>
+	<!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
+	<script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+	<link href="css/styles.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
 	<script type="text/javascript" src="js/database.js"></script>
+	<script type="text/javascript" src="js/session.js"></script>
 	<script type="text/javascript" src="js/utils.js"></script>
 
 
@@ -32,13 +39,10 @@
 		var page=0;
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
+		document.ontouchstart = null;
+		document.ontouchmove = null;
+		document.ontouchend = null;
 
-		function Session(time=null,person=null,event=null,place=null){
-			this.time = time
-			this.person = person
-			this.event = event
-			this.place = place
-		}
 		function onLoadEvent()
 		{
 			_points = new Array(); // point array for current stroke
@@ -195,7 +199,7 @@
 									document.getElementById('person').innerText = _text
 									person.value = _text
 									person.stroke = {
-										pageNum:1,//TODO
+										pageNum:page,
 										points:_strokes[0]
 									}
 									session.person = person
@@ -235,7 +239,7 @@
 									document.getElementById('time').innerText = _text
 									time.value = _text
 									time.stroke = {
-										pageNum:1,//TODO
+										pageNum:page,
 										points:_strokes[0]
 									}
 									session.time = time
@@ -256,7 +260,7 @@
 									document.getElementById('event').innerText = _text
 									event.value = _text
 									event.stroke = {
-										pageNum:1,//TODO
+										pageNum:page,
 										points:_strokes[0]
 									}
 									session.event = event
@@ -285,7 +289,7 @@
 									document.getElementById('place').innerText = _text		
 									place.value = _text
 									place.stroke = {
-										pageNum:1,//TODO
+										pageNum:page,
 										points:_strokes[0]
 									}	
 									session.place = place														
@@ -296,23 +300,20 @@
 									session = new Session();
 									let stroke = _strokes[0].concat(_strokes[1])
 									start.stroke = {
-										pageNum:1,//TODO
+										pageNum:page,
 										points:stroke
 									}	
 									session.start = start	
 									break;
 								case 'right/end':
 									_g.clearRect(0, 0, _rc.width, _rc.height);
-									document.getElementById('person').innerText = ''
-									document.getElementById('event').innerText = ''
-									document.getElementById('time').innerText = ''
-									document.getElementById('place').innerText = ''
 									var end = new Object()
 									end.stroke = {
-										pageNum:1,//TODO
+										pageNum:page,
 										points:_strokes[0]
 									}
 									session.end = end	
+									session.curtime = transTimestamp()
 									let output = session
 									console.log(output);
 									saveObjectIntoDatabase(output).then((status)=>{
@@ -377,6 +378,19 @@
 			_g.closePath();
 			_g.stroke();
 		}
+		function drawConnectedPointByPage(){
+			for (const key in session) {
+				var element = session[key]				
+				if(element && element.stroke && element.stroke.points){
+					if(element.stroke.pageNum === page){
+						var points = element.stroke.points
+						for (let index = 0; index < points.length-1; index++) {
+							drawConnectedPointByPoints(points,index,index+1)
+						}
+					}
+				}
+			}
+		}
 		function drawText(str)
 		{
 			_g.fillStyle = "rgb(255,255,255)";
@@ -425,10 +439,6 @@
 				}
 			}
 		}
-		function onClickCustom()
-		{
-			document.getElementById('custom').select();
-		}
 		function onClickDelete()
 		{
 			var num = _r.DeleteUserGestures(); // deletes any user-defined multistrokes
@@ -441,6 +451,21 @@
 			_points.length = 0; // clear and signal to clear strokes on next mousedown
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawText("Canvas cleared.");
+		}
+		function onClickAddFragment()
+		{
+			console.log(_r);
+			session = new Session()	
+			clearSession()
+			_points.length = 0; // clear and signal to clear strokes on next mousedown
+			_g.clearRect(0, 0, _rc.width, _rc.height);
+		}
+		function onClickCustom(){
+			console.log('custom');
+			drawText('Now choosing'+''+'to modify,press right click to save')
+		}
+		function onClickCustomConfirm(){
+			console.log('customConfirm');
 		}
 		function onClickImportText()
 		{
@@ -512,8 +537,8 @@
 	   }, false})
 	   getAllObjects()
 	}
-	    function divfuzhi(i)
-		{
+	function divfuzhi(i)
+	{
 		document.getElementById("text").innerText="";
 		var lines = textArray[i].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
 		var str = ''
@@ -541,43 +566,43 @@
 	    {
 			page=page-1
 			divfuzhi(page);
+			_g.clearRect(0, 0, _rc.width, _rc.height);
+			drawConnectedPointByPage()
 		} 
 	}
 		
 	function nextpage() 
 	{ 
-
 		page=page+1
 		divfuzhi(page)
+		_g.clearRect(0, 0, _rc.width, _rc.height);
+		drawConnectedPointByPage()
 	}
 
-		function getAllObjects() {
-			getObjectFromDatabase().then(res=>{
-				sessionList = res.data
-				var el = document.getElementById('fragments')
-				el.innerHTML = ''
-				for (const session of sessionList) {
-					var btn = document.createElement('button')
-					btn.innerText = session._id
-					btn.onclick = (event)=>{
-						console.log(session);
-						_g.clearRect(0, 0, _rc.width, _rc.height);
-						for (const key in session) {
-							if (Object.hasOwnProperty.call(session, key)) {
-								const element = session[key];
-								if(element.stroke && element.stroke.points){
-									var points = element.stroke.points
-									for (let index = 0; index < points.length-1; index++) {
-										drawConnectedPointByPoints(points,index,index+1)
-									}
-								}
-							}
+	function getAllObjects() {
+		getObjectFromDatabase().then(res=>{
+			sessionList = res.data
+			var el = document.getElementById('fragments')
+			el.innerHTML = ''
+			for (const eachSession of sessionList) {
+				var btn = document.createElement('button')
+				btn.innerText = eachSession._id
+				btn.onclick = (event)=>{
+					console.log(eachSession);
+					session = eachSession
+					_g.clearRect(0, 0, _rc.width, _rc.height);
+					for (const key in eachSession) {
+						if (Object.hasOwnProperty.call(eachSession, key)) {
+							const element = eachSession[key];
+							if(element.value) document.getElementById(key).innerText = element.value
+							drawConnectedPointByPage()
 						}
 					}
-					el.appendChild(btn)
 				}
-			})	
-		}
+				el.appendChild(btn)
+			}
+		})	
+	}
 	// -->
 	</script>
 </head>
@@ -597,14 +622,24 @@
 								<span class="view-title-text">Fragment</span>
 							</div>
 							<div id="fragment-view" class="view-content fragment-view-content">
-								<div>时间：</div>
-								<div id="time"></div>
-								<div>人物：</div>
-								<div id="person"></div>
-								<div>事件：</div>
-								<div id="event"></div>
-								<div>地点：</div>
-								<div id="place"></div>
+								<div class="fragment-wrapper">
+									<div>时间：</div>
+									<div id="time"></div>
+								</div>
+								<div class="fragment-wrapper">
+									<div>人物：</div>
+									<div id="person"></div>
+								</div>
+								<div class="fragment-wrapper">
+									<div>事件：</div>
+									<div id="event"></div>
+								</div>
+								<div class="fragment-wrapper">
+									<div>地点：</div>
+									<div id="place"></div>
+								</div>
+								<button type="button" class="btn btn-outline-secondary btn-sm" onclick="onClickCustomConfirm()">Confirm</button>
+								
 							</div>
 						</div>
 					</div>
@@ -630,13 +665,16 @@
 								<span class="view-title-text">Text</span>
 								<div class="view-tool-container">
 									<span class="tool-separator"></span>
+									<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
 									<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
+								</div>
+								<div class="view-tool-container-right">
+									<button type="button" class="btn btn-outline-secondary btn-sm" onclick="onClickCustom()">Custom</button>
 								</div>
 							</div>
 							<div id="text-view" class="view-content text-view-content">
 								<div id="text"></div>
-								<div id="test0" >
-			                    </div>
+								<div id="test0"></div>
 						
 								<canvas id="myCanvas" width="1000" height="550"
 								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"

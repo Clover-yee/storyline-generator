@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-20 17:08:38
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-22 12:42:15
+ * @LastEditTime: 2022-07-29 11:25:04
  * @FilePath: \storyline-generator\routes\index.js
  * @Description: 
  * 
@@ -36,7 +36,8 @@ router.post("/post/saveObject", function (req, res, next) {
           time: data.time,
           place: data.place,
           person:data.person,
-          event:data.event
+          event:data.event,
+          curtime:data.curtime
       })
     fragment.save(function (error, data) {
 

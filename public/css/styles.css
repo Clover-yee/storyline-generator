@@ -27,6 +27,14 @@
     --selected-bg: #cbeaff;
 }
 
+*, *::after, *::before {
+    box-sizing: content-box;
+}
+
+img,svg {
+    vertical-align: top;
+}
+
 body {
 	font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
 	overflow: hidden;
@@ -170,6 +178,12 @@ body {
     display: flex;
 }
 
+.view-tool-container-right{
+    margin-right: 20px;
+    margin-left: auto;
+    display: flex;
+}
+
 .view-tool-container .tool-separator {
     float: left;
     height: 14px;
@@ -206,6 +220,18 @@ body {
 .table-view-content, .text-view-content, .fragment-view-content, .storyline-view-content {
     background: var(--gray1);
     height: calc(100% - 15px - 26px);
+}
+
+.fragment-view-content .fragment-wrapper {
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #888;
+}
+
+.fragment-wrapper:hover {
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #333;
 }
 
 #myCanvas{
