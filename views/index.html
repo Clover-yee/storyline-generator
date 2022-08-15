@@ -25,7 +25,9 @@
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="js/d3.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
+	<script type="text/javascript" src="js/storyline.js"></script>
 	<script type="text/javascript" src="js/database.js"></script>
 	<script type="text/javascript" src="js/session.js"></script>
 	<script type="text/javascript" src="js/utils.js"></script>
@@ -37,6 +39,7 @@
 		//
 		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,session,sessionList; // global variables
 		var page=0;
+		var eventCounter = 0;
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
 		document.ontouchstart = null;
@@ -61,7 +64,7 @@
 			_isDown = false;
 			_isStart = false
 			sessionList = new Array()
-			session = new Session()			
+			session = new Session()
 		}
 		function getCanvasRect(canvas)
 		{
@@ -196,8 +199,13 @@
 										_text[_text.length] = dom.innerText
 									});
 									_text= _text.join('')
-									document.getElementById('person').innerText = _text
-									person.value = _text
+									if(session.person.value === ''){
+										person.value = _text
+									}
+									else{
+										person.value = `${session.person.value},${_text}`
+									}
+									document.getElementById('person').innerText = person.value
 									person.stroke = {
 										pageNum:page,
 										points:_strokes[0]
@@ -528,17 +536,12 @@
 							{
 								splitNum=splitNum-1
 								endnum=endnum-1
-								
-								
 							}
 							else 
 							{
-								
 								break;
 							}
-							
 						}
-						
 					}
 					textArray.push(text0.substr(startIndex, splitNum - 1))
 					startIndex += splitNum - 1
@@ -587,6 +590,7 @@
 	{ 
 		if( page+1 < textArray.length){			
 			page=page+1
+			console.log('page',page);
 			divfuzhi(page)
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawConnectedPointByPage()
@@ -596,7 +600,21 @@
 
 	function getAllObjects() {
 		getObjectFromDatabase().then(res=>{
+			sessionListSL = new Array()
 			sessionList = res.data
+			eventCounter = 1
+			//数据转换
+			let str = "event,start,last,members,place,content\n";
+			for (const eachSession of sessionList) {
+				let l=eachSession.end.stroke.pageNum-eachSession.start.stroke.pageNum
+				sessionListSL.push([`i${eventCounter}`, eachSession.start.stroke.pageNum, l, eachSession.person.value,eachSession.place.value,eachSession.event.value])
+				eventCounter++
+			}
+
+			console.log(sessionListSL,'sessionListSL');
+			document.getElementById('storyline-view').innerHTML = '';
+			drawStoryLine(sessionListSL)
+
 			var el = document.getElementById('fragments')
 			el.innerHTML = ''
 			for (const eachSession of sessionList) {
@@ -707,51 +725,6 @@
 									<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
 								</canvas>
 						
-								<!-- <table border="0" width="350" style="font-size:10pt" id="table">
-									<tr>
-										<td valign="top" align="left">Add as example of existing type:</td>
-										<td valign="top" align="right">
-											<select id="multistrokes" style="width:136px" onkeypress="if (event.keyCode == 13) onClickAddExisting()">
-												<option selected value="T">T</option>
-												<option value="N">N</option>
-												<option value="D">D</option>
-												<option value="P">P</option>
-												<option value="X">X</option>
-												<option value="H">H</option>
-												<option value="I">I</option>
-												<option value="exclamation">exclamation</option>
-												<option value="line">line</option>
-												<option value="five-point star">five-point star</option>
-												<option value="null">null</option>
-												<option value="arrowhead">arrowhead</option>
-												<option value="pitchfork">pitchfork</option>
-												<option value="six-point star">six-point star</option>
-												<option value="asterisk">asterisk</option>
-												<option value="half-note">half-note</option>
-											</select>
-										</td>
-										<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddExisting()" /></td>
-									</tr>
-									<tr>
-										<td valign="top" align="left">Add as example of custom type:</td>
-										<td valign="top" align="right"><input type="text" id="custom" style="width:130px" value="Type name here..." onclick="onClickCustom()" onkeypress="if (event.keyCode == 13) onClickAddCustom()" /></td>
-										<td valign="top" align="right"><input type="button" style="width:64px" value="  Add   " onclick="onClickAddCustom()" /></td>
-									</tr>
-									<tr>
-										<td valign="top" align="left">Delete all user-defined gestures:</td>
-										<td valign="top" align="right">&nbsp;</td>
-										<td valign="top" align="right"><input type="button" style="width:64px" value="Delete" onclick="onClickDelete()" /></td>
-									</tr>
-									<tr>
-										<td valign="top" align="left"><input type="button" style="width:64px;float:right" value=" Clear  " onclick="onClickClearStrokes()"></td>
-									</tr>
-									<tr>
-										<td valign="top" align="left"><input id="textInput" type="file"></td>
-									</tr>
-									<tr>
-										<td valign="top" align="left"> <div id="fragments"></div> </td>
-									</tr>
-								</table> -->
 								<div class="page-container">
 									<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow.png"></span>
 									<span class="tool-text" id="curpage">1</span>
@@ -776,8 +749,6 @@
 			</div>
 		</div>
 	</div>
-
-
 </body>
 <script type="text/javascript">
 

@@ -1,11 +1,12 @@
 
 function Session(time=null,person=null,event=null,place=null,start=null,end=null,curtime=null){
-    this.time = time
-    this.person = person
-    this.event = event
-    this.place = place
-    this.start = start
-    this.end = end
+    var template = {value:'',stroke:{pageNum:0,points:[]}}
+    this.time = template
+    this.person = template
+    this.event = template
+    this.place = template
+    this.start = template
+    this.end = template
     this.curtime = curtime
 }
 
