@@ -13,8 +13,6 @@ const Schema = mongoose.Schema;
 
 const FragmentSchema = new Schema({
     
-    start:Object,
-    end:Object,
     time:Object,
     place: Object,
     person: Object,

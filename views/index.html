@@ -21,11 +21,15 @@
 	<script src="https://cdn.staticfile.org/popper.js/2.9.3/umd/popper.min.js"></script>
 	<!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
 	<script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.bootcss.com/wordcloud2.js/1.1.0/wordcloud2.js"></script>
 	<link href="css/styles.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/d3.js"></script>
+    <script src="./js/d3.layout.cloud.js"></script>
+	<script src="./js/echart.js"></script>
+    <script src="./js/echarts-wordcloud.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
 	<script type="text/javascript" src="js/storyline.js"></script>
 	<script type="text/javascript" src="js/database.js"></script>
@@ -37,7 +41,8 @@
 		//
 		// Startup
 		//
-		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,session,sessionList; // global variables
+		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,sessionList; // global variables
+		var session = new Session()
 		var page=0;
 		var eventCounter = 0;
 		var textArray = []
@@ -51,6 +56,7 @@
 			_points = new Array(); // point array for current stroke
 			_strokes = new Array(); // array of point arrays
 			_text = new Array();//array of regonize text
+			_textValue = ''
 			_r = new NDollarRecognizer(false);
 
 			var canvas = document.getElementById('myCanvas');
@@ -97,21 +103,6 @@
 			return document.elementsFromPoint(x+left,y+top)
 		}
 		//
-		// Checkbox option for using limited rotation invariance requires rebuilding the recognizer.
-		//
-		function confirmRebuild()
-		{
-			if (confirm("Changing this option will discard any user-defined gestures you may have made."))
-			{
-				_r = new NDollarRecognizer(document.getElementById('useBoundedRotationInvariance').checked);
-			}
-			else
-			{
-				var chk = document.getElementById('useBoundedRotationInvariance');
-				chk.checked = !chk.checked; // undo click
-			}
-		}
-		//
 		// Mouse Events
 		//
 		function mouseDownEvent(x, y, button)
@@ -133,10 +124,10 @@
 				_points.length = 1; // clear
 				_points[0] = new Point(x, y);
 				// drawText("Recording stroke #" + (_strokes.length + 1) + "...");
-				var clr = "rgb(" + rand(0,200) + "," + rand(0,200) + "," + rand(0,200) + ")";
+				var clr = "rgb(" + rand(0,0) + "," + rand(0,0) + "," + rand(0,0) + ")";
 				_g.strokeStyle = clr;
 				_g.fillStyle = clr;
-				_g.fillRect(x - 4, y - 3, 3, 3);
+				// _g.fillRect(x - 4, y - 3, 3, 3);
 			}
 			else if (button == 2)
 			{
@@ -185,7 +176,6 @@
 								case 'line/person':
 									var textDoms = [{id:''}]
 									var _text = []
-									var person = new Object()
 									for(let item of _strokes[0]){
 										const el = getDomElements(item.X,item.Y-10)
 										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
@@ -197,21 +187,27 @@
 									textDoms.shift()
 									textDoms.forEach(dom => {
 										_text[_text.length] = dom.innerText
+										dom.classList.add('text-bg')
 									});
-									_text= _text.join('')
-									if(session.person.value === ''){
-										person.value = _text
+									_textValue = _text.join('')									
+
+									//弹出面板
+									const floatPanelChosen = document.getElementById('float-panel-chosen')
+									const chosenText = document.getElementById('chosen-text')	
+									var top = _strokes[0][_strokes[0].length-1].Y					
+									var left = _strokes[0][_strokes[0].length-1].X
+									var leftOffset = $("#text").offset().left+10
+									var topOffset = $("#text").offset().top+10
+									floatPanelChosen.style.display = 'block'
+									floatPanelChosen.style.top = top+topOffset+'px'
+									if(left+leftOffset+250 > document.body.clientWidth){
+										floatPanelChosen.style.left = ''
+										floatPanelChosen.style.right = '10px'
+									}else{
+										floatPanelChosen.style.right = ''
+										floatPanelChosen.style.left = left+leftOffset+'px'
 									}
-									else{
-										person.value = `${session.person.value},${_text}`
-									}
-									document.getElementById('person').innerText = person.value
-									person.stroke = {
-										pageNum:page,
-										points:_strokes[0]
-									}
-									session.person = person
-									console.log(session);
+									chosenText.value = _textValue
 									break;
 								case 'circle/time':
 									var textDoms = [{id:''}]
@@ -418,6 +414,18 @@
 			_g.fillStyle = "rgb(0,0,255)";
 			_g.fillText(str, 1, 14);
 		}
+		function clearStroke(stroke)
+		{
+			var max_x=-Infinity,max_y=-Infinity;
+			var min_x=Infinity,min_y=Infinity;
+			for (const item of stroke) {
+				if(item.X>max_x) max_x = item.X
+				if(item.Y>max_y) max_y = item.Y
+				if(item.X<min_x) min_x = item.X
+				if(item.Y<min_y) min_y = item.Y
+			}
+			_g.clearRect(min_x-10,min_y-10,max_x-min_x+15,max_y-min_y+30);
+		}
 		function rand(low, high)
 		{
 			return Math.floor((high - low + 1) * Math.random()) + low;
@@ -430,41 +438,44 @@
 		//
 		// Multistroke Adding and Clearing
 		//
-		function onClickAddExisting()
-		{
-			if (_strokes.length > 0)
-			{
-				if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
-				{
-					console.log(_strokes);
-					var multistrokes = document.getElementById('multistrokes');
-					var name = multistrokes[multistrokes.selectedIndex].value;
-					var num = _r.AddGesture(name, false, _strokes);
-					drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
-					_points.length = 0; // clear and signal to clear strokes on next mousedown
-				}
-			}
-		}
-		function onClickAddCustom()
-		{
-			var name = document.getElementById('custom').value;
-			if (_strokes.length > 0 && name.length > 0)
-			{
-				if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
-				{
-					console.log(_strokes);
-					var num = _r.AddGesture(name, false, _strokes);
-					drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
-					_points.length = 0; // clear and signal to clear strokes on next mousedown
-				}
-			}
-		}
-		function onClickDelete()
-		{
-			var num = _r.DeleteUserGestures(); // deletes any user-defined multistrokes
-			alert("All user-defined gestures have been deleted. Only the 1 predefined gesture remains for each of the " + num + " types.");
-			_points.length = 0; // clear and signal to clear strokes on next mousedown
-		}
+		// {
+		// 	function onClickAddExisting()
+		// 	{
+		// 		if (_strokes.length > 0)
+		// 		{
+		// 			if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
+		// 			{
+		// 				console.log(_strokes);
+		// 				var multistrokes = document.getElementById('multistrokes');
+		// 				var name = multistrokes[multistrokes.selectedIndex].value;
+		// 				var num = _r.AddGesture(name, false, _strokes);
+		// 				drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
+		// 				_points.length = 0; // clear and signal to clear strokes on next mousedown
+		// 			}
+		// 		}
+		// 	}
+		// 	function onClickAddCustom()
+		// 	{
+		// 		var name = document.getElementById('custom').value;
+		// 		if (_strokes.length > 0 && name.length > 0)
+		// 		{
+		// 			if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
+		// 			{
+		// 				console.log(_strokes);
+		// 				var num = _r.AddGesture(name, false, _strokes);
+		// 				drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
+		// 				_points.length = 0; // clear and signal to clear strokes on next mousedown
+		// 			}
+		// 		}
+		// 	}
+		// 	function onClickDelete()
+		// 	{
+		// 		var num = _r.DeleteUserGestures(); // deletes any user-defined multistrokes
+		// 		alert("All user-defined gestures have been deleted. Only the 1 predefined gesture remains for each of the " + num + " types.");
+		// 		_points.length = 0; // clear and signal to clear strokes on next mousedown
+		// 	}
+		// }
+		
 		function onClickClearStrokes()
 		{
 			console.log(_r);
@@ -474,18 +485,17 @@
 		}
 		function onClickAddFragment()
 		{
-			console.log(_r);
 			session = new Session()	
-			clearSession()
+			clearFragmentText()
 			_points.length = 0; // clear and signal to clear strokes on next mousedown
 			_g.clearRect(0, 0, _rc.width, _rc.height);
-		}
-		function onClickCustom(){
-			console.log('custom');
-			drawText('Now choosing'+''+'to modify,press right click to save')
-		}
-		function onClickCustomConfirm(){
-			console.log('customConfirm');
+			var floatPanelFragment = document.getElementById('float-panel-fragment')
+			floatPanelFragment.classList.add('options')
+			setTimeout(() => {
+				floatPanelFragment.classList.remove('options')
+				floatPanelFragment.style.right = '15px'
+				floatPanelFragment.style.bottom = '25px'
+			}, 500);
 		}
 		function onClickImportText()
 		{
@@ -584,8 +594,7 @@
 			drawConnectedPointByPage()
 			document.getElementById('curpage').innerText = page+1
 		} 
-	}
-		
+	}	
 	function nextpage() 
 	{ 
 		if( page+1 < textArray.length){			
@@ -597,7 +606,6 @@
 			document.getElementById('curpage').innerText = page+1
 		}
 	}
-
 	function getAllObjects() {
 		getObjectFromDatabase().then(res=>{
 			sessionListSL = new Array()
@@ -606,8 +614,18 @@
 			//数据转换
 			let str = "event,start,last,members,place,content\n";
 			for (const eachSession of sessionList) {
-				let l=eachSession.end.stroke.pageNum-eachSession.start.stroke.pageNum
-				sessionListSL.push([`i${eventCounter}`, eachSession.start.stroke.pageNum, l, eachSession.person.value,eachSession.place.value,eachSession.event.value])
+				var min = Infinity,max = 0;
+				for (const key in eachSession) {
+					if (Object.hasOwnProperty.call(eachSession, key)) {
+						const element = eachSession[key];
+						if(element.stroke){
+							if(element.stroke.pageNum > max) max = element.stroke.pageNum
+							if(element.stroke.pageNum < min) min = element.stroke.pageNum
+						}
+					}
+				}
+				let l=max-min
+				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value])
 				eventCounter++
 			}
 
@@ -642,16 +660,153 @@
 			}
 		})	
 	}
-	// -->
+	//chosen 选中
+	function onmouseupElem(dom){
+		var id = dom.id
+		const floatPanelChosen = document.getElementById('float-panel-chosen')
+		floatPanelChosen.style.display = 'none'
+		//清空划线
+		clearStroke(_strokes[0]);
+		//赋予划线颜色
+		var clr = ''
+		switch (id) {
+			case 'chosen-person':
+				var person = new Object()
+				if(session.person.value === ''){
+					person.value = _textValue
+				}
+				else{
+					person.value = `${session.person.value},${_textValue}`
+				}
+				document.getElementById('person').value = person.value
+				person.stroke = {
+					pageNum:page,
+					points:_strokes[0]
+				}
+				session.person = person
+				clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
+				break;
+			case 'chosen-time':
+				var time = new Object()
+				document.getElementById('time').value = _textValue		
+				time.value = _textValue
+				time.stroke = {
+					pageNum:page,
+					points:_strokes[0]
+				}
+				session.time = time
+				clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
+				break;
+			case 'chosen-place':
+				var place = new Object()
+				document.getElementById('place').value = _textValue		
+				place.value = _textValue
+				place.stroke = {
+					pageNum:page,
+					points:_strokes[0]
+				}	
+				session.place = place		
+				clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
+				break;
+			case 'chosen-event':
+				var event = new Object()
+				document.getElementById('event').value = _textValue		
+				event.value = _textValue
+				event.stroke = {
+					pageNum:page,
+					points:_strokes[0]
+				}	
+				session.event = event	
+				clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
+				break;		
+			default:
+				break;
+			}
+		console.log(session);
+		_g.strokeStyle = clr;
+		for (let index = 0; index < _strokes[0].length-1; index++) {
+			drawConnectedPointByPoints(_strokes[0],index,index+1)
+		}	
+	}
+	function onmouseupFragmentCancel(dom){
+		closeFragmentPanel()
+	}
+	function onmouseupFragmentConfirm(dom){
+		console.log('confirm');
+		_g.clearRect(0, 0, _rc.width, _rc.height);
+		session.curtime = transTimestamp()
+		let output = session
+		console.log(output);
+		saveObjectIntoDatabase(output).then((status)=>{
+			if(status === 200)	console.log('Save successfully !!!');
+			getAllObjects()
+		})
+		session=new Session()
+		closeFragmentPanel()
+	}
+	function closeFragmentPanel(){
+		var floatPanelFragment = document.getElementById('float-panel-fragment')
+		floatPanelFragment.style.top = ''
+		floatPanelFragment.style.left = ''
+		floatPanelFragment.style.right = '-260px'
+		floatPanelFragment.style.bottom = '25px'
+		clearFragmentText()
+	}
+	//chosen界面input事件
+	function onkeyupChosenText() {
+		const chosenText = document.getElementById('chosen-text')	
+		_textValue = chosenText.value
+	}
+	function onkeyupFragmentText(elemName){
+		if(window.event.keyCode === 13){
+			document.getElementById(elemName).blur()
+		}
+		switch (elemName) {
+			case 'person':
+				session.person.value = document.getElementById(elemName).value
+				break;
+			case 'time':
+				session.time.value = document.getElementById(elemName).value
+				break;
+			case 'place':
+				session.place.value = document.getElementById(elemName).value
+				break;
+			case 'event':
+				session.event.value = document.getElementById(elemName).value
+				break;
+			default:
+				break;
+		}
+		console.log(session);
+	}
 	</script>
 </head>
 <body onload="onLoadEvent()">
 	<div class="outer-wrapper">
-		<div class="nav">
-			<span class="nav-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
-		</div>
 		<div class="panel-wrapper flex-panel-wrapper inner-wrapper">
-			<div class="panel h-fix-panel" id="panel-left">
+			<!-- <div id="fragment-view" class="view-content fragment-view-content">
+				<div class="fragment-wrapper">
+					<div>时间：</div>
+					<div id="time"></div>
+				</div>
+				<div class="fragment-wrapper">
+					<div>人物：</div>
+					<div id="person"></div>
+				</div>
+				<div class="fragment-wrapper">
+					<div>事件：</div>
+					<div id="event"></div>
+				</div>
+				<div class="fragment-wrapper">
+					<div>地点：</div>
+					<div id="place"></div>
+				</div>
+				<div class="fragment-wrapper">
+					<div>创建时间：</div>
+					<div id="curtime"></div>
+				</div>
+			</div> -->
+			<!-- <div class="panel h-fix-panel" id="panel-left">
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-left-top" id="panel-left-top" >
 						<div class="view">
@@ -679,8 +834,6 @@
 									<div>创建时间：</div>
 									<div id="curtime"></div>
 								</div>
-								<!-- <button type="button" class="btn btn-outline-secondary btn-sm" onclick="onClickCustomConfirm()">Confirm</button> -->
-								
 							</div>
 						</div>
 					</div>
@@ -696,52 +849,45 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="divider-h"></div>
+			</div> -->
+			<!-- <div class="divider-h"></div> -->
 			<div class="panel h-flex-panel">
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-right-top" id="panel-right-top" >
 						<div class="view">
-							<div class="view-title-container">
-								<span class="view-title-text">Text</span>
-								<div class="view-tool-container">
-									<span class="tool-separator"></span>
-									<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
-									<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
-								</div>
-								<div class="view-tool-container-right">
-									<button type="button" class="btn btn-outline-secondary btn-sm" onclick="onClickCustom()">Custom</button>
-								</div>
-							</div>
+						
 							<div id="text-view" class="view-content text-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="tool-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
+										<span class="tool-separator"></span>
+										<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
+										<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
+									</div>
+									<div class="nav-tool-container-right">
+										<div class="page-container">
+											<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow.png"></span>
+											<span class="tool-text" id="curpage">1</span>
+											<span class="tool-btn" title="nextpage" id="nextpage" onclick="nextpage()"><img style="transform: rotateY(-180deg);" class="svg-icon" src="/img/arrow.png"></span>
+										</div>
+									</div>
+								</div>	
 								<div id="text"></div>
 								<div id="test0"></div>
 						
-								<canvas id="myCanvas" width="1000" height="550"
+								<canvas id="myCanvas" width="1000" height="500"
 								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
 								onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
 								onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
 								oncontextmenu="return false;">
 									<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
 								</canvas>
-						
-								<div class="page-container">
-									<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow.png"></span>
-									<span class="tool-text" id="curpage">1</span>
-									<span class="tool-btn" title="nextpage" id="nextpage" onclick="nextpage()"><img style="transform: rotateY(-180deg);" class="svg-icon" src="/img/arrow.png"></span>
-								</div>
-							
-								
-								
+			
 							</div>
 						</div>
 					</div>
-					<div class="divider-w"></div>
 					<div class="panel v-panel panel-right-bottom" id="panel-right-bottom" >
 						<div class="view">
-							<div class="view-title-container">
-								<span class="view-title-text">Storyline</span>
-							</div>
 							<div id="storyline-view" class="view-content storyline-view-content"></div>
 						</div>
 					</div>
@@ -749,8 +895,92 @@
 			</div>
 		</div>
 	</div>
+	<div id="float-panel-chosen" class="float-panel-chosen">
+		<div class="text-wrapper">
+			<!-- <div id="chosen-text" class="text"></div> -->
+			<input type="text" id="chosen-text" class="text" onkeyup="onkeyupChosenText()">
+		</div>
+		<div class="elems-wrapper">
+			<div id="chosen-person" class="elem-wrapper border-person" onmouseup="onmouseupElem(this)">
+				<span class="elem-img"><img class="svg-icon" src="/img/person.png"></span>
+				<div class="elem-text text-person">Person</div>
+			</div>
+			<div id="chosen-time" class="elem-wrapper border-time" onmouseup="onmouseupElem(this)">
+				<span class="elem-img"><img class="svg-icon" src="/img/time.png"></span>
+				<div class="elem-text text-time">Time</div>
+			</div>
+			<div id="chosen-place" class="elem-wrapper border-place" onmouseup="onmouseupElem(this)">
+				<span class="elem-img"><img class="svg-icon" src="/img/place.png"></span>
+				<div class="elem-text text-place">Place</div>
+			</div>
+			<div id="chosen-event" class="elem-wrapper border-event" onmouseup="onmouseupElem(this)">
+				<span class="elem-img"><img class="svg-icon" src="/img/event.png"></span>
+				<div class="elem-text text-event">Event</div>
+			</div>
+		</div>
+	</div>
+	<div id="float-panel-fragment" class="float-panel-fragment">
+		<div class="fragments-top">
+			<div id="fragment-cancel" class="fragment-cancel" onmouseup="onmouseupFragmentCancel(this)">
+				<span class="cancel-img"><img class="svg-icon" src="/img/cancel.png"></span>
+			</div>
+			<div id="fragment-header" class="text">Fragment</div>
+			<div id="fragment-confirm" class="fragment-confirm" onmouseup="onmouseupFragmentConfirm(this)">
+				<span class="confirm-img"><img class="svg-icon" src="/img/confirm.png"></span>
+			</div>
+		</div>
+		
+		<div class="fragments-wrapper">
+			<div class="fragment-wrapper border-person" style="margin-top:20px">
+				<span class="fragment-img"><img class="svg-icon" src="/img/person-fill.png"></span>
+				<div class="fragment-text text-person">Person</div>
+				<span class="fragment-separator"></span>
+
+				<input type="text" id="person" class="fragment-content" onkeyup="onkeyupFragmentText('person')">
+				<!-- <div id="person" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
+			</div>
+			<div class="fragment-wrapper border-time">
+				<span class="fragment-img"><img class="svg-icon" src="/img/time-fill.png"></span>
+				<div class="fragment-text text-time">Time</div>
+				<span class="fragment-separator"></span>
+				
+				<input type="text" id="time" class="fragment-content" onkeyup="onkeyupFragmentText('time')">
+				<!-- <div id="time" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
+			</div>
+			<div class="fragment-wrapper border-place">
+				<span class="fragment-img"><img class="svg-icon" src="/img/place-fill.png"></span>
+				<div class="fragment-text text-place">Place</div>
+				<span class="fragment-separator"></span>
+
+				<input type="text" id="place" class="fragment-content" onkeyup="onkeyupFragmentText('place')">
+				<!-- <div id="place" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
+			</div>
+			<div class="fragment-wrapper border-event">
+				<span class="fragment-img"><img class="svg-icon" src="/img/event-fill.png"></span>
+				<div class="fragment-text text-event">Event</div>
+				<span class="fragment-separator"></span>
+
+				<input type="text" id="event" class="fragment-content" onkeyup="onkeyupFragmentText('event')">
+				<!-- <div id="event" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
+			</div>
+
+		</div>
+	</div>
+	<defs>
+        <!-- 添加带箭头的标线 -->
+        <marker
+          id="markerArrow"
+          markerWidth="8"
+          markerHeight="8"
+          refx="2"
+          refy="5"
+          orient="auto"
+        >
+          <path d="M2,2 L2,8 L8,5 L2,2" style="fill: #61a8e0" />  
+        </marker>
+    </defs>
 </body>
 <script type="text/javascript">
-
+	dragFunc('float-panel-fragment','fragment-header')
 </script>
 </html>

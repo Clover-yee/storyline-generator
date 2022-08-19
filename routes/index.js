@@ -31,8 +31,6 @@ router.post("/post/saveObject", function (req, res, next) {
 
     let data = req.body.data;
     var fragment = new Fragment({
-          start:data.start,
-          end: data.end,
           time: data.time,
           place: data.place,
           person:data.person,

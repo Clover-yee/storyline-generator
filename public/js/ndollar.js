@@ -134,7 +134,7 @@ function Result(name, score, ms) // constructor
 //
 // NDollarRecognizer constants
 //
-const NumMultistrokes = 4;
+const NumMultistrokes = 2;
 const NumPoints = 96;
 const SquareSize = 250.0;
 const OneDThreshold = 0.25; // customize to desired gesture set (usually 0.20 - 0.35)
@@ -2142,24 +2142,24 @@ function NDollarRecognizer(useBoundedRotationInvariance) // constructor
 	this.Multistrokes[1] = new Multistroke("line/person", useBoundedRotationInvariance, new Array(
 		new Array(new Point(12,347),new Point(62,351))
 	));
-	this.Multistrokes[2] = new Multistroke("circle/time", useBoundedRotationInvariance, new Array(
-		circle
-	));
-	this.Multistrokes[3] = new Multistroke("wave/content", useBoundedRotationInvariance, new Array(
-		waves1
-	));
-	this.Multistrokes[4] = new Multistroke("brkoen/place", useBoundedRotationInvariance, new Array(
-		new Array(new Point(58,608),new Point(58,635),new Point(228,635))
-	));
-	this.Multistrokes[5] = new Multistroke("left/start", useBoundedRotationInvariance, new Array(
-		new Array(new Point(620,314),new Point(636,314)),
-		new Array(new Point(620,314),new Point(620,342),new Point(638,342)),
+	// this.Multistrokes[2] = new Multistroke("circle/time", useBoundedRotationInvariance, new Array(
+	// 	circle
+	// ));
+	// this.Multistrokes[3] = new Multistroke("wave/content", useBoundedRotationInvariance, new Array(
+	// 	waves1
+	// ));
+	// this.Multistrokes[3] = new Multistroke("brkoen/place", useBoundedRotationInvariance, new Array(
+	// 	new Array(new Point(58,608),new Point(58,635),new Point(228,635))
+	// ));
+	// this.Multistrokes[4] = new Multistroke("left/start", useBoundedRotationInvariance, new Array(
+	// 	new Array(new Point(620,314),new Point(636,314)),
+	// 	new Array(new Point(620,314),new Point(620,342),new Point(638,342)),
 
-	));
-	this.Multistrokes[6] = new Multistroke("right/end", useBoundedRotationInvariance, new Array(
-		new Array(new Point(591,528),new Point(616,528),new Point(616,557),new Point(591,557)),
+	// ));
+	// this.Multistrokes[5] = new Multistroke("right/end", useBoundedRotationInvariance, new Array(
+	// 	new Array(new Point(591,528),new Point(616,528),new Point(616,557),new Point(591,557)),
 
-	));
+	// ));
 	//
 	// The $N Gesture Recognizer API begins here -- 3 methods: Recognize(), AddGesture(), and DeleteUserGestures()
 	//
