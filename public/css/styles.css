@@ -265,6 +265,7 @@ body {
     height: calc(100% - 9px);
     border-radius: 5px;
     margin: 3px 6px 6px;
+    user-select: none;
 }
 
 #myCanvas{
@@ -617,5 +618,6 @@ p{
     width: 100px;
     height: 100px;
     position: fixed !important;
-    border:1px solid rgb(7, 110, 212) 
+    border:1px solid rgb(7, 110, 212);
+    z-index: 999;
 }

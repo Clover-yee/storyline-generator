@@ -35,6 +35,8 @@
 	<script type="text/javascript" src="js/database.js"></script>
 	<script type="text/javascript" src="js/session.js"></script>
 	<script type="text/javascript" src="js/utils.js"></script>
+	<script type="text/javascript" src="js/panel.js"></script>
+
 
 
 	<script type="text/javascript">
@@ -489,13 +491,7 @@
 			clearFragmentText()
 			_points.length = 0; // clear and signal to clear strokes on next mousedown
 			_g.clearRect(0, 0, _rc.width, _rc.height);
-			var floatPanelFragment = document.getElementById('float-panel-fragment')
-			floatPanelFragment.classList.add('options')
-			setTimeout(() => {
-				floatPanelFragment.classList.remove('options')
-				floatPanelFragment.style.right = '15px'
-				floatPanelFragment.style.bottom = '25px'
-			}, 500);
+			openFragmentPanel()
 		}
 		function onClickImportText()
 		{
@@ -625,39 +621,12 @@
 					}
 				}
 				let l=max-min
-				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value])
+				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value])
 				eventCounter++
 			}
 
 			console.log(sessionListSL,'sessionListSL');
-			document.getElementById('storyline-view').innerHTML = '';
 			drawStoryLine(sessionListSL)
-
-			var el = document.getElementById('fragments')
-			el.innerHTML = ''
-			for (const eachSession of sessionList) {
-				var btn = document.createElement('button')
-				btn.innerText = eachSession._id
-				btn.onclick = (event)=>{
-					console.log(eachSession);
-					session = eachSession
-					_g.clearRect(0, 0, _rc.width, _rc.height);
-					for (const key in eachSession) {
-						if (Object.hasOwnProperty.call(eachSession, key)) {
-							const element = eachSession[key];
-							if(document.getElementById(key)) {
-								if(element.value){
-									document.getElementById(key).innerText = element.value
-								}else{
-									document.getElementById(key).innerText = element
-								}
-							}
-							drawConnectedPointByPage()
-						}
-					}
-				}
-				el.appendChild(btn)
-			}
 		})	
 	}
 	//chosen 选中
@@ -744,14 +713,7 @@
 		session=new Session()
 		closeFragmentPanel()
 	}
-	function closeFragmentPanel(){
-		var floatPanelFragment = document.getElementById('float-panel-fragment')
-		floatPanelFragment.style.top = ''
-		floatPanelFragment.style.left = ''
-		floatPanelFragment.style.right = '-260px'
-		floatPanelFragment.style.bottom = '25px'
-		clearFragmentText()
-	}
+
 	//chosen界面input事件
 	function onkeyupChosenText() {
 		const chosenText = document.getElementById('chosen-text')	
@@ -981,6 +943,6 @@
     </defs>
 </body>
 <script type="text/javascript">
-	dragFunc('float-panel-fragment','fragment-header')
+	dragFuncIndex('float-panel-fragment','fragment-header')
 </script>
 </html>

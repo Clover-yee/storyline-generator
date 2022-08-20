@@ -54,7 +54,7 @@ function transTimestamp(dateSeprator = '/', timeSeprator = ':') {
     return `${year}${dateSeprator}${month}${dateSeprator}${day} ${hour}${timeSeprator}${minute}${timeSeprator}${second}`
   }
 
-  function dragFunc(dragDomId,dragoutDomId){
+  function dragFuncIndex(dragDomId,dragoutDomId){
     var Drag = document.getElementById(dragDomId);
     var Dragout=document.getElementById(dragoutDomId);
     Dragout.onmousedown = function(event) {
