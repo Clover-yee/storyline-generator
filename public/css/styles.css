@@ -270,20 +270,22 @@ body {
 
 #myCanvas{
 	position:relative;
+    margin: 10px 25px;
 }
 
 #text{
 	position:absolute;
-	width: 1000px;
+	width: 950px;
 	height: 500px;
 	overflow: hidden;
     line-height:25px;  /*设置文字行高， 可被高度整除*/
     white-space: pre-wrap;	/*设置文本换行*/
     word-wrap:break-word; 
+    margin: 10px 25px;
 }
 #test0{
 	position:absolute;
-	width: 1000px;
+	width: 950px;
 	height: 500px;
     opacity:0;
 	overflow: hidden;
@@ -291,6 +293,7 @@ body {
     white-space: pre-wrap;
     word-wrap:break-word; 
     z-index: -1;
+    margin: 10px 25px;
 }
 
 #text div{

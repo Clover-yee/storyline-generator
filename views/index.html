@@ -45,10 +45,12 @@
 		//
 		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,sessionList; // global variables
 		var session = new Session()
+		var curSessionID =''
 		var page=0;
 		var eventCounter = 0;
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
+
 		document.ontouchstart = null;
 		document.ontouchmove = null;
 		document.ontouchend = null;
@@ -165,7 +167,6 @@
 						if (_strokes.length > 1 || (_strokes.length == 1 && _strokes[0].length >= 10))
 						{
 							var text = new Array();
-							var reg = /[\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/;
 							var result = _r.Recognize(
 								_strokes,
 								false,
@@ -180,7 +181,7 @@
 									var _text = []
 									for(let item of _strokes[0]){
 										const el = getDomElements(item.X,item.Y-10)
-										if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
+										if(el[1].innerText && el[1].innerText.length===1 ){
 											if(el[1].id !== textDoms[textDoms.length-1].id){
 													textDoms[textDoms.length] = el[1]
 											}
@@ -397,14 +398,49 @@
 			_g.stroke();
 		}
 		function drawConnectedPointByPage(){
+			var reg = /[\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/;
 			for (const key in session) {
 				var element = session[key]				
 				if(element && element.stroke && element.stroke.points){
+					//stroke color
+					switch (key) {
+						case 'person':
+							clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
+							break;
+						case 'time':
+							clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
+							break;
+						case 'place':
+							clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
+							break;
+						case 'event':
+							clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
+							break;
+						default:
+							clr = "rgb(" + 0 + "," + 0 + "," + 0 + ")";
+							break;
+					}
+					_g.strokeStyle = clr;
+					//textdom bg
+					var textDoms = [{id:''}]
 					if(element.stroke.pageNum === page){
 						var points = element.stroke.points
 						for (let index = 0; index < points.length-1; index++) {
+							//stroke
 							drawConnectedPointByPoints(points,index,index+1)
+							//textdom
+							var point = points[index]
+							const el = getDomElements(point.X,point.Y-10)
+							if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
+								if(el[1].id !== textDoms[textDoms.length-1].id){
+										textDoms[textDoms.length] = el[1]
+								}
+							}
 						}
+						textDoms.shift()
+						textDoms.forEach(dom => {
+							dom.classList.add('text-bg')
+						});
 					}
 				}
 			}
@@ -621,7 +657,7 @@
 					}
 				}
 				let l=max-min
-				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value])
+				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id])
 				eventCounter++
 			}
 
@@ -641,6 +677,7 @@
 		switch (id) {
 			case 'chosen-person':
 				var person = new Object()
+				_textValue= detectReg(_textValue)
 				if(session.person.value === ''){
 					person.value = _textValue
 				}
@@ -657,6 +694,7 @@
 				break;
 			case 'chosen-time':
 				var time = new Object()
+				_textValue= detectReg(_textValue)
 				document.getElementById('time').value = _textValue		
 				time.value = _textValue
 				time.stroke = {
@@ -668,6 +706,7 @@
 				break;
 			case 'chosen-place':
 				var place = new Object()
+				_textValue= detectReg(_textValue)
 				document.getElementById('place').value = _textValue		
 				place.value = _textValue
 				place.stroke = {
@@ -703,13 +742,21 @@
 	function onmouseupFragmentConfirm(dom){
 		console.log('confirm');
 		_g.clearRect(0, 0, _rc.width, _rc.height);
-		session.curtime = transTimestamp()
-		let output = session
-		console.log(output);
-		saveObjectIntoDatabase(output).then((status)=>{
-			if(status === 200)	console.log('Save successfully !!!');
-			getAllObjects()
-		})
+
+		if(curSessionID === ''){ //new session
+			session.curtime = transTimestamp()
+			console.log(session);
+			saveObjectIntoDatabase(session).then((status)=>{
+				if(status === 200)	console.log('Save successfully !!!');
+				getAllObjects()
+			})
+		}else{ // modify session
+			console.log(session);
+			findByIdAndUpdateObjectIntoDatabase(session).then((status)=>{
+				if(status === 200)	console.log('Modify successfully !!!');
+				getAllObjects()
+			})
+		}
 		session=new Session()
 		closeFragmentPanel()
 	}
@@ -837,7 +884,7 @@
 								<div id="text"></div>
 								<div id="test0"></div>
 						
-								<canvas id="myCanvas" width="1000" height="500"
+								<canvas id="myCanvas" width="950" height="500"
 								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
 								onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
 								onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"

@@ -48,3 +48,20 @@ function getObjectFromDatabase() {
     })
 
 }
+
+function findByIdAndUpdateObjectIntoDatabase(object) {
+
+    return new Promise((resolve, reject) => {
+
+        axios.post('/post/findByIdAndUpdateObject', {
+            data: object
+        }).then((res) => {
+            console.log("🚀 ~ file: Database.js ~ line 33 ~ returnnewPromise ~ res", res)
+
+            resolve(res.status)
+
+        })
+
+    })
+
+}

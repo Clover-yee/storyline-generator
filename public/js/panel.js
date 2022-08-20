@@ -16,3 +16,10 @@ function closeFragmentPanel(){
     floatPanelFragment.style.bottom = '25px'
     clearFragmentText()
 }
+
+function clearFragmentText(){
+    document.getElementById('event').value = ''
+    document.getElementById('place').value = ''
+    document.getElementById('time').value = ''
+    document.getElementById('person').value = ''
+}

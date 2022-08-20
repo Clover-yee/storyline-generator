@@ -20,7 +20,7 @@
             };
         };
         Dragout.onmouseup = function () {
-            document.onmousemove = null;
+            document.onmousemove = null;    
             Drag.style.cursor = "default";
         };
     };
@@ -171,6 +171,7 @@
     4:place
     5:event
     6:time
+    7:_id
 */
 
 //故事线全局参数
@@ -180,6 +181,7 @@
 var SvgTransformK = 2;
 var transformx = 0;
 var recommandY = -50;
+
 function drawStoryLine(sessionListSL) {
     console.log(SvgTransformK,transformx);
     var width = 1000; // 画布的宽度
@@ -188,7 +190,8 @@ function drawStoryLine(sessionListSL) {
     var minMapHeight = 130;
     var liucunkongbai = 100;
     var InitialScale = 2;//初始缩放比例
-
+    var rightBoundary = width / InitialScale;
+    var leftBoundary = 0;
 
     var storylineView = document.getElementById('storyline-view')
     // var width = storylineView.offsetWidth; // 画布的宽度
@@ -964,6 +967,19 @@ function drawStoryLine(sessionListSL) {
 
     }
 
+    for(i=1;i<number;i++){
+        for(j=0;j<initmember[i].length;j++){
+            for(k=0;k<initmember[i-1].length;k++){
+                if(initmember[i][j][0] == initmember[i-1][k][0]){
+                    if(initmember[i][j][1] == initmember[i-1][k][1]){
+                        initmember[i-1][k][3] = initmember[i][j][3];
+                        initmember[i-1][k][5] = initmember[i][j][5];
+                    }
+                }
+            }
+        }
+    }
+    
     line_array.length = 0;
 
     for (i = 0; i < number; i++) {
@@ -1326,9 +1342,12 @@ function drawStoryLine(sessionListSL) {
                         document.getElementById('time').value = fragment[6]	
                         document.getElementById('place').value = fragment[4]	
                         document.getElementById('event').value = fragment[5]	
-
+                        curSessionID = fragment[7]
+                        session = sessionList.find(elem=>{
+                            return elem._id === curSessionID
+                        })
+                        drawConnectedPointByPage()
                         openFragmentPanel()
-
                     }
                 }
                 else {
@@ -1337,7 +1356,16 @@ function drawStoryLine(sessionListSL) {
                     d3.select("#line" + this.id)
                         .remove();
                     click_flag[click_key] = 0;
+                    // clear canvas
+			        _g.clearRect(0, 0, _rc.width, _rc.height);
+                    // clear textdom bg
+                    var textdoms = document.getElementsByClassName('text-bg')
+                    var textdomsNum = textdoms.length
+                    for (var i=0; i<textdomsNum;i++) {
+                        textdoms[0].classList.remove('text-bg')
+                    }
 
+                    session = new Session()
                     closeFragmentPanel()
                 }
             })
@@ -1511,14 +1539,16 @@ function drawStoryLine(sessionListSL) {
         }
     }
     function dragged() {
-        if (event.x >= leftX && event.x <= rightX) {
-            if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance) {
+        console.log("drag BEGIN");
+        {
+            if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
                 d3.select(this)
                     .attr("x", event.x);
                 leftLineX = event.x;
+                console.log("It Is Drag")
             }
-
-            else if (Math.abs(event.x - leftLineX) >= minDistance) {
+        
+            else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
                 d3.select(this)
                     .attr("x", event.x);
                 rightLineX = event.x;

@@ -56,3 +56,19 @@ router.get("/get/getObject", function (req, res, next) {
   })
 
 });
+
+//get allObject
+router.post("/post/findByIdAndUpdateObject", function (req, res, next) {
+
+  let data = req.body.data;
+  var id = data._id
+  modelDict['fragment'].findByIdAndUpdate(id, data, {new: true}, (error, data) => {
+     if(error) {
+         console.log(error)
+         return
+     }
+     console.log(data)
+     res.send(data)
+  })
+ 
+});
