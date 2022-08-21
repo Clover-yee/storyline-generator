@@ -50,6 +50,9 @@
 		var eventCounter = 0;
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
+		//var patterncontent= new RegExp("[/\\x{7b2c}+/w+\\x{56de}/u]")
+		var patterncontent=  /第[0-9][0-9]回/
+		var contentArray = []
 
 		document.ontouchstart = null;
 		document.ontouchmove = null;
@@ -539,13 +542,14 @@
 			reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
 			reader.onload = ()=>{
                 const text0=reader.result;
-                const containerh=550;
+                const containerh=325;
 				const fontPerLineNum = 100// 每行字数65
 				const colPerPageNum = 22 // 每页行数15
 				var fontPerPageNum =  fontPerLineNum * colPerPageNum // 每页最大字数
 				let startIndex = 0 // text下标开始位置
 				let endnum;
 				const test0 = document.getElementById("test0")
+				let pagecontent=1;
 				while(startIndex < text0.length) 
 				{
 					test0.innerHTML="";
@@ -586,8 +590,23 @@
 						}
 					}
 					textArray.push(text0.substr(startIndex, splitNum - 1))
+					if(patterncontent.test(text0.substr(startIndex, splitNum - 1)))
+					{
+                       //console.log(pagecontent)
+					}
+					let lines = textArray[pagecontent-1].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
+					lines.forEach(element => {
+					if(patterncontent.test(element))
+					{
+                       //console.log(element)
+					   let cobj={pagenum:pagecontent, title:element}
+					   contentArray.push(cobj)
+					}
+				    })			
 					startIndex += splitNum - 1
-				}
+					pagecontent+=1			
+			 }
+		 console.log(contentArray)
          divfuzhi(page)
 		// document.getElementById('text').innerHTML = str  // reader.result为获取结果
 	   }, false})
