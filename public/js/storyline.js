@@ -243,7 +243,7 @@ function drawStoryLine(sessionListSL) {
     var leftX = 0;
     var rightX = 600;
     var rectHeight = bottomY - topY;
-    var minDistance = rectHeight / height * width;
+    var minDistance = width / (height / rectHeight);
     var lineWidth = 3;
     //记录故事线偏移位置,缩放比例
     var transformk = 0;
@@ -1440,6 +1440,7 @@ function drawStoryLine(sessionListSL) {
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
+    rightBoundary=rightX;
     var rectHeight = bottomY - topY;
 
     const storyLineGZoom = d3.zoom()
@@ -1556,12 +1557,14 @@ function drawStoryLine(sessionListSL) {
     }
     function dragged() {
         console.log("drag BEGIN");
+        console.log("left: " + Math.abs(leftLineX - rightLineX), minDistance)
+        console.log(Math.abs(event.x - rightLineX))
         {
             if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
                 d3.select(this)
                     .attr("x", event.x);
                 leftLineX = event.x;
-                console.log("It Is Drag")
+                console.log("leftLine Dragged")
             }
 
             else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
@@ -1571,6 +1574,7 @@ function drawStoryLine(sessionListSL) {
             }
             reDrawFram()
         }
+
     }
     function writeEndTransform() {
         transformx = FramTranformX;
