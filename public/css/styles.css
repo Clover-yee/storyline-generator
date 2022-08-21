@@ -276,7 +276,7 @@ body {
 #text{
 	position:absolute;
 	width: 950px;
-	height: 500px;
+	height: 325px;
 	overflow: hidden;
     line-height:25px;  /*设置文字行高， 可被高度整除*/
     white-space: pre-wrap;	/*设置文本换行*/
@@ -286,7 +286,7 @@ body {
 #test0{
 	position:absolute;
 	width: 950px;
-	height: 500px;
+	height: 325px;
     opacity:0;
 	overflow: hidden;
 	line-height: 25px;  /*设置文字行高， 可被高度整除*/
