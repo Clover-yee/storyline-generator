@@ -1,6 +1,6 @@
 //辅助函数
 {
-    function dragFunc(id, id2,scale,SvgTransformK) {
+    function dragFunc(id, id2, scale, SvgTransformK) {
         var Drag = document.getElementById(id);
         var Dragout = document.getElementById(id);
         var Drag_line = document.getElementById(id2);
@@ -20,7 +20,7 @@
             };
         };
         Dragout.onmouseup = function () {
-            document.onmousemove = null;    
+            document.onmousemove = null;
             Drag.style.cursor = "default";
         };
     };
@@ -183,7 +183,7 @@ var transformx = 0;
 var recommandY = -50;
 
 function drawStoryLine(sessionListSL) {
-    console.log(SvgTransformK,transformx);
+    console.log(SvgTransformK, transformx);
     var width = 1000; // 画布的宽度
     var height = 270; // 画布的高度
     var minMapWidth = 1000;
@@ -967,19 +967,19 @@ function drawStoryLine(sessionListSL) {
 
     }
 
-    for(i=1;i<number;i++){
-        for(j=0;j<initmember[i].length;j++){
-            for(k=0;k<initmember[i-1].length;k++){
-                if(initmember[i][j][0] == initmember[i-1][k][0]){
-                    if(initmember[i][j][1] == initmember[i-1][k][1]){
-                        initmember[i-1][k][3] = initmember[i][j][3];
-                        initmember[i-1][k][5] = initmember[i][j][5];
+    for (i = 1; i < number; i++) {
+        for (j = 0; j < initmember[i].length; j++) {
+            for (k = 0; k < initmember[i - 1].length; k++) {
+                if (initmember[i][j][0] == initmember[i - 1][k][0]) {
+                    if (initmember[i][j][1] == initmember[i - 1][k][1]) {
+                        initmember[i - 1][k][3] = initmember[i][j][3];
+                        initmember[i - 1][k][5] = initmember[i][j][5];
                     }
                 }
             }
         }
     }
-    
+
     line_array.length = 0;
 
     for (i = 0; i < number; i++) {
@@ -1330,20 +1330,20 @@ function drawStoryLine(sessionListSL) {
                             // .attr("marker-start","url(#arrow)")
                             .attr("marker-end", "url(#arrow)");
                         click_flag[click_key] = 1;
-                        dragFunc("WordCloud" + this.id, "line" + this.id,scale,SvgTransformK);
+                        dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
                     }
                     //fragment panel
                     {
                         closeFragmentPanel()
-                        var fragment = sessionListSL.find((elem)=>{
+                        var fragment = sessionListSL.find((elem) => {
                             return elem[0] === rect_event[parseInt(this.id)][0]
                         })
-        				document.getElementById('person').value = fragment[3]		
-                        document.getElementById('time').value = fragment[6]	
-                        document.getElementById('place').value = fragment[4]	
-                        document.getElementById('event').value = fragment[5]	
+                        document.getElementById('person').value = fragment[3]
+                        document.getElementById('time').value = fragment[6]
+                        document.getElementById('place').value = fragment[4]
+                        document.getElementById('event').value = fragment[5]
                         curSessionID = fragment[7]
-                        session = sessionList.find(elem=>{
+                        session = sessionList.find(elem => {
                             return elem._id === curSessionID
                         })
                         drawConnectedPointByPage()
@@ -1357,11 +1357,11 @@ function drawStoryLine(sessionListSL) {
                         .remove();
                     click_flag[click_key] = 0;
                     // clear canvas
-			        _g.clearRect(0, 0, _rc.width, _rc.height);
+                    _g.clearRect(0, 0, _rc.width, _rc.height);
                     // clear textdom bg
                     var textdoms = document.getElementsByClassName('text-bg')
                     var textdomsNum = textdoms.length
-                    for (var i=0; i<textdomsNum;i++) {
+                    for (var i = 0; i < textdomsNum; i++) {
                         textdoms[0].classList.remove('text-bg')
                     }
 
@@ -1454,27 +1454,43 @@ function drawStoryLine(sessionListSL) {
     var transformStartY = 0;
     //记录当前鼠标导致的倍率变化
     var OldTransformK = 1;
+    //移动限制变量
+    var storylineMoveX = 0;
     function zoomStart() {
-        console.log(event);
         transformStartX = event.x;
         transformStartY = event.y;
+        transformx1 = transformStartX;
     }
     function storyLineGZoomed({ transform }) {
         //纯放大或缩小状况下，保证比例不会突变
         if (transform.k > SvgTransformK && transform.k > OldTransformK) { SvgTransformK = transform.k; }
         else if (transform.k < SvgTransformK && transform.k < OldTransformK) { SvgTransformK = transform.k; }
-        storyLineG
-            .attr("transform", "translate(" + [transformx + event.x - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
-        drawFram(SvgTransformK, transformx + event.x - transformStartX, transformy + event.y - transformStartY)
-
-        transformx1 = event.x;
-
-        OldTransformK = transform.k
         recommandY = - (bottomY - topY) * SvgTransformK / 2
+        //Line=(width - x) / scale / k
+        //限制移动范围
+        storylineMoveX = event.x;
+        if (width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK
+            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK) { storylineMoveX = transformx1; }
+        storyLineG
+            .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
+        drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX, transformy + event.y - transformStartY)
+        zoomFix()
+        transformx1 = storylineMoveX;
+        OldTransformK = transform.k
+    }
+    function zoomFix() {
+        if (rightLineX > rightBoundary) {
+            leftLineX = rightBoundary - (rightLineX - leftLineX)
+            rightLineX = rightBoundary
+            drawFram(SvgTransformK, -leftLineX * SvgTransformK, recommandY)
+            storyLineG
+                .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+            transformx = -leftLineX * SvgTransformK
+        }
     }
     function writeTransform() {
         transformx += transformx1 - transformStartX
-        console.log("Zoom:" + transformx +"event.x"+ transformx1 +"" )
+        console.log("Zoom:" + transformx + "event.x" + transformx1 + "")
 
     }
     function drawFram(k, x, y) {
@@ -1547,7 +1563,7 @@ function drawStoryLine(sessionListSL) {
                 leftLineX = event.x;
                 console.log("It Is Drag")
             }
-        
+
             else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
                 d3.select(this)
                     .attr("x", event.x);
@@ -1567,34 +1583,40 @@ function drawStoryLine(sessionListSL) {
         .on("start", writeStartPosition)
         .on("drag", dragFram)
         .on("end", writeEndPosition)
+    var moveX = 0;
     function dragFram() {
+        moveX = (event.x)
+        console.log(moveX, "  ", event.x)
+        if (leftLineX + event.x - startFramX < leftBoundary || rightLineX + event.x - startFramX > rightBoundary) {
+            moveX = endFramX
+            console.log("it work!");
+        }
         d3.select("#leftLine")
-            .attr("x", leftLineX + event.x - startFramX)
+            .attr("x", leftLineX + moveX - startFramX)
         d3.select("#rightLine")
-            .attr("x", rightLineX + event.x - startFramX)
+            .attr("x", rightLineX + moveX - startFramX)
         d3.select("#topLine")
-            .attr("x", leftLineX + event.x - startFramX)
+            .attr("x", leftLineX + moveX - startFramX)
         d3.select("#bottomLine")
-            .attr("x", leftLineX + event.x - startFramX)
+            .attr("x", leftLineX + moveX - startFramX)
         d3.select("#centerRect")
-            .attr("x", leftLineX + event.x - startFramX)
-        endFramX = event.x;
+            .attr("x", leftLineX + moveX - startFramX)
+        endFramX = moveX;
         endFramY = event.y;
         storyLineG
-            .attr("transform", "translate(" + [transformx - (event.x - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+            .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
         recommandY = - (bottomY - topY) * SvgTransformK / 2
-
     }
     function writeStartPosition() {
         startFramX = event.x;
         startFramY = event.y;
+        endFramX = startFramX;
     }
     function writeEndPosition() {
         leftLineX += endFramX - startFramX;
         rightLineX += endFramX - startFramX;
-        transformx = transformx - (event.x - startFramX) * scale * SvgTransformK
+        transformx = transformx - (moveX - startFramX) * scale * SvgTransformK
         console.log("draw Fram:" + transformx)
-
     }
     function reDrawFram() {
         d3.select("#topLine").remove()
