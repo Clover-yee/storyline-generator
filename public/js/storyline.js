@@ -1440,7 +1440,7 @@ function drawStoryLine(sessionListSL) {
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
-    rightBoundary=rightX;
+    // rightBoundary = rightX;
     var rectHeight = bottomY - topY;
 
     const storyLineGZoom = d3.zoom()
@@ -1457,6 +1457,8 @@ function drawStoryLine(sessionListSL) {
     var OldTransformK = 1;
     //移动限制变量
     var storylineMoveX = 0;
+    //适应修改 0-未修改 1-已修改
+    var fixBool = 0;
     function zoomStart() {
         transformStartX = event.x;
         transformStartY = event.y;
@@ -1470,6 +1472,8 @@ function drawStoryLine(sessionListSL) {
         //Line=(width - x) / scale / k
         //限制移动范围
         storylineMoveX = event.x;
+        console.log(width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK)
+        console.log(-(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK)
         if (width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK
             || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK) { storylineMoveX = transformx1; }
         storyLineG
@@ -1487,11 +1491,17 @@ function drawStoryLine(sessionListSL) {
             storyLineG
                 .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
             transformx = -leftLineX * SvgTransformK
+            fixBool = 1
+
+            console.log("Fix Now")
         }
     }
     function writeTransform() {
-        transformx += transformx1 - transformStartX
-        console.log("Zoom:" + transformx + "event.x" + transformx1 + "")
+        if (fixBool == 0) {
+            transformx += transformx1 - transformStartX
+            console.log("Zoom:" + transformx + "event.x" + transformx1 + "")
+        }
+        fixBool = 0
 
     }
     function drawFram(k, x, y) {
@@ -1556,9 +1566,9 @@ function drawStoryLine(sessionListSL) {
         }
     }
     function dragged() {
-        console.log("drag BEGIN");
-        console.log("left: " + Math.abs(leftLineX - rightLineX), minDistance)
-        console.log(Math.abs(event.x - rightLineX))
+        console.log("Line dragging");
+
+        minDistance = width / (height / rectHeight)
         {
             if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
                 d3.select(this)
