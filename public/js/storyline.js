@@ -1468,14 +1468,14 @@ function drawStoryLine(sessionListSL) {
         //纯放大或缩小状况下，保证比例不会突变
         if (transform.k > SvgTransformK && transform.k > OldTransformK) { SvgTransformK = transform.k; }
         else if (transform.k < SvgTransformK && transform.k < OldTransformK) { SvgTransformK = transform.k; }
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
+        computeY()
         //Line=(width - x) / scale / k
         //限制移动范围
         storylineMoveX = event.x;
-        console.log(width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK)
+        console.log(width - (transformx + event.x - transformStartX), rightBoundary * SvgTransformK)
         console.log(-(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK)
         if (width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK
-            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK) { storylineMoveX = transformx1; }
+            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK) { storylineMoveX = transformx1; console.log("FIX BEGIN"); }
         storyLineG
             .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
         drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX, transformy + event.y - transformStartY)
@@ -1529,7 +1529,6 @@ function drawStoryLine(sessionListSL) {
 
 
     var drag = d3.drag()
-        .on("start", writeStartRect)
         .on("drag", dragged)
         .on("end", writeEndTransform)
     minMapSvg.append("rect")
@@ -1550,24 +1549,11 @@ function drawStoryLine(sessionListSL) {
         .attr("fill", "black")
         .call(drag)
 
-    //记录初始框左右两边的位置
-    var leftRectX = 0;
-    var rightRectX = 0;
+
     //记录框变化信息
     var FramTranformX = 0;
-    function writeStartRect() {
-        if (leftLineX > rightLineX) {
-            rightRectX = leftLineX;
-            leftRectX = rightLineX;
-        }
-        else {
-            rightRectX = rightLineX;
-            leftRectX = leftLineX;
-        }
-    }
-    function dragged() {
-        console.log("Line dragging");
 
+    function dragged() {
         minDistance = width / (height / rectHeight)
         {
             if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
@@ -1576,7 +1562,6 @@ function drawStoryLine(sessionListSL) {
                 leftLineX = event.x;
                 console.log("leftLine Dragged")
             }
-
             else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
                 d3.select(this)
                     .attr("x", event.x);
@@ -1584,7 +1569,6 @@ function drawStoryLine(sessionListSL) {
             }
             reDrawFram()
         }
-
     }
     function writeEndTransform() {
         transformx = FramTranformX;
@@ -1617,9 +1601,9 @@ function drawStoryLine(sessionListSL) {
             .attr("x", leftLineX + moveX - startFramX)
         endFramX = moveX;
         endFramY = event.y;
+        computeY()
         storyLineG
             .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
     }
     function writeStartPosition() {
         startFramX = event.x;
@@ -1671,14 +1655,16 @@ function drawStoryLine(sessionListSL) {
             .attr('fill-opacity', 0.1)
             .call(Framdrag)
         SvgTransformK = ((width) / Math.abs(max - min))
-
+        computeY()
         storyLineG
             .attr("transform", "translate(" + [- min * SvgTransformK * scale, recommandY] + ")scale(" + (SvgTransformK) + ")")
         FramTranformX = - min * SvgTransformK * scale;
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
+
 
     }
-
+    function computeY() {
+        recommandY = - (bottomY - topY) * SvgTransformK / 2
+    }
     drawFram(SvgTransformK, transformx, 0)
     reDrawFram()
     transformx = FramTranformX;
