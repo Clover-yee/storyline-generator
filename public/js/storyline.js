@@ -243,7 +243,7 @@ function drawStoryLine(sessionListSL) {
     var leftX = 0;
     var rightX = 600;
     var rectHeight = bottomY - topY;
-    var minDistance = rectHeight / height * width;
+    var minDistance = width / (height / rectHeight);
     var lineWidth = 3;
     //记录故事线偏移位置,缩放比例
     var transformk = 0;
@@ -1442,12 +1442,14 @@ function drawStoryLine(sessionListSL) {
             keytips[3] = line_array[i][1];
         }
     }
+    //leftX,rightX表故事线左右两边
     leftX = 0;
     rightX = keytips[1];
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
+    // rightBoundary = rightX;
     var rectHeight = bottomY - topY;
 
     const storyLineGZoom = d3.zoom()
@@ -1464,6 +1466,8 @@ function drawStoryLine(sessionListSL) {
     var OldTransformK = 1;
     //移动限制变量
     var storylineMoveX = 0;
+    //适应修改 0-未修改 1-已修改
+    var fixBool = 0;
     function zoomStart() {
         transformStartX = event.x;
         transformStartY = event.y;
@@ -1473,18 +1477,23 @@ function drawStoryLine(sessionListSL) {
         //纯放大或缩小状况下，保证比例不会突变
         if (transform.k > SvgTransformK && transform.k > OldTransformK) { SvgTransformK = transform.k; }
         else if (transform.k < SvgTransformK && transform.k < OldTransformK) { SvgTransformK = transform.k; }
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
+        computeY()
         //Line=(width - x) / scale / k
         //限制移动范围
         storylineMoveX = event.x;
-        if (width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK
-            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK) { storylineMoveX = transformx1; }
+
+        if ((width - (transformx + event.x - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
+            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK
+            || -(transformx + event.x - transformStartX) > rightX * SvgTransformK) { storylineMoveX = transformx1; console.log("FIX BEGIN"); }
         storyLineG
             .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
         drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX, transformy + event.y - transformStartY)
         zoomFix()
         transformx1 = storylineMoveX;
         OldTransformK = transform.k
+        //调试信息
+        console.log(topY);
+        console.log(height / rectHeight);
     }
     function zoomFix() {
         if (rightLineX > rightBoundary) {
@@ -1494,11 +1503,17 @@ function drawStoryLine(sessionListSL) {
             storyLineG
                 .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
             transformx = -leftLineX * SvgTransformK
+            fixBool = 1
+
+            console.log("Fix Now")
         }
     }
     function writeTransform() {
-        transformx += transformx1 - transformStartX
-        console.log("Zoom:" + transformx + "event.x" + transformx1 + "")
+        if (fixBool == 0) {
+            transformx += transformx1 - transformStartX
+            console.log("Zoom:" + transformx + "event.x" + transformx1 + "")
+        }
+        fixBool = 0
 
     }
     function drawFram(k, x, y) {
@@ -1526,7 +1541,6 @@ function drawStoryLine(sessionListSL) {
 
 
     var drag = d3.drag()
-        .on("start", writeStartRect)
         .on("drag", dragged)
         .on("end", writeEndTransform)
     minMapSvg.append("rect")
@@ -1536,6 +1550,8 @@ function drawStoryLine(sessionListSL) {
         .attr("x", leftX)
         .attr("y", topY)
         .attr("fill", "black")
+        .on("mouseover", function () { this.style.cursor = "e-resize" })
+        .on("mouseout", function () { this.style.cursor = "default" })
         .call(drag)
 
     minMapSvg.append("rect")
@@ -1545,34 +1561,26 @@ function drawStoryLine(sessionListSL) {
         .attr("x", rightX)
         .attr("y", topY)
         .attr("fill", "black")
+        .on("mouseover", function () { this.style.cursor = "e-resize" })
+        .on("mouseout", function () { this.style.cursor = "default" })
         .call(drag)
 
-    //记录初始框左右两边的位置
-    var leftRectX = 0;
-    var rightRectX = 0;
+
     //记录框变化信息
     var FramTranformX = 0;
-    function writeStartRect() {
-        if (leftLineX > rightLineX) {
-            rightRectX = leftLineX;
-            leftRectX = rightLineX;
-        }
-        else {
-            rightRectX = rightLineX;
-            leftRectX = leftLineX;
-        }
-    }
+
     function dragged() {
-        console.log("drag BEGIN");
+        minDistance = width / (height / rectHeight)
         {
             if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
+                this.style.cursor = "e-resize"
                 d3.select(this)
                     .attr("x", event.x);
                 leftLineX = event.x;
-                console.log("It Is Drag")
+                console.log("leftLine Dragged")
             }
-
             else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
+                this.style.cursor = "e-resize"
                 d3.select(this)
                     .attr("x", event.x);
                 rightLineX = event.x;
@@ -1582,6 +1590,7 @@ function drawStoryLine(sessionListSL) {
     }
     function writeEndTransform() {
         transformx = FramTranformX;
+        this.style.cursor = "default"
         console.log("drag:" + transformx)
     }
     //记录框开始及结束的位置
@@ -1611,9 +1620,9 @@ function drawStoryLine(sessionListSL) {
             .attr("x", leftLineX + moveX - startFramX)
         endFramX = moveX;
         endFramY = event.y;
+        computeY()
         storyLineG
             .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
     }
     function writeStartPosition() {
         startFramX = event.x;
@@ -1665,14 +1674,17 @@ function drawStoryLine(sessionListSL) {
             .attr('fill-opacity', 0.1)
             .call(Framdrag)
         SvgTransformK = ((width) / Math.abs(max - min))
-
+        computeY()
         storyLineG
             .attr("transform", "translate(" + [- min * SvgTransformK * scale, recommandY] + ")scale(" + (SvgTransformK) + ")")
         FramTranformX = - min * SvgTransformK * scale;
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
+
 
     }
-
+    function computeY() {
+        // recommandY = - (bottomY - topY) * SvgTransformK / 2
+        recommandY = -topY * SvgTransformK
+    }
     drawFram(SvgTransformK, transformx, 0)
     reDrawFram()
     transformx = FramTranformX;
