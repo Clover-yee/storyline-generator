@@ -1434,6 +1434,7 @@ function drawStoryLine(sessionListSL) {
             keytips[3] = line_array[i][1];
         }
     }
+    //leftX,rightX表故事线左右两边
     leftX = 0;
     rightX = keytips[1];
     topY = keytips[2] - 10;
@@ -1472,16 +1473,19 @@ function drawStoryLine(sessionListSL) {
         //Line=(width - x) / scale / k
         //限制移动范围
         storylineMoveX = event.x;
-        console.log(width - (transformx + event.x - transformStartX), rightBoundary * SvgTransformK)
-        console.log(-(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK)
-        if (width - (transformx + event.x - transformStartX) > rightBoundary * SvgTransformK
-            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK) { storylineMoveX = transformx1; console.log("FIX BEGIN"); }
+
+        if ((width - (transformx + event.x - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
+            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK
+            || -(transformx + event.x - transformStartX) > rightX * SvgTransformK) { storylineMoveX = transformx1; console.log("FIX BEGIN"); }
         storyLineG
             .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
         drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX, transformy + event.y - transformStartY)
         zoomFix()
         transformx1 = storylineMoveX;
         OldTransformK = transform.k
+        //调试信息
+        console.log(topY);
+        console.log(height / rectHeight);
     }
     function zoomFix() {
         if (rightLineX > rightBoundary) {
@@ -1538,6 +1542,8 @@ function drawStoryLine(sessionListSL) {
         .attr("x", leftX)
         .attr("y", topY)
         .attr("fill", "black")
+        .on("mouseover", function () { this.style.cursor = "e-resize" })
+        .on("mouseout", function () { this.style.cursor = "default" })
         .call(drag)
 
     minMapSvg.append("rect")
@@ -1547,6 +1553,8 @@ function drawStoryLine(sessionListSL) {
         .attr("x", rightX)
         .attr("y", topY)
         .attr("fill", "black")
+        .on("mouseover", function () { this.style.cursor = "e-resize" })
+        .on("mouseout", function () { this.style.cursor = "default" })
         .call(drag)
 
 
@@ -1557,12 +1565,14 @@ function drawStoryLine(sessionListSL) {
         minDistance = width / (height / rectHeight)
         {
             if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
+                this.style.cursor = "e-resize"
                 d3.select(this)
                     .attr("x", event.x);
                 leftLineX = event.x;
                 console.log("leftLine Dragged")
             }
             else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
+                this.style.cursor = "e-resize"
                 d3.select(this)
                     .attr("x", event.x);
                 rightLineX = event.x;
@@ -1572,6 +1582,7 @@ function drawStoryLine(sessionListSL) {
     }
     function writeEndTransform() {
         transformx = FramTranformX;
+        this.style.cursor = "default"
         console.log("drag:" + transformx)
     }
     //记录框开始及结束的位置
@@ -1663,7 +1674,8 @@ function drawStoryLine(sessionListSL) {
 
     }
     function computeY() {
-        recommandY = - (bottomY - topY) * SvgTransformK / 2
+        // recommandY = - (bottomY - topY) * SvgTransformK / 2
+        recommandY = -topY * SvgTransformK
     }
     drawFram(SvgTransformK, transformx, 0)
     reDrawFram()
