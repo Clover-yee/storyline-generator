@@ -185,7 +185,7 @@ var recommandY = -50;
 function drawStoryLine(sessionListSL) {
     console.log(SvgTransformK, transformx);
     var width = 1000; // 画布的宽度
-    var height = 270; // 画布的高度
+    var height = 370; // 画布的高度
     var minMapWidth = 1000;
     var minMapHeight = 130;
     var liucunkongbai = 100;
@@ -1346,8 +1346,16 @@ function drawStoryLine(sessionListSL) {
                         session = sessionList.find(elem => {
                             return elem._id === curSessionID
                         })
-                        drawConnectedPointByPage()
                         openFragmentPanel()
+                    }
+                    //jump page
+                    {
+                        page = fragment[1]
+                        divfuzhi(page)
+                        _g.clearRect(0, 0, _rc.width, _rc.height);
+                        drawConnectedPointByPage()
+                        document.getElementById('curpage').innerText = page+1
+                        document.getElementById('pageNumJump').value = page+1
                     }
                 }
                 else {
@@ -1586,10 +1594,10 @@ function drawStoryLine(sessionListSL) {
     var moveX = 0;
     function dragFram() {
         moveX = (event.x)
-        console.log(moveX, "  ", event.x)
+        // console.log(moveX, "  ", event.x)
         if (leftLineX + event.x - startFramX < leftBoundary || rightLineX + event.x - startFramX > rightBoundary) {
             moveX = endFramX
-            console.log("it work!");
+            // console.log("it work!");
         }
         d3.select("#leftLine")
             .attr("x", leftLineX + moveX - startFramX)

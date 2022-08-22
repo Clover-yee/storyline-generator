@@ -47,12 +47,14 @@
 		var session = new Session()
 		var curSessionID =''
 		var page=0;
+		var totalPageNum = 0;
+		//i1,i2...
 		var eventCounter = 0;
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
 		//var patterncontent= new RegExp("[/\\x{7b2c}+/w+\\x{56de}/u]")
 		var patterncontent=  /第[0-9][0-9]回/
-		var contentArray = []
+		var menuArray = []
 
 		document.ontouchstart = null;
 		document.ontouchmove = null;
@@ -476,47 +478,6 @@
 			d = Math.pow(10, d);
 			return Math.round(n * d) / d;
 		}
-		//
-		// Multistroke Adding and Clearing
-		//
-		// {
-		// 	function onClickAddExisting()
-		// 	{
-		// 		if (_strokes.length > 0)
-		// 		{
-		// 			if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
-		// 			{
-		// 				console.log(_strokes);
-		// 				var multistrokes = document.getElementById('multistrokes');
-		// 				var name = multistrokes[multistrokes.selectedIndex].value;
-		// 				var num = _r.AddGesture(name, false, _strokes);
-		// 				drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
-		// 				_points.length = 0; // clear and signal to clear strokes on next mousedown
-		// 			}
-		// 		}
-		// 	}
-		// 	function onClickAddCustom()
-		// 	{
-		// 		var name = document.getElementById('custom').value;
-		// 		if (_strokes.length > 0 && name.length > 0)
-		// 		{
-		// 			if (_strokes.length < 5 || confirm("With " + _strokes.length + " component strokes, it will take a few moments to add this gesture. Proceed?"))
-		// 			{
-		// 				console.log(_strokes);
-		// 				var num = _r.AddGesture(name, false, _strokes);
-		// 				drawText("\"" + name + "\" added. No. of \"" + name + "\" defined: " + num + ".");
-		// 				_points.length = 0; // clear and signal to clear strokes on next mousedown
-		// 			}
-		// 		}
-		// 	}
-		// 	function onClickDelete()
-		// 	{
-		// 		var num = _r.DeleteUserGestures(); // deletes any user-defined multistrokes
-		// 		alert("All user-defined gestures have been deleted. Only the 1 predefined gesture remains for each of the " + num + " types.");
-		// 		_points.length = 0; // clear and signal to clear strokes on next mousedown
-		// 	}
-		// }
-		
 		function onClickClearStrokes()
 		{
 			console.log(_r);
@@ -542,7 +503,7 @@
 			reader.readAsText(input.files[0],'utf8') // input.files[0]为第一个文件
 			reader.onload = ()=>{
                 const text0=reader.result;
-                const containerh=325;
+                const containerh=400;
 				const fontPerLineNum = 100// 每行字数65
 				const colPerPageNum = 22 // 每页行数15
 				var fontPerPageNum =  fontPerLineNum * colPerPageNum // 每页最大字数
@@ -600,15 +561,17 @@
 					{
                        //console.log(element)
 					   let cobj={pagenum:pagecontent, title:element}
-					   contentArray.push(cobj)
+					   menuArray.push(cobj)
 					}
 				    })			
 					startIndex += splitNum - 1
 					pagecontent+=1			
 			 }
-		 console.log(contentArray)
-         divfuzhi(page)
-		// document.getElementById('text').innerHTML = str  // reader.result为获取结果
+			 divfuzhi(page)
+			 totalPageNum = textArray.length 
+			 document.getElementById('totalPageNum').innerText = 'Total '+totalPageNum  // reader.result为获取结果
+			 createMenu()
+			 console.log(menuArray,'menuArray')
 	   }, false})
 	   getAllObjects()
 	}
@@ -635,15 +598,48 @@
 	    test0.innerHTML="";
 		test0.innerHTML = textArray[page]
     }
+	function createMenu() {
+		for (const menuItem of menuArray) {
+			var contentItem = document.createElement("div")
+			contentItem.classList.add('content-item')
+			var itemTitle = document.createElement("span")
+			itemTitle.innerHTML = menuItem.title
+			itemTitle.classList.add('item-title')
+			var itemPage = document.createElement("span")
+			itemPage.innerHTML = menuItem.pagenum
+			itemPage.classList.add('item-page')
+			contentItem.appendChild(itemTitle)
+			contentItem.appendChild(itemPage)
+			contentItem.addEventListener('click',function(){
+				page = menuItem.pagenum - 1
+				jumpPage(page)
+				$('.menu-content').children().each(function(){
+					$(this).removeClass('content-item-active')
+				});
+				$(this).addClass('content-item-active')
+			})
+			$('.menu-content').append(contentItem)
+		}
+		$('#float-panel-menu').addClass('float-panel-menu-active')
+		$('.content-item').first().addClass('content-item-active')
+	}
+
+	function onClickOpenMenu() {
+		if($('#float-panel-menu').hasClass('float-panel-menu-active')){
+			$('#float-panel-menu').removeClass('float-panel-menu-active')
+			$('#float-panel-menu').addClass('float-panel-menu-unactive')
+		}else{
+			$('#float-panel-menu').addClass('float-panel-menu-active')
+			$('#float-panel-menu').removeClass('float-panel-menu-unactive')
+		}	
+	}
+
 	function prepage() 
 	{ 
 		if(page-1>=0)
 	    {
 			page=page-1
-			divfuzhi(page);
-			_g.clearRect(0, 0, _rc.width, _rc.height);
-			drawConnectedPointByPage()
-			document.getElementById('curpage').innerText = page+1
+			jumpPage(page)
 		} 
 	}	
 	function nextpage() 
@@ -651,12 +647,26 @@
 		if( page+1 < textArray.length){			
 			page=page+1
 			console.log('page',page);
-			divfuzhi(page)
-			_g.clearRect(0, 0, _rc.width, _rc.height);
-			drawConnectedPointByPage()
-			document.getElementById('curpage').innerText = page+1
+			jumpPage(page)
 		}
 	}
+	function jumpPage(page) {
+		divfuzhi(page)
+		_g.clearRect(0, 0, _rc.width, _rc.height);
+		drawConnectedPointByPage()
+		document.getElementById('curpage').innerText = page+1
+		document.getElementById('pageNumJump').value = page+1
+	}
+	function onkeyupPageNumJump() {
+		var input = document.getElementById('pageNumJump').value-1
+		if(input>0 && input<totalPageNum){
+			if(window.event.keyCode === 13){			
+				page = input
+				jumpPage(page)
+			}
+		}
+	}
+
 	function getAllObjects() {
 		getObjectFromDatabase().then(res=>{
 			sessionListSL = new Array()
@@ -812,73 +822,6 @@
 <body onload="onLoadEvent()">
 	<div class="outer-wrapper">
 		<div class="panel-wrapper flex-panel-wrapper inner-wrapper">
-			<!-- <div id="fragment-view" class="view-content fragment-view-content">
-				<div class="fragment-wrapper">
-					<div>时间：</div>
-					<div id="time"></div>
-				</div>
-				<div class="fragment-wrapper">
-					<div>人物：</div>
-					<div id="person"></div>
-				</div>
-				<div class="fragment-wrapper">
-					<div>事件：</div>
-					<div id="event"></div>
-				</div>
-				<div class="fragment-wrapper">
-					<div>地点：</div>
-					<div id="place"></div>
-				</div>
-				<div class="fragment-wrapper">
-					<div>创建时间：</div>
-					<div id="curtime"></div>
-				</div>
-			</div> -->
-			<!-- <div class="panel h-fix-panel" id="panel-left">
-				<div class="panel-wrapper">
-					<div class="panel v-panel panel-left-top" id="panel-left-top" >
-						<div class="view">
-							<div class="view-title-container">
-								<span class="view-title-text">Fragment</span>
-							</div>
-							<div id="fragment-view" class="view-content fragment-view-content">
-								<div class="fragment-wrapper">
-									<div>时间：</div>
-									<div id="time"></div>
-								</div>
-								<div class="fragment-wrapper">
-									<div>人物：</div>
-									<div id="person"></div>
-								</div>
-								<div class="fragment-wrapper">
-									<div>事件：</div>
-									<div id="event"></div>
-								</div>
-								<div class="fragment-wrapper">
-									<div>地点：</div>
-									<div id="place"></div>
-								</div>
-								<div class="fragment-wrapper">
-									<div>创建时间：</div>
-									<div id="curtime"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="divider-w"></div>
-					<div class="panel v-panel panel-left-bottom" id="panel-left-bottom" >
-						<div class="view">
-							<div class="view-title-container">
-								<span class="view-title-text">Table</span>
-							</div>
-							<div id="table-view" class="view-content table-view-content">
-								<div id="fragments"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div> -->
-			<!-- <div class="divider-h"></div> -->
 			<div class="panel h-flex-panel">
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-right-top" id="panel-right-top" >
@@ -888,22 +831,29 @@
 								<div class="nav">
 									<div class="nav-tool-container">
 										<span class="tool-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
+										<span class="tool-btn" title="Menu" onclick="onClickOpenMenu()" ><img class="svg-icon" src="/img/menu.png"></span>
 										<span class="tool-separator"></span>
 										<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
 										<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
 									</div>
 									<div class="nav-tool-container-right">
 										<div class="page-container">
+											<span class="tool-text-other" id="totalPageNum">Total 1</span>
+											
 											<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow.png"></span>
-											<span class="tool-text" id="curpage">1</span>
+											<span class="tool-text-main" id="curpage">1</span>
 											<span class="tool-btn" title="nextpage" id="nextpage" onclick="nextpage()"><img style="transform: rotateY(-180deg);" class="svg-icon" src="/img/arrow.png"></span>
+											<span class="tool-text-other" >Go to</span>
+											<input class="tool-text-input" type="text" id="pageNumJump" value="1" onkeyup="onkeyupPageNumJump()">
+											
+											
 										</div>
 									</div>
 								</div>	
 								<div id="text"></div>
 								<div id="test0"></div>
 						
-								<canvas id="myCanvas" width="950" height="500"
+								<canvas id="myCanvas" width="950" height="400"
 								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
 								onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
 								onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
@@ -922,6 +872,18 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	<div id="float-panel-menu" class="float-panel-menu">
+		<div class="menu-wrapper">
+			<div class="menu-header">Contents</div>
+			<div class="menu-content">
+				<!-- <div class="content-item active">
+					<span class="item-title">第21回 女儿国唐三藏奇遇</span>
+					<span class="item-page">01</span>
+				</div> -->
+			</div>
+		</div>
+
 	</div>
 	<div id="float-panel-chosen" class="float-panel-chosen">
 		<div class="text-wrapper">
@@ -965,7 +927,6 @@
 				<span class="fragment-separator"></span>
 
 				<input type="text" id="person" class="fragment-content" onkeyup="onkeyupFragmentText('person')">
-				<!-- <div id="person" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
 			</div>
 			<div class="fragment-wrapper border-time">
 				<span class="fragment-img"><img class="svg-icon" src="/img/time-fill.png"></span>
@@ -973,7 +934,6 @@
 				<span class="fragment-separator"></span>
 				
 				<input type="text" id="time" class="fragment-content" onkeyup="onkeyupFragmentText('time')">
-				<!-- <div id="time" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
 			</div>
 			<div class="fragment-wrapper border-place">
 				<span class="fragment-img"><img class="svg-icon" src="/img/place-fill.png"></span>
@@ -981,7 +941,6 @@
 				<span class="fragment-separator"></span>
 
 				<input type="text" id="place" class="fragment-content" onkeyup="onkeyupFragmentText('place')">
-				<!-- <div id="place" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
 			</div>
 			<div class="fragment-wrapper border-event">
 				<span class="fragment-img"><img class="svg-icon" src="/img/event-fill.png"></span>
@@ -989,7 +948,6 @@
 				<span class="fragment-separator"></span>
 
 				<input type="text" id="event" class="fragment-content" onkeyup="onkeyupFragmentText('event')">
-				<!-- <div id="event" class="fragment-content">PersonPersonPersonPersonPersonPerson</div> -->
 			</div>
 
 		</div>
