@@ -1445,7 +1445,7 @@ function drawStoryLine(sessionListSL) {
 
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
-        .translateExtent([[-300, -300], [width * 20, height * 20]])
+        .translateExtent([[-300, -300], [width * height / rectHeight, height * height / rectHeight]])
         .on("start", zoomStart)
         .on("zoom", storyLineGZoomed)
         .on("end", writeTransform)
@@ -1470,35 +1470,43 @@ function drawStoryLine(sessionListSL) {
     var OldFramWidth = 0
     var PercentTranform = 0
     var transformFix = 0
+    //操作分类
+    var zoomOperation = 0;
     function storyLineGZoomed({ transform }) {
         //缩放状况下，保证比例不突变
 
-        if ((transform.k > SvgTransformK && transform.k > OldTransformK || transform.k < SvgTransformK && transform.k < OldTransformK)) {
+        if ((transform.k > SvgTransformK && transform.k > OldTransformK || transform.k < SvgTransformK && transform.k < OldTransformK)
+        ) {
+            zoomOperation = 1
             OldFramWidth = rightLineX - leftLineX
             PercentTranform = event.x / width
             SvgTransformK = transform.k;
-            transformFix = PercentTranform * (OldFramWidth * (1 - OldTransformK / transform.k));
+            transformFix = PercentTranform * OldFramWidth * (1 - OldTransformK / transform.k);
             computeY()
             storylineMoveX = event.x;
             //中心放大
-            storyLineG
-                .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-            console.log("first change:", -(leftLineX + transformFix) * SvgTransformK);
-            drawFram(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
-            transformx1 = transformStartX - (leftLineX + transformFix) * SvgTransformK;
-
-            // console.log("OldFramWidth", OldFramWidth);
-            // console.log("Possible leftLineX", leftLineX + transformFix);
-            // console.log(OldTransformK / transform.k);
-            // console.log("PercentTranform", PercentTranform);
-            // console.log(" width gap", OldFramWidth - (rightLineX - leftLineX));
-            // console.log("SvgTransformK",SvgTransformK);
-            // console.log("scale change");
+            if ((leftLineX + transformFix)) {
+                storyLineG
+                    .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+                drawFram(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
+                transformx1 = -(leftLineX + transformFix) * SvgTransformK
+            }
+            {
+                // console.log("first change:", -(leftLineX + transformFix) * SvgTransformK);
+                // console.log("OldFramWidth", OldFramWidth);
+                // console.log("Possible leftLineX", leftLineX + transformFix);
+                // console.log(OldTransformK / transform.k);
+                // console.log("PercentTranform", PercentTranform);
+                // console.log(" width gap", OldFramWidth - (rightLineX - leftLineX));
+                // console.log("SvgTransformK",SvgTransformK);
+                // console.log("scale change");
+            }
 
         }
 
         //限制移动范围
         else {
+            zoomOperation = 2
             computeY()
             storylineMoveX = event.x;
             if ((width - (transformx + event.x - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
@@ -1513,7 +1521,7 @@ function drawStoryLine(sessionListSL) {
             // console.log("position change");
 
         }
-        zoomFix()
+        // zoomFix()
 
         OldTransformK = SvgTransformK
         //调试信息
@@ -1546,12 +1554,16 @@ function drawStoryLine(sessionListSL) {
         }
     }
     function writeTransform() {
-        if (fixBool == 0) {
-            transformx += transformx1 - transformStartX
+        if (fixBool == 0 && zoomOperation == 2) {
+            transformx = -SvgTransformK * leftLineX
+            console.log("Zoom:" + transformx)
+        }
+        else if (zoomOperation == 1) {
+            transformx = -SvgTransformK * leftLineX
             console.log("Zoom:" + transformx)
         }
         fixBool = 0
-
+        zoomOperation = 0
     }
     function drawFram(k, x) {
         d3.select("#centerRect")
