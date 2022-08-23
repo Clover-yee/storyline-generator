@@ -198,7 +198,8 @@ function drawStoryLine(sessionListSL) {
     // var height = storylineView.offsetHeight; // 画布*的高度
     storylineView.innerText = ''
     var scale = 1; // 缩放
-    var FramColor = "black"
+    var FramColor = "#96CDCD"
+    var mouseOverColor = "#00BFFF"
     var mainSvg = d3.select("#storyline-view")
         .attr("id", "storyline-view")
         .append("svg")
@@ -236,6 +237,10 @@ function drawStoryLine(sessionListSL) {
     var startRightLineX = 400;
     var leftLineX = startLeftLineX;
     var rightLineX = startRightLineX;
+    //缩略图边框样式数值
+    var topLineHeight = 10;
+    var dragRectWidth = 3;
+    var dragRectHeight = 26;
     //故事线最上以及最下边的坐标
     var topY = 40;
     var bottomY = 80;
@@ -245,6 +250,7 @@ function drawStoryLine(sessionListSL) {
     var rectHeight = bottomY - topY;
     var minDistance = width / (height / rectHeight);
     var lineWidth = 3;
+    var dragRectColor = "black"
     //记录故事线偏移位置,缩放比例
     var transformk = 0;
     var transformy = 0;
@@ -1521,7 +1527,7 @@ function drawStoryLine(sessionListSL) {
             // console.log("position change");
 
         }
-        // zoomFix()
+        zoomFix()
 
         OldTransformK = SvgTransformK
         //调试信息
@@ -1555,7 +1561,7 @@ function drawStoryLine(sessionListSL) {
     }
     function writeTransform() {
         if (fixBool == 0 && zoomOperation == 2) {
-            transformx = -SvgTransformK*leftLineX
+            transformx = -SvgTransformK * leftLineX
             console.log("Zoom:" + transformx)
         }
         else if (zoomOperation == 1) {
@@ -1566,23 +1572,23 @@ function drawStoryLine(sessionListSL) {
         zoomOperation = 0
     }
     function drawFram(k, x) {
-        d3.select("#centerRect")
-            .attr("x", -x / scale / k + lineWidth)
-            .attr("width", width / k / scale - 2 * lineWidth)
+        leftLineX = -x / scale / k;
+        rightLineX = (width - x) / scale / k;
+
         d3.select("#leftLine")
             .attr("x", -x / scale / k)
         d3.select("#rightLine")
             .attr("x", (width - x) / scale / k)
+        d3.select("#leftDragRect")
+            .attr("x", leftLineX - dragRectWidth)
+        d3.select("#rightDragRect")
+            .attr("x", rightLineX - dragRectWidth)
         d3.select("#topLine")
             .attr("x", -x / scale / k)
-            .attr("width", width / k / scale)
+            .attr("width", width / k / scale + lineWidth)
         d3.select("#bottomLine")
             .attr("x", -x / scale / k)
-            .attr("width", (width + lineWidth) / k / scale)
-
-        leftLineX = -x / scale / k;
-        rightLineX = (width - x) / scale / k;
-
+            .attr("width", (width + lineWidth) / k / scale + lineWidth)
 
     }
 
@@ -1621,17 +1627,22 @@ function drawStoryLine(sessionListSL) {
     function dragged() {
         minDistance = width / (height / rectHeight)
         {
-            if (this.id == "leftLine" && rightLineX - event.x >= minDistance
+            if ((this.id == "leftLine" || this.id == "leftDragRect") && rightLineX - event.x >= minDistance
                 && event.x >= leftBoundary && event.x < Math.min(rightBoundary, rightX)) {
                 this.style.cursor = "e-resize"
-                d3.select(this)
+                d3.select("#leftLine")
                     .attr("x", event.x);
+                d3.select("#leftDragRect")
+                    .attr("x", event.x);
+
                 leftLineX = event.x;
             }
-            else if (this.id == "rightLine" && event.x - leftLineX >= minDistance
+            else if ((this.id == "rightLine" || this.id == "rightDragRect") && event.x - leftLineX >= minDistance
                 && event.x <= rightBoundary) {
                 this.style.cursor = "e-resize"
-                d3.select(this)
+                d3.select("#rightLine")
+                    .attr("x", event.x);
+                d3.select("#rightDragRect")
                     .attr("x", event.x);
                 rightLineX = event.x;
             }
@@ -1673,13 +1684,10 @@ function drawStoryLine(sessionListSL) {
             .attr("x", hypoRightX)
         d3.select("#topLine")
             .attr("x", hypoLeftX)
-            .attr("width", rightLineX - leftLineX)
+            .attr("width", rightLineX - leftLineX + lineWidth)
         d3.select("#bottomLine")
             .attr("x", hypoLeftX)
-            .attr("width", rightLineX - leftLineX)
-        d3.select("#centerRect")
-            .attr("x", hypoLeftX + lineWidth)
-            .attr("width", rightLineX - leftLineX - 2 * lineWidth)
+            .attr("width", rightLineX - leftLineX + lineWidth)
         endFramX = moveX;
         computeY()
         storyLineG
@@ -1694,32 +1702,59 @@ function drawStoryLine(sessionListSL) {
     function reDrawFram() {
         d3.select("#topLine").remove()
         d3.select("#bottomLine").remove()
-        d3.select("#centerRect").remove()
+        d3.select("#leftDragRect").remove()
+        d3.select("#rightDragRect").remove()
         var centerRectWidth = rightLineX - leftLineX;
         minMapSvg.append("rect")
             .attr("id", "topLine")
-            .attr("width", centerRectWidth)
-            .attr("height", 1)
+            .attr("width", centerRectWidth + lineWidth)
+            .attr("height", topLineHeight)
             .attr("x", leftLineX)
-            .attr("y", topY)
+            .attr("y", topY - topLineHeight)
             .attr("fill", FramColor)
+            .attr('fill-opacity', 0.7)
+            .on("mouseover", function () {
+                d3.select(this).style("fill", mouseOverColor)
+                this.style.cursor = "e-resize"
+            })
+            .on("mouseout", function () {
+                d3.select(this).style("fill", FramColor)
+                this.style.cursor = "default"
+            })
+            .call(Framdrag)
         minMapSvg.append("rect")
             .attr("id", "bottomLine")
-            .attr("width", centerRectWidth)
-            .attr("height", 1)
+            .attr("width", centerRectWidth + lineWidth)
+            .attr("height", lineWidth)
             .attr("x", leftLineX)
             .attr("y", bottomY)
             .attr("fill", FramColor)
+            .attr('fill-opacity', 0.7)
 
         minMapSvg.append("rect")
-            .attr("id", "centerRect")
-            .attr("width", centerRectWidth - 2 * lineWidth)
-            .attr("height", rectHeight)
-            .attr("x", leftLineX + 2 * lineWidth)
-            .attr("y", topY)
+            .attr("id", "leftDragRect")
+            .attr("width", 2 * dragRectWidth + lineWidth)
+            .attr("height", dragRectHeight)
+            .attr("x", leftLineX - dragRectWidth)
+            .attr("y", topY + dragRectHeight / 4)
             .attr("fill", "white")
-            .attr('fill-opacity', 0.1)
-            .call(Framdrag)
+            .attr("stroke", dragRectColor)
+            .on("mouseover", function () { this.style.cursor = "e-resize" })
+            .on("mouseout", function () { this.style.cursor = "default" })
+            .call(drag)
+
+        minMapSvg.append("rect")
+            .attr("id", "rightDragRect")
+            .attr("width", 2 * dragRectWidth + lineWidth)
+            .attr("height", dragRectHeight)
+            .attr("x", rightLineX - dragRectWidth)
+            .attr("y", topY + dragRectHeight / 4)
+            .attr("fill", "white")
+            .attr("stroke", dragRectColor)
+            .on("mouseover", function () { this.style.cursor = "e-resize" })
+            .on("mouseout", function () { this.style.cursor = "default" })
+            .call(drag)
+
         SvgTransformK = ((width) / centerRectWidth)
         computeY()
         storyLineG
