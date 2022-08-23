@@ -1441,7 +1441,6 @@ function drawStoryLine(sessionListSL) {
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
-    // rightBoundary = rightX;
     var rectHeight = bottomY - topY;
 
     const storyLineGZoom = d3.zoom()
@@ -1466,26 +1465,36 @@ function drawStoryLine(sessionListSL) {
         transformx1 = transformStartX;
     }
     function storyLineGZoomed({ transform }) {
-        //纯放大或缩小状况下，保证比例不会突变
-        if (transform.k > SvgTransformK && transform.k > OldTransformK) { SvgTransformK = transform.k; }
-        else if (transform.k < SvgTransformK && transform.k < OldTransformK) { SvgTransformK = transform.k; }
-        computeY()
-        //Line=(width - x) / scale / k
-        //限制移动范围
-        storylineMoveX = event.x;
+        //缩放状况下，保证比例不突变
+        if (transform.k > SvgTransformK && transform.k > OldTransformK
+            || transform.k < SvgTransformK && transform.k < OldTransformK) {
+            SvgTransformK = transform.k;
+            computeY()
+            storylineMoveX = event.x;
+            //中心放大
 
-        if ((width - (transformx + event.x - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
-            || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK
-            || -(transformx + event.x - transformStartX) > rightX * SvgTransformK) { storylineMoveX = transformx1; console.log("FIX BEGIN"); }
-        storyLineG
-            .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
-        drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX, transformy + event.y - transformStartY)
-        zoomFix()
+
+            
+        }
+
+
+        //限制移动范围
+        else {
+            computeY()
+            storylineMoveX = event.x;
+            if ((width - (transformx + event.x - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
+                || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK
+                || -(transformx + event.x - transformStartX) > rightX * SvgTransformK) {
+                storylineMoveX = transformx1;
+            }
+            storyLineG
+                .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
+            drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX, transformy + event.y - transformStartY)
+            zoomFix()
+        }
         transformx1 = storylineMoveX;
-        OldTransformK = transform.k
+        OldTransformK = SvgTransformK
         //调试信息
-        console.log(topY);
-        console.log(height / rectHeight);
     }
     function zoomFix() {
         if (rightLineX > rightBoundary) {
@@ -1510,8 +1519,8 @@ function drawStoryLine(sessionListSL) {
     }
     function drawFram(k, x, y) {
         d3.select("#centerRect")
-            .attr("x", -x / scale / k)
-            .attr("width", width / k / scale)
+            .attr("x", -x / scale / k + lineWidth)
+            .attr("width", width / k / scale - 2 * lineWidth)
         d3.select("#leftLine")
             .attr("x", -x / scale / k)
         d3.select("#rightLine")
@@ -1564,19 +1573,22 @@ function drawStoryLine(sessionListSL) {
     function dragged() {
         minDistance = width / (height / rectHeight)
         {
-            if (this.id == "leftLine" && Math.abs(event.x - rightLineX) >= minDistance && event.x >= leftBoundary && event.x < rightLineX) {
+            if (this.id == "leftLine" && rightLineX - event.x >= minDistance
+                && event.x >= leftBoundary && event.x < Math.min(rightBoundary,rightX)) {
                 this.style.cursor = "e-resize"
                 d3.select(this)
                     .attr("x", event.x);
                 leftLineX = event.x;
-                console.log("leftLine Dragged")
             }
-            else if (Math.abs(event.x - leftLineX) >= minDistance && event.x <= rightBoundary && event.x > leftLineX) {
+            else if (this.id == "rightLine" && event.x - leftLineX >= minDistance
+                && event.x <= rightBoundary) {
                 this.style.cursor = "e-resize"
                 d3.select(this)
                     .attr("x", event.x);
                 rightLineX = event.x;
             }
+            // console.log("leftLineX: ", leftLineX)
+            // console.log("rightLineX: ", rightLineX);
             reDrawFram()
         }
     }
@@ -1593,33 +1605,39 @@ function drawStoryLine(sessionListSL) {
         .on("drag", dragFram)
         .on("end", writeEndPosition)
     var moveX = 0;
-    function dragFram() {
-        moveX = (event.x)
-        console.log(moveX, "  ", event.x)
-        if (leftLineX + event.x - startFramX < leftBoundary || rightLineX + event.x - startFramX > rightBoundary) {
-            moveX = endFramX
-            console.log("it work!");
-        }
-        d3.select("#leftLine")
-            .attr("x", leftLineX + moveX - startFramX)
-        d3.select("#rightLine")
-            .attr("x", rightLineX + moveX - startFramX)
-        d3.select("#topLine")
-            .attr("x", leftLineX + moveX - startFramX)
-        d3.select("#bottomLine")
-            .attr("x", leftLineX + moveX - startFramX)
-        d3.select("#centerRect")
-            .attr("x", leftLineX + moveX - startFramX)
-        endFramX = moveX;
-        endFramY = event.y;
-        computeY()
-        storyLineG
-            .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-    }
     function writeStartPosition() {
         startFramX = event.x;
         startFramY = event.y;
         endFramX = startFramX;
+    }
+    function dragFram() {
+        moveX = event.x
+        var hypoLeftX = leftLineX + moveX - startFramX
+        var hypoRightX = rightLineX + moveX - startFramX
+        if (hypoLeftX < leftBoundary || hypoLeftX > rightX || hypoRightX > rightBoundary) {
+            moveX = endFramX
+            hypoLeftX = leftLineX + moveX - startFramX
+            hypoRightX = rightLineX + moveX - startFramX
+            console.log("hypoLeftX", hypoLeftX)
+            console.log("rightBoundary", rightBoundary);
+        }
+        d3.select("#leftLine")
+            .attr("x", hypoLeftX)
+        d3.select("#rightLine")
+            .attr("x", hypoRightX)
+        d3.select("#topLine")
+            .attr("x", hypoLeftX)
+            .attr("width", rightLineX - leftLineX)
+        d3.select("#bottomLine")
+            .attr("x", hypoLeftX)
+            .attr("width", rightLineX - leftLineX)
+        d3.select("#centerRect")
+            .attr("x", hypoLeftX + lineWidth)
+            .attr("width", rightLineX - leftLineX - 2 * lineWidth)
+        endFramX = moveX;
+        computeY()
+        storyLineG
+            .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
     }
     function writeEndPosition() {
         leftLineX += endFramX - startFramX;
@@ -1631,45 +1649,36 @@ function drawStoryLine(sessionListSL) {
         d3.select("#topLine").remove()
         d3.select("#bottomLine").remove()
         d3.select("#centerRect").remove()
-        var max = 0;
-        var min = 0;
-        if (leftLineX > rightLineX) {
-            max = leftLineX;
-            min = rightLineX;
-        }
-        else {
-            max = rightLineX;
-            min = leftLineX;
-        }
+        var centerRectWidth = rightLineX - leftLineX;
         minMapSvg.append("rect")
             .attr("id", "topLine")
-            .attr("width", Math.abs(max - min))
+            .attr("width", centerRectWidth)
             .attr("height", 1)
-            .attr("x", min)
+            .attr("x", leftLineX)
             .attr("y", topY)
             .attr("fill", "black")
         minMapSvg.append("rect")
             .attr("id", "bottomLine")
-            .attr("width", Math.abs(max - min))
+            .attr("width", centerRectWidth)
             .attr("height", 1)
-            .attr("x", min)
+            .attr("x", leftLineX)
             .attr("y", bottomY)
             .attr("fill", "black")
 
         minMapSvg.append("rect")
             .attr("id", "centerRect")
-            .attr("width", Math.abs(max - min - 2 * lineWidth))
+            .attr("width", centerRectWidth - 2 * lineWidth)
             .attr("height", rectHeight)
-            .attr("x", min + 2 * lineWidth)
+            .attr("x", leftLineX + 2 * lineWidth)
             .attr("y", topY)
             .attr("fill", "white")
             .attr('fill-opacity', 0.1)
             .call(Framdrag)
-        SvgTransformK = ((width) / Math.abs(max - min))
+        SvgTransformK = ((width) / centerRectWidth)
         computeY()
         storyLineG
-            .attr("transform", "translate(" + [- min * SvgTransformK * scale, recommandY] + ")scale(" + (SvgTransformK) + ")")
-        FramTranformX = - min * SvgTransformK * scale;
+            .attr("transform", "translate(" + [- leftLineX * SvgTransformK * scale, recommandY] + ")scale(" + (SvgTransformK) + ")")
+        FramTranformX = - leftLineX * SvgTransformK * scale;
 
 
     }
