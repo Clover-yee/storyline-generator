@@ -1555,11 +1555,11 @@ function drawStoryLine(sessionListSL) {
     }
     function writeTransform() {
         if (fixBool == 0 && zoomOperation == 2) {
-            transformx = -SvgTransformK * leftLineX
+            transformx = -SvgTransformK*leftLineX
             console.log("Zoom:" + transformx)
         }
         else if (zoomOperation == 1) {
-            transformx = -SvgTransformK * leftLineX
+            transformx = transformx1
             console.log("Zoom:" + transformx)
         }
         fixBool = 0
