@@ -1537,7 +1537,7 @@ function drawStoryLine(sessionListSL) {
         }
         zoomFix()
 
-        OldTransformK = SvgTransformK
+        OldTransformK = transform.k
         //调试信息
     }
     function zoomFix() {
