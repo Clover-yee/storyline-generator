@@ -266,8 +266,9 @@ function drawStoryLine(sessionListSL) {
         .append("svg")
         .attr("x", 0)
         .attr("y", height)
-        .attr("width", minMapWidth) //设定宽度
-        .attr("height", minMapHeight); //设定高度
+        .attr("width", minMapWidth)
+        .attr("height", minMapHeight)
+    var minMapG = minMapSvg.append("g")
 
     // var svg = d3.select("#storyline-view") // 选择文档中的body 元素
     //     .append("svg") //添加一个SVG元素
@@ -1083,7 +1084,7 @@ function drawStoryLine(sessionListSL) {
     line_array.sort(ascend);
 
     //小地图背景
-    minMapSvg.append("rect")
+    minMapG.append("rect")
         .attr("id", "minMapBackGround")
         .attr("x", 0)
         .attr("y", topY)
@@ -1189,7 +1190,7 @@ function drawStoryLine(sessionListSL) {
                         var name = d3.select('#' + membercolor[this.id])
                         name.fill = "black";
                     });
-                minMapSvg.append("path")
+                minMapG.append("path")
                     .attr("d", Gen(reline))
                     .attr("fill", "none")
                     .attr("stroke", color[line_array[i - 1][2]])
@@ -1217,7 +1218,7 @@ function drawStoryLine(sessionListSL) {
                 .on("mouseout", function (d) {
                     this.style.stroke = color[parseInt(this.id)];
                 });
-            minMapSvg.append("path")
+            minMapG.append("path")
                 .attr("d", Gen(reline))
                 .attr("fill", "none")
                 .attr("stroke", color[line_array[i - 1][2]])
@@ -1238,7 +1239,7 @@ function drawStoryLine(sessionListSL) {
                 .style('font-size', 4)
                 .style('fill', color[line_array[i - 1][2]])
                 .text(line_array[i - 1][4])
-            minMapSvg.append("text")
+            minMapG.append("text")
                 .attr("x", (line_array[i - 1][0] - mem.length * 4) / scale)
                 .attr("y", (line_array[i - 1][1]) / scale)
                 .style('font-weight', 1 / scale)
@@ -1260,7 +1261,7 @@ function drawStoryLine(sessionListSL) {
                 .style('font-size', 4)
                 .style('fill', color[line_array[i][2]])
                 .text(line_array[i][4])
-            minMapSvg.append("text")
+            minMapG.append("text")
                 .attr("x", (line_array[i][0] - mem.length * 5) / scale)
                 .attr("y", (line_array[i][1]) / scale)
                 .style('font-weight', 1 / scale)
@@ -1504,7 +1505,7 @@ function drawStoryLine(sessionListSL) {
                 }
                 this.style.opacity = 0.2;
             });
-        minMapSvg.append("rect")
+        minMapG.append("rect")
             .attr("id", i)
             .attr("x", (5 * (rect_event[i][1] + 1) + 100 - 2) / scale)
             .attr("y", (rect_event[i][3] - 2) / scale)
@@ -1548,18 +1549,15 @@ function drawStoryLine(sessionListSL) {
     }
     //leftX,rightX表故事线左右两边
     leftX = 0;
-    rightX = keytips[1] + keytips[0];
+    rightX = keytips[1];
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
     var rectHeight = bottomY - topY;
-
     d3.select("#minMapBackGround")
-        .attr("width", rightX)
-        .attr("y", topY)
-        .attr("height", rectHeight)
-
+        .attr("width", Math.max(rightX + keytips[0], rightBoundary))
+        .attr('y', topY).attr('height', rectHeight)
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
         .translateExtent([[-300, -300], [width * height / rectHeight, height * height / rectHeight]])
@@ -1730,7 +1728,7 @@ function drawStoryLine(sessionListSL) {
     var drag = d3.drag()
         .on("drag", dragged)
         .on("end", writeEndTransform)
-    minMapSvg.append("rect")
+    minMapG.append("rect")
         .attr("id", "leftLine")
         .attr("width", lineWidth)
         .attr("height", rectHeight)
@@ -1747,7 +1745,7 @@ function drawStoryLine(sessionListSL) {
         })
         .call(drag)
 
-    minMapSvg.append("rect")
+    minMapG.append("rect")
         .attr("id", "rightLine")
         .attr("width", lineWidth)
         .attr("height", rectHeight)
@@ -1782,7 +1780,7 @@ function drawStoryLine(sessionListSL) {
                 leftLineX = event.x;
             }
             else if ((this.id == "rightLine" || this.id == "rightDragRect") && event.x - leftLineX >= minDistance
-                && event.x <= rightBoundary) {
+                && event.x <= Math.max(rightBoundary, rightX)) {
                 this.style.cursor = "e-resize"
                 d3.select("#rightLine")
                     .attr("x", event.x);
@@ -1817,6 +1815,7 @@ function drawStoryLine(sessionListSL) {
         moveX = event.x
         var hypoLeftX = leftLineX + moveX - startFramX
         var hypoRightX = rightLineX + moveX - startFramX
+
         if (hypoLeftX < leftBoundary || hypoLeftX > rightX || hypoRightX > Math.max(rightBoundary, rightX)) {
             moveX = endFramX
             hypoLeftX = leftLineX + moveX - startFramX
@@ -1860,7 +1859,7 @@ function drawStoryLine(sessionListSL) {
         d3.select("#leftDragRect").remove()
         d3.select("#rightDragRect").remove()
         var centerRectWidth = rightLineX - leftLineX;
-        minMapSvg.append("rect")
+        minMapG.append("rect")
             .attr("id", "topLine")
             .attr("width", centerRectWidth + lineWidth)
             .attr("height", topLineHeight)
@@ -1877,7 +1876,7 @@ function drawStoryLine(sessionListSL) {
                 this.style.cursor = "default"
             })
             .call(Framdrag)
-        minMapSvg.append("rect")
+        minMapG.append("rect")
             .attr("id", "bottomLine")
             .attr("width", centerRectWidth + lineWidth)
             .attr("height", lineWidth)
@@ -1886,7 +1885,7 @@ function drawStoryLine(sessionListSL) {
             .attr("fill", FramColor)
             .attr('fill-opacity', 0.7)
 
-        minMapSvg.append("rect")
+        minMapG.append("rect")
             .attr("id", "leftDragRect")
             .attr("width", 2 * dragRectWidth + lineWidth)
             .attr("height", dragRectHeight)
@@ -1904,7 +1903,7 @@ function drawStoryLine(sessionListSL) {
             })
             .call(drag)
 
-        minMapSvg.append("rect")
+        minMapG.append("rect")
             .attr("id", "rightDragRect")
             .attr("width", 2 * dragRectWidth + lineWidth)
             .attr("height", dragRectHeight)
