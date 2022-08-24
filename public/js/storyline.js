@@ -201,7 +201,7 @@ function drawStoryLine(sessionListSL) {
     var FramColor = "#DFE6F3"
     var mouseOverColor = "#c1d1f7"
     var dragRectColor = "#adb9d2"
-
+    var backgroundColor = "#f6f8fc"
     var mainSvg = d3.select("#storyline-view")
         .attr("id", "storyline-view")
         .append("svg")
@@ -224,7 +224,6 @@ function drawStoryLine(sessionListSL) {
         .attr("y", height)
         .attr("width", minMapWidth) //设定宽度
         .attr("height", minMapHeight); //设定高度
-
 
     // var svg = d3.select("#storyline-view") // 选择文档中的body 元素
     //     .append("svg") //添加一个SVG元素
@@ -1027,6 +1026,14 @@ function drawStoryLine(sessionListSL) {
     //画线
 
     line_array.sort(ascend);
+
+    //小地图背景
+    minMapSvg.append("rect")
+        .attr("x", 0)
+        .attr("y", topY)
+        .attr("width", rightBoundary)
+        .attr("height", rectHeight)
+        .attr("fill", backgroundColor)
 
     var sum = 1;
     var reline = new Array();
