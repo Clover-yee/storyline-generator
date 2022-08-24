@@ -198,8 +198,10 @@ function drawStoryLine(sessionListSL) {
     // var height = storylineView.offsetHeight; // 画布*的高度
     storylineView.innerText = ''
     var scale = 1; // 缩放
-    var FramColor = "#96CDCD"
-    var mouseOverColor = "#00BFFF"
+    var FramColor = "#DFE6F3"
+    var mouseOverColor = "#c1d1f7"
+    var dragRectColor = "#adb9d2"
+
     var mainSvg = d3.select("#storyline-view")
         .attr("id", "storyline-view")
         .append("svg")
@@ -250,7 +252,6 @@ function drawStoryLine(sessionListSL) {
     var rectHeight = bottomY - topY;
     var minDistance = width / (height / rectHeight);
     var lineWidth = 3;
-    var dragRectColor = "black"
     //记录故事线偏移位置,缩放比例
     var transformk = 0;
     var transformy = 0;
@@ -1533,12 +1534,12 @@ function drawStoryLine(sessionListSL) {
         //调试信息
     }
     function zoomFix() {
-        if (rightLineX > rightBoundary) {
+        if (rightLineX > Math.max(rightBoundary, rightX)) {
             console.log("rightLineX, transformx")
             console.log(rightLineX, transformx);
 
-            leftLineX = rightBoundary - (rightLineX - leftLineX)
-            rightLineX = rightBoundary
+            leftLineX = Math.max(rightBoundary, rightX) - (rightLineX - leftLineX)
+            rightLineX = Math.max(rightBoundary, rightX)
             computeY()
             storyLineG
                 .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
@@ -1551,6 +1552,16 @@ function drawStoryLine(sessionListSL) {
             console.log(leftLineX, transformx);
 
             leftLineX = leftBoundary
+            rightLineX = rightLineX - leftLineX
+            drawFram(SvgTransformK, -leftLineX * SvgTransformK)
+            computeY()
+            storyLineG
+                .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+            transformx = -leftLineX * SvgTransformK
+        }
+
+        if (leftLineX > rightX) {
+            leftLineX = rightX
             rightLineX = rightLineX - leftLineX
             drawFram(SvgTransformK, -leftLineX * SvgTransformK)
             computeY()
@@ -1605,8 +1616,14 @@ function drawStoryLine(sessionListSL) {
         .attr("x", leftX)
         .attr("y", topY)
         .attr("fill", FramColor)
-        .on("mouseover", function () { this.style.cursor = "e-resize" })
-        .on("mouseout", function () { this.style.cursor = "default" })
+        .on("mouseover", function () {
+            this.style.cursor = "e-resize";
+            d3.select(this).style("stroke", mouseOverColor)
+        })
+        .on("mouseout", function () {
+            this.style.cursor = "default";
+            d3.select(this).style("stroke", dragRectColor)
+        })
         .call(drag)
 
     minMapSvg.append("rect")
@@ -1616,8 +1633,14 @@ function drawStoryLine(sessionListSL) {
         .attr("x", rightX)
         .attr("y", topY)
         .attr("fill", FramColor)
-        .on("mouseover", function () { this.style.cursor = "e-resize" })
-        .on("mouseout", function () { this.style.cursor = "default" })
+        .on("mouseover", function () {
+            this.style.cursor = "e-resize";
+            d3.select(this).style("stroke", mouseOverColor)
+        })
+        .on("mouseout", function () {
+            this.style.cursor = "default";
+            d3.select(this).style("stroke", dragRectColor)
+        })
         .call(drag)
 
 
@@ -1628,7 +1651,7 @@ function drawStoryLine(sessionListSL) {
         minDistance = width / (height / rectHeight)
         {
             if ((this.id == "leftLine" || this.id == "leftDragRect") && rightLineX - event.x >= minDistance
-                && event.x >= leftBoundary && event.x < Math.min(rightBoundary, rightX)) {
+                && event.x >= leftBoundary && event.x < Math.max(rightBoundary, rightX)) {
                 this.style.cursor = "e-resize"
                 d3.select("#leftLine")
                     .attr("x", event.x);
@@ -1673,13 +1696,17 @@ function drawStoryLine(sessionListSL) {
         moveX = event.x
         var hypoLeftX = leftLineX + moveX - startFramX
         var hypoRightX = rightLineX + moveX - startFramX
-        if (hypoLeftX < leftBoundary || hypoLeftX > rightX || hypoRightX > rightBoundary) {
+        if (hypoLeftX < leftBoundary || hypoLeftX > rightX || hypoRightX > Math.max(rightBoundary, rightX)) {
             moveX = endFramX
             hypoLeftX = leftLineX + moveX - startFramX
             hypoRightX = rightLineX + moveX - startFramX
         }
         d3.select("#leftLine")
             .attr("x", hypoLeftX)
+        d3.select("#leftDragRect")
+            .attr("x", hypoLeftX - dragRectWidth)
+        d3.select("#rightDragRect")
+            .attr("x", hypoRightX - dragRectWidth)
         d3.select("#rightLine")
             .attr("x", hypoRightX)
         d3.select("#topLine")
@@ -1739,8 +1766,14 @@ function drawStoryLine(sessionListSL) {
             .attr("y", topY + dragRectHeight / 4)
             .attr("fill", "white")
             .attr("stroke", dragRectColor)
-            .on("mouseover", function () { this.style.cursor = "e-resize" })
-            .on("mouseout", function () { this.style.cursor = "default" })
+            .on("mouseover", function () {
+                this.style.cursor = "e-resize";
+                d3.select(this).style("stroke", mouseOverColor)
+            })
+            .on("mouseout", function () {
+                this.style.cursor = "default";
+                d3.select(this).style("stroke", dragRectColor)
+            })
             .call(drag)
 
         minMapSvg.append("rect")
@@ -1751,8 +1784,14 @@ function drawStoryLine(sessionListSL) {
             .attr("y", topY + dragRectHeight / 4)
             .attr("fill", "white")
             .attr("stroke", dragRectColor)
-            .on("mouseover", function () { this.style.cursor = "e-resize" })
-            .on("mouseout", function () { this.style.cursor = "default" })
+            .on("mouseover", function () {
+                this.style.cursor = "e-resize";
+                d3.select(this).style("stroke", mouseOverColor)
+            })
+            .on("mouseout", function () {
+                this.style.cursor = "default";
+                d3.select(this).style("stroke", dragRectColor)
+            })
             .call(drag)
 
         SvgTransformK = ((width) / centerRectWidth)
