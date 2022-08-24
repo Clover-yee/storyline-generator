@@ -1,29 +1,46 @@
 //辅助函数
 {
     function dragFunc(id, id2, scale, SvgTransformK) {
-        var Drag = document.getElementById(id);
-        var Dragout = document.getElementById(id);
-        var Drag_line = document.getElementById(id2);
-        var Dragout_line = document.getElementById(id2);
-        Dragout.onmousedown = function (event) {
-            var ev = event || window.event;
-            event.stopPropagation();
-            var disX = ev.clientX - Drag.offsetLeft;
-            var disY = ev.clientY - Drag.offsetTop;
-            document.onmousemove = function (event) {
+            var Drag = document.getElementById(id);
+            var Dragout = document.getElementById(id);
+            var Drag_line = document.getElementById(id2);
+            var Dragout_line = document.getElementById(id2);
+            Dragout.onmousedown = function (event) {
+              var ev = event || window.event;
+              event.stopPropagation();
+              var disX = ev.clientX - Drag.offsetLeft;
+              var disY = ev.clientY - Drag.offsetTop;
+              document.onmousemove = function (event) {
                 var ev = event || window.event;
-                Drag.style.left = ev.clientX - disX + "px";
-                Drag.style.top = ev.clientY - disY + "px";
-                Drag_line.attributes.x1.value = (ev.clientX - disX) * scale * SvgTransformK + "px";
-                Drag_line.attributes.y1.value = (ev.clientY - disY) * scale * SvgTransformK + "px";
-                // console.log(Drag_line.attributes.x1.value, Drag_line.attributes.y1.value)
+        
+                var X = ev.clientX - disX;
+                var Y = ev.clientY - disY;
+                Drag_x = Math.min(Math.max(0, X), 1000);
+                Drag_y = Math.min(Math.max(200, Y), 400);
+                Drag.style.left = Drag_x + "px";
+                Drag.style.top = Drag_y + "px";
+                Drag_line.attributes.x1.value = Drag_x + 40 + "px";
+                Drag_line.attributes.y1.value = Drag_y - 220 + "px";
+                console.log(
+                  Drag_line.attributes.x1.value,
+                  Drag_line.attributes.y1.value
+                );
+              };
             };
-        };
-        Dragout.onmouseup = function () {
-            document.onmousemove = null;
-            Drag.style.cursor = "default";
-        };
-    };
+            Dragout.onmouseup = function () {
+              document.onmousemove = null;
+              Drag.style.cursor = "default";
+            };
+          }
+    function deletewordcloud(click_flag) {
+            for (i = 0; i < click_flag.length; i++) {
+              if (click_flag[i] == 1) {
+                d3.select("#WordCloud" + this.id).remove();
+                d3.select("#line" + this.id).remove();
+                click_flag[click_key] = 0;
+              }
+            }
+          }
     //随机函数
     function randomNum(maxNum, minNum, decimalNum) {
         var max = 0, min = 0;
@@ -72,19 +89,46 @@
     function rankr(x, y) {
         return x[1] - y[1];
     }
-    function m_rank(x, y) {
-        if (x[4] == y[4]) {
-            if (x[7] == y[7]) {
+    // function m_rank(x, y) {
+    //     if (x[4] == y[4]) {
+    //         if (x[7] == y[7]) {
+    //             return x[5] - y[5];
+    //         }
+    //         else {
+    //             return x[7] - y[7];
+    //         }
+    //     }
+    //     else {
+    //         return x[4] - y[4];
+    //     }
+    // }
+    function  m_rank(x, y) {
+            if (x[4] == y[4]) {
+              var x_sum = 0;
+              var y_sum = 0;
+              var x_split = x[2].split('');
+              var y_split = y[2].split('');
+              if(x[2] == y[2]){
                 return x[5] - y[5];
+              }
+              else{
+                if(x_split[0] == y_split[0]){
+                  for(i=1;i<x_split.length;i++){
+                    x_sum = 10*x_sum + parseInt(x_split[i]);
+                  }
+                  for(i=1;i<y_split.length;i++){
+                    y_sum = 10*y_sum + parseInt(y_split[i]);
+                  }
+                  return x_sum - y_sum;
+                }
+                else{
+                  return x_split[0] > y_split[0];
+                }
+              }
+            } else {
+              return x[4] - y[4];
             }
-            else {
-                return x[7] - y[7];
-            }
-        }
-        else {
-            return x[4] - y[4];
-        }
-    }
+          }
     function ascend(x, y) {
         if (x[2] == y[2]) {
             return x[0] - y[0];
@@ -365,7 +409,18 @@ function drawStoryLine(sessionListSL) {
     //开始绘制，按照dataresult  
     var cs = 10;//循环次数
     rob = 0;
-    var color = [d3.rgb('#007AFF'), d3.rgb('#FFF500'), d3.rgb('#F08DB3'), d3.rgb('#FF00FF'), d3.rgb('#FF0000'), d3.rgb('#000000')]
+    var color = [
+            d3.rgb("#336633"),
+            d3.rgb("#0099CC"),
+            d3.rgb("#003399"),
+            d3.rgb("#CCCCFF"),
+            d3.rgb("#990033"),
+            d3.rgb("#99CC00"),
+            d3.rgb("#666666"),
+            d3.rgb("#663366"),
+            d3.rgb("#003300"),
+            d3.rgb("#FF9966"),
+          ];
     var initmember = new Array();
     var membernew = new Array();
     var number1 = 0;
@@ -1034,7 +1089,48 @@ function drawStoryLine(sessionListSL) {
         .attr("width", rightBoundary)
         .attr("height", rectHeight)
         .attr("fill", backgroundColor)
+    //添加图例
+      var legend = d3.select("body")
+                      .append("div")
+                      .attr("id", "legend");
+                      
+      var legendSvg_width = 300;
+      var legendSvg_height = 60;
+      var legendSvg = legend.append("svg")
+                            .attr("x", 0)
+                            .attr("y", 0)
+                            .attr("width", legendSvg_width)
+                            .attr("height", legendSvg_height);
+                            
 
+      var legend_distancex = 60;
+      var legend_distancey = 9;
+      var legend_x = 0;
+      var legend_y = 9;
+      for(i=0;i<membercolor.length;i++){
+        
+        legendSvg.append("rect")
+                  .attr("x", legend_x)
+                  .attr("y", legend_y)
+                  .attr("width", 10)
+                  .attr("height", 6)
+                  .attr("fill", color[i])
+                  .attr("rx", 2);
+
+        legendSvg.append("text")
+                  .attr("x", legend_x+12)
+                  .attr("y", legend_y+4)
+                  .style('font-weight', 1)
+                  .style('font-family', 'Arial')
+                  .style('font-size', 6)
+                  .style('fill', color[i])
+                  .text(membercolor[i]);
+        legend_x+=45;
+        if(legend_x >= 45*2){
+          legend_x = 0;
+          legend_y += 9
+        }
+      }
     var sum = 1;
     var reline = new Array();
     for (i = 1; i < line_array.length; i++) {
@@ -1079,23 +1175,23 @@ function drawStoryLine(sessionListSL) {
                     .attr("id", line_array[i][2])
                     .attr("d", Gen(reline))
                     .attr("fill", "none")
-                    .attr("stroke", "black")
+                    .attr("stroke", color[line_array[i - 1][2]])
                     .attr("stroke-width", "1px")
                     .attr("stroke-opcacity", 0.1)
                     .on("mouseover", function () {
-                        this.style.stroke = "red";
+                        this.style.stroke = "black";
                         var name = d3.select('#' + membercolor[this.id])
                         name.fill = "orange"
                     })
                     .on("mouseout", function (d) {
-                        this.style.stroke = "black";
+                        this.style.stroke =  color[parseInt(this.id)];
                         var name = d3.select('#' + membercolor[this.id])
                         name.fill = "black";
                     });
                 minMapSvg.append("path")
                     .attr("d", Gen(reline))
                     .attr("fill", "none")
-                    .attr("stroke", "black")
+                    .attr("stroke", color[line_array[i - 1][2]])
                     .attr("stroke-width", 1 / scale + "px")
                     .attr("stroke-opcacity", 0.1)
 
@@ -1111,24 +1207,24 @@ function drawStoryLine(sessionListSL) {
                 .attr("id", line_array[i - 1][2])
                 .attr("d", Gen(reline))
                 .attr("fill", "none")
-                .attr("stroke", "black")
+                .attr("stroke", color[line_array[i - 1][2]])
                 .attr("stroke-width", "1px")
                 .attr("stroke-opcacity", 0.1)
                 .on("mouseover", function () {
-                    this.style.stroke = "red";
+                    this.style.stroke = "black";
                 })
                 .on("mouseout", function (d) {
-                    this.style.stroke = "black";
+                    this.style.stroke = color[parseInt(this.id)];
                 });
             minMapSvg.append("path")
                 .attr("d", Gen(reline))
                 .attr("fill", "none")
-                .attr("stroke", "black")
+                .attr("stroke", color[line_array[i - 1][2]])
                 .attr("stroke-width", 1 / scale + "px")
                 .attr("stroke-opcacity", 0.1)
             reline.length = 0;
         }
-        //添加故事线人物
+        // 添加故事线人物
         if (i == 1) {
             //添加第一个故事线的名字（使用i-1）
             var mem = line_array[i - 1][4].split('');
@@ -1335,10 +1431,10 @@ function drawStoryLine(sessionListSL) {
                         //指向词云的线
                         var line = Svg.append("line")
                             .attr("id", "line" + this.id)
-                            .attr("x1", line_x + 100)
-                            .attr("y1", line_y)
-                            .attr("x2", x2)
-                            .attr("y2", y2)
+                            .attr("x1", line_x + 40)
+                            .attr("y1", line_y - 220)
+                            .attr("x2", event.x)
+                            .attr("y2", event.y - 313)
                             .attr("stroke", "blue")
                             .attr("stroke-width", 1)
                             // .attr("marker-start","url(#arrow)")
@@ -1542,6 +1638,14 @@ function drawStoryLine(sessionListSL) {
 
         OldTransformK = transform.k
         //调试信息
+
+        for (i = 0; i < click_flag.length; i++) {
+            if (click_flag[i] == 1) {
+            d3.select("#WordCloud" + i).remove();
+            d3.select("#line" + i).remove();
+            click_flag[i] = 0;
+            }
+        }
     }
     function zoomFix() {
         if (rightLineX > Math.max(rightBoundary, rightX)) {
@@ -1730,6 +1834,13 @@ function drawStoryLine(sessionListSL) {
         computeY()
         storyLineG
             .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+        for (i = 0; i < click_flag.length; i++) {
+            if (click_flag[i] == 1) {
+            d3.select("#WordCloud" + i).remove();
+            d3.select("#line" + i).remove();
+            click_flag[i] = 0;
+            }
+        }
     }
     function writeEndPosition() {
         leftLineX += endFramX - startFramX;
@@ -1810,7 +1921,13 @@ function drawStoryLine(sessionListSL) {
         storyLineG
             .attr("transform", "translate(" + [- leftLineX * SvgTransformK * scale, recommandY] + ")scale(" + (SvgTransformK) + ")")
         FramTranformX = - leftLineX * SvgTransformK * scale;
-
+        for (i = 0; i < click_flag.length; i++) {
+            if (click_flag[i] == 1) {
+                d3.select("#WordCloud" + i).remove();
+                d3.select("#line" + i).remove();
+                click_flag[i] = 0;
+            }
+        }
 
     }
     function computeY() {
