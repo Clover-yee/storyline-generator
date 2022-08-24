@@ -1096,7 +1096,7 @@ function drawStoryLine(sessionListSL) {
         .append("div")
         .attr("id", "legend");
 
-    var legendSvg_width = 300;
+    var legendSvg_width = 150;
     var legendSvg_height = 60;
     var legendSvg = legend.append("svg")
         .attr("x", 0)
@@ -1236,7 +1236,7 @@ function drawStoryLine(sessionListSL) {
                 .attr("y", line_array[i - 1][1])
                 .style('font-weight', 1)
                 .style('font-family', 'Arial')
-                .style('font-size', 4)
+                .style('font-size', 2)
                 .style('fill', color[line_array[i - 1][2]])
                 .text(line_array[i - 1][4])
             minMapG.append("text")
@@ -1244,7 +1244,7 @@ function drawStoryLine(sessionListSL) {
                 .attr("y", (line_array[i - 1][1]) / scale)
                 .style('font-weight', 1 / scale)
                 .style('font-family', 'Arial')
-                .style('font-size', 4 / scale)
+                .style('font-size', 2 / scale)
                 .style('fill', color[line_array[i - 1][2]])
                 .text(line_array[i - 1][4])
         }
@@ -1258,7 +1258,7 @@ function drawStoryLine(sessionListSL) {
                 .attr("y", line_array[i][1])
                 .style('font-weight', 1)
                 .style('font-family', 'Arial')
-                .style('font-size', 4)
+                .style('font-size', 2)
                 .style('fill', color[line_array[i][2]])
                 .text(line_array[i][4])
             minMapG.append("text")
@@ -1266,7 +1266,7 @@ function drawStoryLine(sessionListSL) {
                 .attr("y", (line_array[i][1]) / scale)
                 .style('font-weight', 1 / scale)
                 .style('font-family', 'Arial')
-                .style('font-size', 4 / scale)
+                .style('font-size', 2 / scale)
                 .style('fill', color[line_array[i][2]])
                 .text(line_array[i][4])
         }
@@ -1560,7 +1560,7 @@ function drawStoryLine(sessionListSL) {
     var rectHeight = bottomY - topY;
     d3.select("#minMapBackGround")
         .attr("x", leftX)
-        .attr("width", Math.max(rightX, rightBoundary))
+        .attr("width", minMapWidth - 6)
         .attr('y', topY).attr('height', rectHeight)
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
@@ -1683,7 +1683,7 @@ function drawStoryLine(sessionListSL) {
         //     console.log(transformx1 - transformStartX);
         // }
         // else
-         if (zoomOperation == 1) {
+        if (zoomOperation == 1) {
             transformx = transformx1
             console.log("Zoom:" + transformx)
         }
