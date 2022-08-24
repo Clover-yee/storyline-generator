@@ -185,7 +185,7 @@ var recommandY = -50;
 function drawStoryLine(sessionListSL) {
     console.log(SvgTransformK, transformx);
     var width = 1000; // 画布的宽度
-    var height = 270; // 画布的高度
+    var height = 370; // 画布的高度
     var minMapWidth = 1000;
     var minMapHeight = 130;
     var liucunkongbai = 100;
@@ -1352,7 +1352,8 @@ function drawStoryLine(sessionListSL) {
                         session = sessionList.find(elem => {
                             return elem._id === curSessionID
                         })
-                        drawConnectedPointByPage()
+                        page = fragment[1]
+                        jumpPage(page)
                         openFragmentPanel()
                     }
                 }
