@@ -1,18 +1,18 @@
 //辅助函数
 {
     function dragFunc(id, id2, scale, SvgTransformK) {
-            var Drag = document.getElementById(id);
-            var Dragout = document.getElementById(id);
-            var Drag_line = document.getElementById(id2);
-            var Dragout_line = document.getElementById(id2);
-            Dragout.onmousedown = function (event) {
-              var ev = event || window.event;
-              event.stopPropagation();
-              var disX = ev.clientX - Drag.offsetLeft;
-              var disY = ev.clientY - Drag.offsetTop;
-              document.onmousemove = function (event) {
+        var Drag = document.getElementById(id);
+        var Dragout = document.getElementById(id);
+        var Drag_line = document.getElementById(id2);
+        var Dragout_line = document.getElementById(id2);
+        Dragout.onmousedown = function (event) {
+            var ev = event || window.event;
+            event.stopPropagation();
+            var disX = ev.clientX - Drag.offsetLeft;
+            var disY = ev.clientY - Drag.offsetTop;
+            document.onmousemove = function (event) {
                 var ev = event || window.event;
-        
+
                 var X = ev.clientX - disX;
                 var Y = ev.clientY - disY;
                 Drag_x = Math.min(Math.max(0, X), 1000);
@@ -22,25 +22,25 @@
                 Drag_line.attributes.x1.value = Drag_x + 40 + "px";
                 Drag_line.attributes.y1.value = Drag_y - 220 + "px";
                 console.log(
-                  Drag_line.attributes.x1.value,
-                  Drag_line.attributes.y1.value
+                    Drag_line.attributes.x1.value,
+                    Drag_line.attributes.y1.value
                 );
-              };
             };
-            Dragout.onmouseup = function () {
-              document.onmousemove = null;
-              Drag.style.cursor = "default";
-            };
-          }
+        };
+        Dragout.onmouseup = function () {
+            document.onmousemove = null;
+            Drag.style.cursor = "default";
+        };
+    }
     function deletewordcloud(click_flag) {
-            for (i = 0; i < click_flag.length; i++) {
-              if (click_flag[i] == 1) {
+        for (i = 0; i < click_flag.length; i++) {
+            if (click_flag[i] == 1) {
                 d3.select("#WordCloud" + this.id).remove();
                 d3.select("#line" + this.id).remove();
                 click_flag[click_key] = 0;
-              }
             }
-          }
+        }
+    }
     //随机函数
     function randomNum(maxNum, minNum, decimalNum) {
         var max = 0, min = 0;
@@ -102,33 +102,33 @@
     //         return x[4] - y[4];
     //     }
     // }
-    function  m_rank(x, y) {
-            if (x[4] == y[4]) {
-              var x_sum = 0;
-              var y_sum = 0;
-              var x_split = x[2].split('');
-              var y_split = y[2].split('');
-              if(x[2] == y[2]){
+    function m_rank(x, y) {
+        if (x[4] == y[4]) {
+            var x_sum = 0;
+            var y_sum = 0;
+            var x_split = x[2].split('');
+            var y_split = y[2].split('');
+            if (x[2] == y[2]) {
                 return x[5] - y[5];
-              }
-              else{
-                if(x_split[0] == y_split[0]){
-                  for(i=1;i<x_split.length;i++){
-                    x_sum = 10*x_sum + parseInt(x_split[i]);
-                  }
-                  for(i=1;i<y_split.length;i++){
-                    y_sum = 10*y_sum + parseInt(y_split[i]);
-                  }
-                  return x_sum - y_sum;
-                }
-                else{
-                  return x_split[0] > y_split[0];
-                }
-              }
-            } else {
-              return x[4] - y[4];
             }
-          }
+            else {
+                if (x_split[0] == y_split[0]) {
+                    for (i = 1; i < x_split.length; i++) {
+                        x_sum = 10 * x_sum + parseInt(x_split[i]);
+                    }
+                    for (i = 1; i < y_split.length; i++) {
+                        y_sum = 10 * y_sum + parseInt(y_split[i]);
+                    }
+                    return x_sum - y_sum;
+                }
+                else {
+                    return x_split[0] > y_split[0];
+                }
+            }
+        } else {
+            return x[4] - y[4];
+        }
+    }
     function ascend(x, y) {
         if (x[2] == y[2]) {
             return x[0] - y[0];
@@ -410,17 +410,17 @@ function drawStoryLine(sessionListSL) {
     var cs = 10;//循环次数
     rob = 0;
     var color = [
-            d3.rgb("#336633"),
-            d3.rgb("#0099CC"),
-            d3.rgb("#003399"),
-            d3.rgb("#CCCCFF"),
-            d3.rgb("#990033"),
-            d3.rgb("#99CC00"),
-            d3.rgb("#666666"),
-            d3.rgb("#663366"),
-            d3.rgb("#003300"),
-            d3.rgb("#FF9966"),
-          ];
+        d3.rgb("#336633"),
+        d3.rgb("#0099CC"),
+        d3.rgb("#003399"),
+        d3.rgb("#CCCCFF"),
+        d3.rgb("#990033"),
+        d3.rgb("#99CC00"),
+        d3.rgb("#666666"),
+        d3.rgb("#663366"),
+        d3.rgb("#003300"),
+        d3.rgb("#FF9966"),
+    ];
     var initmember = new Array();
     var membernew = new Array();
     var number1 = 0;
@@ -1091,47 +1091,47 @@ function drawStoryLine(sessionListSL) {
         .attr("height", rectHeight)
         .attr("fill", backgroundColor)
     //添加图例
-      var legend = d3.select("body")
-                      .append("div")
-                      .attr("id", "legend");
-                      
-      var legendSvg_width = 300;
-      var legendSvg_height = 60;
-      var legendSvg = legend.append("svg")
-                            .attr("x", 0)
-                            .attr("y", 0)
-                            .attr("width", legendSvg_width)
-                            .attr("height", legendSvg_height);
-                            
+    var legend = d3.select("body")
+        .append("div")
+        .attr("id", "legend");
 
-      var legend_distancex = 60;
-      var legend_distancey = 9;
-      var legend_x = 0;
-      var legend_y = 9;
-      for(i=0;i<membercolor.length;i++){
-        
+    var legendSvg_width = 300;
+    var legendSvg_height = 60;
+    var legendSvg = legend.append("svg")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", legendSvg_width)
+        .attr("height", legendSvg_height);
+
+
+    var legend_distancex = 60;
+    var legend_distancey = 9;
+    var legend_x = 0;
+    var legend_y = 9;
+    for (i = 0; i < membercolor.length; i++) {
+
         legendSvg.append("rect")
-                  .attr("x", legend_x)
-                  .attr("y", legend_y)
-                  .attr("width", 10)
-                  .attr("height", 6)
-                  .attr("fill", color[i])
-                  .attr("rx", 2);
+            .attr("x", legend_x)
+            .attr("y", legend_y)
+            .attr("width", 10)
+            .attr("height", 6)
+            .attr("fill", color[i])
+            .attr("rx", 2);
 
         legendSvg.append("text")
-                  .attr("x", legend_x+12)
-                  .attr("y", legend_y+4)
-                  .style('font-weight', 1)
-                  .style('font-family', 'Arial')
-                  .style('font-size', 6)
-                  .style('fill', color[i])
-                  .text(membercolor[i]);
-        legend_x+=45;
-        if(legend_x >= 45*2){
-          legend_x = 0;
-          legend_y += 9
+            .attr("x", legend_x + 12)
+            .attr("y", legend_y + 4)
+            .style('font-weight', 1)
+            .style('font-family', 'Arial')
+            .style('font-size', 6)
+            .style('fill', color[i])
+            .text(membercolor[i]);
+        legend_x += 45;
+        if (legend_x >= 45 * 2) {
+            legend_x = 0;
+            legend_y += 9
         }
-      }
+    }
     var sum = 1;
     var reline = new Array();
     for (i = 1; i < line_array.length; i++) {
@@ -1185,7 +1185,7 @@ function drawStoryLine(sessionListSL) {
                         name.fill = "orange"
                     })
                     .on("mouseout", function (d) {
-                        this.style.stroke =  color[parseInt(this.id)];
+                        this.style.stroke = color[parseInt(this.id)];
                         var name = d3.select('#' + membercolor[this.id])
                         name.fill = "black";
                     });
@@ -1555,7 +1555,10 @@ function drawStoryLine(sessionListSL) {
     rightLineX = rightX;
     var rectHeight = bottomY - topY;
 
-    d3.select("#minMapBackGround").attr("width", rightX)
+    d3.select("#minMapBackGround")
+        .attr("width", rightX)
+        .attr("y", topY)
+
 
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
@@ -1644,9 +1647,9 @@ function drawStoryLine(sessionListSL) {
 
         for (i = 0; i < click_flag.length; i++) {
             if (click_flag[i] == 1) {
-            d3.select("#WordCloud" + i).remove();
-            d3.select("#line" + i).remove();
-            click_flag[i] = 0;
+                d3.select("#WordCloud" + i).remove();
+                d3.select("#line" + i).remove();
+                click_flag[i] = 0;
             }
         }
     }
@@ -1839,9 +1842,9 @@ function drawStoryLine(sessionListSL) {
             .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
         for (i = 0; i < click_flag.length; i++) {
             if (click_flag[i] == 1) {
-            d3.select("#WordCloud" + i).remove();
-            d3.select("#line" + i).remove();
-            click_flag[i] = 0;
+                d3.select("#WordCloud" + i).remove();
+                d3.select("#line" + i).remove();
+                click_flag[i] = 0;
             }
         }
     }
@@ -1888,7 +1891,7 @@ function drawStoryLine(sessionListSL) {
             .attr("width", 2 * dragRectWidth + lineWidth)
             .attr("height", dragRectHeight)
             .attr("x", leftLineX - dragRectWidth)
-            .attr("y", topY + dragRectHeight / 4)
+            .attr("y", topY + (rectHeight - dragRectHeight) / 2)
             .attr("fill", "white")
             .attr("stroke", dragRectColor)
             .on("mouseover", function () {
@@ -1906,7 +1909,7 @@ function drawStoryLine(sessionListSL) {
             .attr("width", 2 * dragRectWidth + lineWidth)
             .attr("height", dragRectHeight)
             .attr("x", rightLineX - dragRectWidth)
-            .attr("y", topY + dragRectHeight / 4)
+            .attr("y", topY + (rectHeight - dragRectHeight) / 2)
             .attr("fill", "white")
             .attr("stroke", dragRectColor)
             .on("mouseover", function () {
