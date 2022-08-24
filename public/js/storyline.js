@@ -1084,9 +1084,10 @@ function drawStoryLine(sessionListSL) {
 
     //小地图背景
     minMapSvg.append("rect")
+        .attr("id","minMapBackGround")
         .attr("x", 0)
         .attr("y", topY)
-        .attr("width", rightBoundary)
+        .attr("width", rightX)
         .attr("height", rectHeight)
         .attr("fill", backgroundColor)
     //添加图例
@@ -1547,13 +1548,13 @@ function drawStoryLine(sessionListSL) {
     }
     //leftX,rightX表故事线左右两边
     leftX = 0;
-    rightX = keytips[1];
+    rightX = keytips[1] + 100;
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
     var rectHeight = bottomY - topY;
-
+    d3.select("#minMapBackGround").attr("width", rightX).attr('y',topY).attr('height',rectHeight)
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
         .translateExtent([[-300, -300], [width * height / rectHeight, height * height / rectHeight]])
