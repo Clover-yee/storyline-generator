@@ -1558,7 +1558,7 @@ function drawStoryLine(sessionListSL) {
     d3.select("#minMapBackGround")
         .attr("width", rightX)
         .attr("y", topY)
-
+        .attr("height", rectHeight)
 
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
