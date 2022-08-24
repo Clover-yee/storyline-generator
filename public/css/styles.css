@@ -397,6 +397,11 @@ p{
 .float-panel-menu .menu-content{
     --margin-top : 16px;
     height: calc(100% - var( --margin-top) * 2);
+    overflow-y: auto;
+}
+
+.float-panel-menu .menu-content::-webkit-scrollbar{
+    display: none;
 }
 
 .menu-content .content-item{
@@ -727,3 +732,14 @@ p{
     border:1px solid rgb(7, 110, 212);
     z-index: 999;
 }
+
+#legend{
+    position: fixed;
+    background: #ffffff;
+    left: 10px;
+    bottom: 150px;
+    width: 150px;
+    height: 30px;
+    z-index: 999;
+    /* border:1px solid rgb(23, 249, 46); */
+    }
