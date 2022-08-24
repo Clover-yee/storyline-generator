@@ -222,7 +222,7 @@
 /*小地图偏移量
 -(SvgTransformK * transformx)
 */
-var SvgTransformK = 2;
+var SvgTransformK = 4;
 var transformx = 0;
 var recommandY = -50;
 
@@ -233,7 +233,7 @@ function drawStoryLine(sessionListSL) {
     var minMapWidth = 1000;
     var minMapHeight = 130;
     var liucunkongbai = 100;
-    var InitialScale = 2;//初始缩放比例
+    var InitialScale = 4;//初始缩放比例
     var rightBoundary = width / InitialScale;
     var leftBoundary = 0;
 
@@ -1548,15 +1548,19 @@ function drawStoryLine(sessionListSL) {
         }
     }
     //leftX,rightX表故事线左右两边
+    // var framEdgeWidth = keytips[0] / 2
     leftX = 0;
-    rightX = keytips[1];
+    rightX = keytips[1] + keytips[0];
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
     leftLineX = leftX;
     rightLineX = rightX;
+    transformx = -leftX * SvgTransformK
+    leftBoundary = leftX
     var rectHeight = bottomY - topY;
     d3.select("#minMapBackGround")
-        .attr("width", Math.max(rightX + keytips[0], rightBoundary))
+        .attr("x", leftX)
+        .attr("width", Math.max(rightX, rightBoundary))
         .attr('y', topY).attr('height', rectHeight)
     const storyLineGZoom = d3.zoom()
         .scaleExtent([InitialScale, height / rectHeight])
@@ -1603,7 +1607,7 @@ function drawStoryLine(sessionListSL) {
             if ((leftLineX + transformFix)) {
                 storyLineG
                     .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-                drawFram(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
+                drawFramAndStoryLineMove(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
                 transformx1 = -(leftLineX + transformFix) * SvgTransformK
             }
             {
@@ -1621,22 +1625,18 @@ function drawStoryLine(sessionListSL) {
 
         //限制移动范围
         else {
-            console.log("transform.k " + " SvgTransformK" + "OldTransformK");
-            console.log(transform.k, SvgTransformK, OldTransformK);
             zoomOperation = 2
-            computeY()
             storylineMoveX = event.x;
-            if ((width - (transformx + event.x - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
-                || -(transformx + event.x - transformStartX) < leftBoundary * SvgTransformK
-                || -(transformx + event.x - transformStartX) > rightX * SvgTransformK) {
-                storylineMoveX = transformx1;
-            }
-            storyLineG
-                .attr("transform", "translate(" + [transformx + storylineMoveX - transformStartX, recommandY] + ")scale(" + SvgTransformK + ")")
-            drawFram(SvgTransformK, transformx + storylineMoveX - transformStartX)
-            transformx1 = storylineMoveX;
-            // console.log("position change");
 
+            if ((width - (transformx + storylineMoveX - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
+                || -(transformx + storylineMoveX - transformStartX) < leftBoundary * SvgTransformK
+                || -(transformx + storylineMoveX - transformStartX) > rightX * SvgTransformK) {
+                storylineMoveX = transformx1;
+                console.log("something wrong");
+            }
+            drawFramAndStoryLineMove(SvgTransformK, transformx + storylineMoveX - transformStartX)
+
+            transformx1 = storylineMoveX;
         }
         zoomFix()
 
@@ -1653,58 +1653,46 @@ function drawStoryLine(sessionListSL) {
     }
     function zoomFix() {
         if (rightLineX > Math.max(rightBoundary, rightX)) {
-            console.log("rightLineX, transformx")
-            console.log(rightLineX, transformx);
+            // console.log("rightLineX, transformx")
+            // console.log(rightLineX, transformx);
 
             leftLineX = Math.max(rightBoundary, rightX) - (rightLineX - leftLineX)
             rightLineX = Math.max(rightBoundary, rightX)
-            computeY()
-            storyLineG
-                .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-            transformx = -leftLineX * SvgTransformK
-            drawFram(SvgTransformK, -leftLineX * SvgTransformK)
 
+            drawFramAndStoryLineMove(SvgTransformK, -leftLineX * SvgTransformK)
         }
         if (leftLineX < leftBoundary) {
-            console.log("leftLineX, transformx")
-            console.log(leftLineX, transformx);
+            // console.log("leftLineX, transformx")
+            // console.log(leftLineX, transformx);
 
             leftLineX = leftBoundary
             rightLineX = rightLineX - leftLineX
-            drawFram(SvgTransformK, -leftLineX * SvgTransformK)
-            computeY()
-            storyLineG
-                .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-            transformx = -leftLineX * SvgTransformK
+            drawFramAndStoryLineMove(SvgTransformK, -leftLineX * SvgTransformK)
         }
 
         if (leftLineX > rightX) {
             leftLineX = rightX
             rightLineX = rightLineX - leftLineX
-            drawFram(SvgTransformK, -leftLineX * SvgTransformK)
-            computeY()
-            storyLineG
-                .attr("transform", "translate(" + [-leftLineX * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-            transformx = -leftLineX * SvgTransformK
+            drawFramAndStoryLineMove(SvgTransformK, -leftLineX * SvgTransformK)
         }
     }
     function writeTransform() {
-        if (fixBool == 0 && zoomOperation == 2) {
-            transformx = -SvgTransformK * leftLineX
-            console.log("Zoom:" + transformx)
-            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        }
-        else if (zoomOperation == 1) {
+        // if (fixBool == 0 && zoomOperation == 2) {
+        //     transformx = -SvgTransformK * leftLineX
+        //     console.log("Zoom:" + transformx)
+        //     console.log(transformx1 - transformStartX);
+        // }
+        // else
+         if (zoomOperation == 1) {
             transformx = transformx1
             console.log("Zoom:" + transformx)
         }
         fixBool = 0
         zoomOperation = 0
     }
-    function drawFram(k, x) {
+    function drawFramAndStoryLineMove(k, x) {
         leftLineX = -x / scale / k;
         rightLineX = (width - x) / scale / k;
-
         d3.select("#leftLine")
             .attr("x", -x / scale / k)
         d3.select("#rightLine")
@@ -1720,6 +1708,10 @@ function drawStoryLine(sessionListSL) {
             .attr("x", -x / scale / k)
             .attr("width", (width + lineWidth) / k / scale + lineWidth)
 
+        computeY()
+        storyLineG
+            .attr("transform", "translate(" + [-SvgTransformK * leftLineX, recommandY] + ")scale(" + SvgTransformK + ")")
+        transformx = -leftLineX * SvgTransformK
     }
 
     Svg.call(storyLineGZoom)
@@ -1939,7 +1931,7 @@ function drawStoryLine(sessionListSL) {
         // recommandY = - (bottomY - topY) * SvgTransformK / 2
         recommandY = ((height - rectHeight * SvgTransformK) / 2 - topY * SvgTransformK)
     }
-    drawFram(SvgTransformK, transformx)
+    drawFramAndStoryLineMove(SvgTransformK, transformx)
     reDrawFram()
     transformx = FramTranformX;
 }
