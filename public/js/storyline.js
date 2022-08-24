@@ -1520,6 +1520,8 @@ function drawStoryLine(sessionListSL) {
 
         //限制移动范围
         else {
+            console.log("transform.k " + " SvgTransformK" + "OldTransformK");
+            console.log(transform.k, SvgTransformK, OldTransformK);
             zoomOperation = 2
             computeY()
             storylineMoveX = event.x;
@@ -1581,6 +1583,7 @@ function drawStoryLine(sessionListSL) {
         if (fixBool == 0 && zoomOperation == 2) {
             transformx = -SvgTransformK * leftLineX
             console.log("Zoom:" + transformx)
+            console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         }
         else if (zoomOperation == 1) {
             transformx = transformx1
