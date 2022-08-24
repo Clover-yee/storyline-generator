@@ -659,7 +659,7 @@
 	}
 	function onkeyupPageNumJump() {
 		var input = document.getElementById('pageNumJump').value-1
-		if(input>0 && input<totalPageNum){
+		if(input>=0 && input<totalPageNum){
 			if(window.event.keyCode === 13){			
 				page = input
 				jumpPage(page)
@@ -866,7 +866,9 @@
 					</div>
 					<div class="panel v-panel panel-right-bottom" id="panel-right-bottom" >
 						<div class="view">
-							<div id="storyline-view" class="view-content storyline-view-content"></div>
+							<span id="storyline-view-title">Storyline</span>
+							<div id="storyline-view" class="view-content storyline-view-content">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -910,11 +912,11 @@
 		</div>
 	</div>
 	<div id="float-panel-fragment" class="float-panel-fragment">
-		<div class="fragments-top">
+		<div id="fragments-top" class="fragments-top">
 			<div id="fragment-cancel" class="fragment-cancel" onmouseup="onmouseupFragmentCancel(this)">
 				<span class="cancel-img"><img class="svg-icon" src="/img/cancel.png"></span>
 			</div>
-			<div id="fragment-header" class="text">Fragment</div>
+			<div id="fragment-header" class="text">Session</div>
 			<div id="fragment-confirm" class="fragment-confirm" onmouseup="onmouseupFragmentConfirm(this)">
 				<span class="confirm-img"><img class="svg-icon" src="/img/confirm.png"></span>
 			</div>
@@ -967,6 +969,6 @@
     </defs>
 </body>
 <script type="text/javascript">
-	dragFuncIndex('float-panel-fragment','fragment-header')
+	dragFuncIndex('float-panel-fragment','fragments-top')
 </script>
 </html>
