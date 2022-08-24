@@ -1814,7 +1814,7 @@ function drawStoryLine(sessionListSL) {
     }
     function computeY() {
         // recommandY = - (bottomY - topY) * SvgTransformK / 2
-        recommandY = -topY * SvgTransformK
+        recommandY = ((height - rectHeight * SvgTransformK) / 2 - topY * SvgTransformK)
     }
     drawFram(SvgTransformK, transformx)
     reDrawFram()
