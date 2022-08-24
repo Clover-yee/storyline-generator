@@ -283,11 +283,18 @@ body {
 }
 
 .storyline-view-content {
-    background: var(--gray1);
+    background: var(--gray3);
     height: calc(100% - 9px);
     border-radius: 5px;
     margin: 3px 6px 6px;
     user-select: none;
+}
+
+#storyline-view-title{
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 18px;
 }
 
 #myCanvas{
@@ -570,8 +577,10 @@ p{
 #float-panel-fragment .fragments-top {
 	width: 250px;
 	height: 20px;
-    background-color: #fff;
+    background-color: var(--gray4);
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
     display: flex;
+    cursor:move;
 }
 
 #float-panel-fragment .fragments-top .text {
@@ -579,14 +588,14 @@ p{
 	height: 20px;
     margin:0 auto;
     font-size: 16px;
-    background-color: var(--gray6);
+    /* background-color: var(--gray13); */
     line-height:20px;  /*设置文字行高， 可被高度整除*/
     word-wrap:break-word; 
     text-align: center;
     z-index: 999;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
-    cursor:move;
+    /* border-radius: 0 0 10px 10px; */
+    /* border-bottom: 2px solid var(--gray13); */
+    /* box-shadow: 0px 1px 3px rgba(0,0,0,0.2); */
     user-select:none;
 }
 
