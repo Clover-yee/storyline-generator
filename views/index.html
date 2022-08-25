@@ -487,11 +487,21 @@
 		}
 		function onClickAddFragment()
 		{
+			closeFragmentPanel()
+			curSessionID = ''
 			session = new Session()	
-			clearFragmentText()
 			_points.length = 0; // clear and signal to clear strokes on next mousedown
+			// clear canvas
 			_g.clearRect(0, 0, _rc.width, _rc.height);
-			openFragmentPanel()
+			// clear textdom bg
+			var textdoms = document.getElementsByClassName('text-bg')
+			var textdomsNum = textdoms.length
+			for (var i = 0; i < textdomsNum; i++) {
+				textdoms[0].classList.remove('text-bg')
+			}
+			setTimeout(() => {
+				openFragmentPanel()
+			}, 1);
 		}
 		function onClickImportText()
 		{
