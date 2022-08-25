@@ -1139,7 +1139,9 @@ function drawStoryLine(sessionListSL) {
             .attr("width", 10 * legend_scale )
             .attr("height", 6 * legend_scale)
             .attr("fill", color[i])
-            .attr("rx", 2);
+            .attr("rx", 4)
+            .attr("ry", 4);
+
 
         legendSvg.append("text")
             .attr("x", (legend_x + 12) * legend_scale)
@@ -1368,7 +1370,6 @@ function drawStoryLine(sessionListSL) {
             .style("opacity", 0.2)
             .on("click", function (d) {
                 var click_key = parseInt(this.id);//记录被点击的rect值
-                console.log(click_flag,click_key);
                 if (click_flag[click_key] == 0) {
                     //词云
                     {
@@ -1504,7 +1505,6 @@ function drawStoryLine(sessionListSL) {
 
                 }
                 else {
-                    console.log('closeFragmentPanel');
                     d3.select("#WordCloud" + this.id)
                         .remove();
                     d3.select("#line" + this.id)
@@ -1596,7 +1596,7 @@ function drawStoryLine(sessionListSL) {
     bottomY = keytips[3] + 10;
     // leftLineX = leftX;
     rightLineX = rightX;
-    transformx = -leftX * SvgTransformK
+    // transformx = -leftX * SvgTransformK
     leftBoundary = leftX
     var rectHeight = bottomY - topY;
     d3.select("#minMapBackGround")
