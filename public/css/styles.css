@@ -398,6 +398,7 @@ p{
     --margin-top : 16px;
     height: calc(100% - var( --margin-top) * 2);
     overflow-y: auto;
+    scroll-behavior: smooth;
 }
 
 .float-panel-menu .menu-content::-webkit-scrollbar{
