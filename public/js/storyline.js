@@ -1105,7 +1105,12 @@ function drawStoryLine(sessionListSL) {
         .attr("width", rightX)
         .attr("height", rectHeight)
         .attr("fill", backgroundColor)
+
     //添加图例
+    var legend_scale = 1;
+        if(height == 370){
+            legend_scale = 2;//控制缩放比例
+        }
     var legend = d3.select("body")
         .append("div")
         .attr("id", "legend");
@@ -1115,8 +1120,9 @@ function drawStoryLine(sessionListSL) {
     var legendSvg = legend.append("svg")
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", legendSvg_width)
-        .attr("height", legendSvg_height);
+        .attr("width", legendSvg_width * legend_scale)
+        .attr("height", legendSvg_height * legend_scale)
+        .attr('transform','translate(20,0)');
 
 
     var legend_distancex = 60;
@@ -1126,19 +1132,19 @@ function drawStoryLine(sessionListSL) {
     for (i = 0; i < membercolor.length; i++) {
 
         legendSvg.append("rect")
-            .attr("x", legend_x)
-            .attr("y", legend_y)
-            .attr("width", 10)
-            .attr("height", 6)
+            .attr("x", legend_x * legend_scale)
+            .attr("y", legend_y * legend_scale)
+            .attr("width", 10 * legend_scale )
+            .attr("height", 6 * legend_scale)
             .attr("fill", color[i])
             .attr("rx", 2);
 
         legendSvg.append("text")
-            .attr("x", legend_x + 12)
-            .attr("y", legend_y + 4)
+            .attr("x", (legend_x + 12) * legend_scale)
+            .attr("y", (legend_y + 5) * legend_scale)
             .style('font-weight', 1)
             .style('font-family', 'Arial')
-            .style('font-size', 6)
+            .style('font-size', 6 * legend_scale)
             .style('fill', color[i])
             .text(membercolor[i]);
         legend_x += 45;
@@ -1250,7 +1256,7 @@ function drawStoryLine(sessionListSL) {
             var mem = line_array[i - 1][4].split('');
             storyLineG.append("text")
                 .attr("id", line_array[i - 1][4])
-                .attr("x", line_array[i - 1][0] - mem.length * 4)
+                .attr("x", line_array[i - 1][0] - 10)
                 .attr("y", line_array[i - 1][1])
                 .style('font-weight', 1)
                 .style('font-family', 'Arial')
@@ -1258,7 +1264,7 @@ function drawStoryLine(sessionListSL) {
                 .style('fill', color[line_array[i - 1][2]])
                 .text(line_array[i - 1][4])
             minMapG.append("text")
-                .attr("x", (line_array[i - 1][0] - mem.length * 4) / scale)
+                .attr("x", (line_array[i - 1][0] - 10) / scale)
                 .attr("y", (line_array[i - 1][1]) / scale)
                 .style('font-weight', 1 / scale)
                 .style('font-family', 'Arial')
@@ -1272,7 +1278,7 @@ function drawStoryLine(sessionListSL) {
             var mem = line_array[i][4].split('');
             storyLineG.append("text")
                 .attr("id", line_array[i][4])
-                .attr("x", line_array[i][0] - mem.length * 5)
+                .attr("x", line_array[i][0] - 10)
                 .attr("y", line_array[i][1])
                 .style('font-weight', 1)
                 .style('font-family', 'Arial')
@@ -1280,7 +1286,7 @@ function drawStoryLine(sessionListSL) {
                 .style('fill', color[line_array[i][2]])
                 .text(line_array[i][4])
             minMapG.append("text")
-                .attr("x", (line_array[i][0] - mem.length * 5) / scale)
+                .attr("x", (line_array[i][0] - 10) / scale)
                 .attr("y", (line_array[i][1]) / scale)
                 .style('font-weight', 1 / scale)
                 .style('font-family', 'Arial')
