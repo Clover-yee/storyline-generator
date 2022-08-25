@@ -233,17 +233,27 @@ var liucunkongbai = 100;
 var rightBoundary = width / SvgTransformK;
 var leftBoundary = 0;
 
-//old start
-var dataresult1 = new Array();//处理的最终结果
-var dataresult = new Array();
-var max = 0
-var memberfix = new Array();
-var peopledistance = 2;
-var eventdistance = 5;
-var membering = new Array();
-var member_c = new Array();
-var mem_end = new Array();
-//处理数据
+var scale = 1;
+var storyLineG = Svg.append("g");
+//初始化边框的左右边界
+var startLeftLineX = 100;
+var startRightLineX = 400;
+var leftLineX = startLeftLineX;
+var rightLineX = startRightLineX;
+//缩略图边框样式数值
+var topLineHeight = 10;
+var dragRectWidth = 3;
+var dragRectHeight = 26;
+//故事线最上以及最下边的坐标
+var topY = 40;
+var bottomY = 80;
+//故事线最左及最右边的坐标
+var leftX = 0;
+var rightX = 600;
+var rectHeight = bottomY - topY;
+var minDistance = width / (height / rectHeight);
+var lineWidth = 3;
+
 
 function drawStoryLine(sessionListSL) {
 
@@ -287,11 +297,18 @@ function drawStoryLine(sessionListSL) {
     //     .attr("height", height) //设定高度
     //     .attr("transform",`scale(${scale}) translate(300, 120)`);  //TODO
 
-    var scale = 1;
-    var storyLineG = Svg.append("g");
 
-
-
+    //old start
+    var dataresult1 = new Array();//处理的最终结果
+    var dataresult = new Array();
+    var max = 0
+    var memberfix = new Array();
+    var peopledistance = 2;
+    var eventdistance = 5;
+    var membering = new Array();
+    var member_c = new Array();
+    var mem_end = new Array();
+    //处理数据
     sessionListSL.sort(sessionListSLInit)
     var membercolor = new Array();
     var Rank = new Array();
