@@ -286,7 +286,7 @@ function drawStoryLine(sessionListSL) {
         .attr("y", height)
         .attr("width", minMapWidth)
         .attr("height", minMapHeight)
-    var minMapG = minMapSvg.append("g").attr("transform",`translate(0, 20)`)
+    var minMapG = minMapSvg.append("g").attr("transform", `translate(0, 20)`)
     var storyLineG = Svg.append("g");
 
     // var svg = d3.select("#storyline-view") // 选择文档中的body 元素
@@ -1110,9 +1110,9 @@ function drawStoryLine(sessionListSL) {
 
     //添加图例
     var legend_scale = 1;
-        if(height == 370){
-            legend_scale = 2;//控制缩放比例
-        }
+    if (height == 370) {
+        legend_scale = 2;//控制缩放比例
+    }
     var legend = d3.select("body")
         .append("div")
         .attr("id", "legend");
@@ -1124,7 +1124,7 @@ function drawStoryLine(sessionListSL) {
         .attr("y", 0)
         .attr("width", legendSvg_width * legend_scale)
         .attr("height", legendSvg_height * legend_scale)
-        .attr('transform','translate(20,0)');
+        .attr('transform', 'translate(20,0)');
 
 
     var legend_distancex = 60;
@@ -1136,7 +1136,7 @@ function drawStoryLine(sessionListSL) {
         legendSvg.append("rect")
             .attr("x", legend_x * legend_scale)
             .attr("y", legend_y * legend_scale)
-            .attr("width", 10 * legend_scale )
+            .attr("width", 10 * legend_scale)
             .attr("height", 6 * legend_scale)
             .attr("fill", color[i])
             .attr("rx", 4)
@@ -1595,8 +1595,9 @@ function drawStoryLine(sessionListSL) {
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
     // leftLineX = leftX;
-    rightLineX = rightX;
     // transformx = -leftX * SvgTransformK
+    rightLineX = rightX;
+    transformx = -leftX * SvgTransformK
     leftBoundary = leftX
     var rectHeight = bottomY - topY;
     d3.select("#minMapBackGround")
@@ -1633,6 +1634,7 @@ function drawStoryLine(sessionListSL) {
     var mode = 0;
     function storyLineGZoomed({ transform }) {
         //缩放状况下，保证比例不突变
+        storylineMoveX = event.x;
 
         if ((transform.k > SvgTransformK && transform.k > OldTransformK || transform.k < SvgTransformK && transform.k < OldTransformK && (mode == 0 || mode == 1))
         ) {
@@ -1645,10 +1647,10 @@ function drawStoryLine(sessionListSL) {
             storylineMoveX = event.x;
             //中心放大
             // if ((leftLineX + transformFix)) {
-                // storyLineG
-                //     .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
-                drawFramAndStoryLineMove(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
-                // transformx1 = -(leftLineX + transformFix) * SvgTransformK
+            // storyLineG
+            //     .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+            drawFramAndStoryLineMove(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
+            // transformx1 = -(leftLineX + transformFix) * SvgTransformK
             // }
             for (i = 0; i < click_flag.length; i++) {
                 if (click_flag[i] == 1) {
@@ -1662,7 +1664,6 @@ function drawStoryLine(sessionListSL) {
         //限制移动范围
         else if ((mode == 0 || mode == 2) && (storylineMoveX != transformStartX)) {
             mode = 2
-            storylineMoveX = event.x;
             if ((width - (transformx + storylineMoveX - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
                 || -(transformx + storylineMoveX - transformStartX) < leftBoundary * SvgTransformK
                 || -(transformx + storylineMoveX - transformStartX) > rightX * SvgTransformK) {
