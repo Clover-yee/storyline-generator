@@ -593,10 +593,10 @@ function drawStoryLine(sessionListSL) {
                 Rank.sort(rankr);
                 Rank[0][2] = 0;
                 for (r = 1; r < Rank.length; r++) {
-                    if ((Rank[r][1] - Rank[r - 1][1]) == 20) {
+                    if ((Rank[r][1] - Rank[r - 1][1]) == eventdistance) {
                         Rank[r][2] = Rank[r - 1][2] + 2;
                     }
-                    if (Rank[r][1] == (Rank[r - 1][1] + 5)) {
+                    if (Rank[r][1] == (Rank[r - 1][1] + peopledistance)) {
                         Rank[r][2] = Rank[r - 1][2] + 1;
                     }
                 }
@@ -742,10 +742,10 @@ function drawStoryLine(sessionListSL) {
                 Rank.sort(rankr);
                 Rank[0][2] = 0;
                 for (r = 1; r < Rank.length; r++) {
-                    if ((Rank[r][1] - Rank[r - 1][1]) == 20) {
+                    if ((Rank[r][1] - Rank[r - 1][1]) == eventdistance) {
                         Rank[r][2] = Rank[r - 1][2] + 2;
                     }
-                    if (Rank[r][1] == (Rank[r - 1][1] + 5)) {
+                    if (Rank[r][1] == (Rank[r - 1][1] + peopledistance)) {
                         Rank[r][2] = Rank[r - 1][2] + 1;
                     }
                 }
@@ -1368,6 +1368,7 @@ function drawStoryLine(sessionListSL) {
             .style("opacity", 0.2)
             .on("click", function (d) {
                 var click_key = parseInt(this.id);//记录被点击的rect值
+                console.log(click_flag,click_key);
                 if (click_flag[click_key] == 0) {
                     //词云
                     {
@@ -1476,7 +1477,7 @@ function drawStoryLine(sessionListSL) {
                         //     .attr("stroke-width", 1)
                         //     // .attr("marker-start","url(#arrow)")
                         //     .attr("marker-end", "url(#arrow)");
-                        click_flag[click_key] = 1;
+                        
                         dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
                     }
                     //fragment panel
@@ -1497,8 +1498,13 @@ function drawStoryLine(sessionListSL) {
                         jumpPage(page)
                         openFragmentPanel()
                     }
+                    console.log('openFragmentPanel');
+                    click_flag[click_key] = 1;
+                    console.log(click_flag,click_key);
+
                 }
                 else {
+                    console.log('closeFragmentPanel');
                     d3.select("#WordCloud" + this.id)
                         .remove();
                     d3.select("#line" + this.id)
@@ -1588,7 +1594,7 @@ function drawStoryLine(sessionListSL) {
     rightX = keytips[1] + keytips[0];
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
-    leftLineX = leftX;
+    // leftLineX = leftX;
     rightLineX = rightX;
     transformx = -leftX * SvgTransformK
     leftBoundary = leftX
@@ -1960,5 +1966,4 @@ function drawStoryLine(sessionListSL) {
     drawFramAndStoryLineMove(SvgTransformK, transformx)
     transformx = -leftLineX * SvgTransformK
     reDrawFram()
-    transformx = FramTranformX;
 } 
