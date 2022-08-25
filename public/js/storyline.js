@@ -1582,7 +1582,7 @@ function drawStoryLine(sessionListSL) {
     rightX = keytips[1] + keytips[0];
     topY = keytips[2] - 10;
     bottomY = keytips[3] + 10;
-    leftLineX = leftX;
+    // leftLineX = leftX;
     rightLineX = rightX;
     transformx = -leftX * SvgTransformK
     leftBoundary = leftX
@@ -1632,17 +1632,23 @@ function drawStoryLine(sessionListSL) {
             computeY()
             storylineMoveX = event.x;
             //中心放大
-            if ((leftLineX + transformFix)) {
+            // if ((leftLineX + transformFix)) {
                 // storyLineG
                 //     .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
                 drawFramAndStoryLineMove(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
                 // transformx1 = -(leftLineX + transformFix) * SvgTransformK
+            // }
+            for (i = 0; i < click_flag.length; i++) {
+                if (click_flag[i] == 1) {
+                    d3.select("#WordCloud" + i).remove();
+                    d3.select("#line" + i).remove();
+                    click_flag[i] = 0;
+                }
             }
-
         }
 
         //限制移动范围
-        else if (mode == 0 || mode == 2) {
+        else if ((mode == 0 || mode == 2) && (storylineMoveX != transformStartX)) {
             mode = 2
             storylineMoveX = event.x;
             if ((width - (transformx + storylineMoveX - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
@@ -1653,18 +1659,19 @@ function drawStoryLine(sessionListSL) {
             }
             drawFramAndStoryLineMove(SvgTransformK, transformx + storylineMoveX - transformStartX)
             transformx1 = storylineMoveX;
+            for (i = 0; i < click_flag.length; i++) {
+                if (click_flag[i] == 1) {
+                    d3.select("#WordCloud" + i).remove();
+                    d3.select("#line" + i).remove();
+                    click_flag[i] = 0;
+                }
+            }
         }
         zoomFix()
 
         OldTransformK = transform.k
 
-        for (i = 0; i < click_flag.length; i++) {
-            if (click_flag[i] == 1) {
-                d3.select("#WordCloud" + i).remove();
-                d3.select("#line" + i).remove();
-                click_flag[i] = 0;
-            }
-        }
+
     }
     function zoomFix() {
         if (rightLineX > Math.max(rightBoundary, rightX)) {
@@ -1954,5 +1961,5 @@ function drawStoryLine(sessionListSL) {
     drawFramAndStoryLineMove(SvgTransformK, transformx)
     transformx = -leftLineX * SvgTransformK
     reDrawFram()
-    transformx = FramTranformX;
+
 } 
