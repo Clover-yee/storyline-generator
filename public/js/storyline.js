@@ -225,15 +225,28 @@
 var SvgTransformK = 4;
 var transformx = 0;
 var recommandY = -50;
+var width = 1000; // 画布的宽度
+var height = 370; // 画布的高度
+var minMapWidth = 1000;
+var minMapHeight = 130;
+var liucunkongbai = 100;
+var rightBoundary = width / SvgTransformK;
+var leftBoundary = 0;
+
+//old start
+var dataresult1 = new Array();//处理的最终结果
+var dataresult = new Array();
+var max = 0
+var memberfix = new Array();
+var peopledistance = 2;
+var eventdistance = 5;
+var membering = new Array();
+var member_c = new Array();
+var mem_end = new Array();
+//处理数据
 
 function drawStoryLine(sessionListSL) {
-    var width = 1000; // 画布的宽度
-    var height = 370; // 画布的高度
-    var minMapWidth = 1000;
-    var minMapHeight = 130;
-    var liucunkongbai = 100;
-    var rightBoundary = width / SvgTransformK;
-    var leftBoundary = 0;
+
 
     var storylineView = document.getElementById('storyline-view')
     // var width = storylineView.offsetWidth; // 画布的宽度
@@ -276,38 +289,9 @@ function drawStoryLine(sessionListSL) {
 
     var scale = 1;
     var storyLineG = Svg.append("g");
-    //初始化边框的左右边界
-    var startLeftLineX = 100;
-    var startRightLineX = 400;
-    var leftLineX = startLeftLineX;
-    var rightLineX = startRightLineX;
-    //缩略图边框样式数值
-    var topLineHeight = 10;
-    var dragRectWidth = 3;
-    var dragRectHeight = 26;
-    //故事线最上以及最下边的坐标
-    var topY = 40;
-    var bottomY = 80;
-    //故事线最左及最右边的坐标
-    var leftX = 0;
-    var rightX = 600;
-    var rectHeight = bottomY - topY;
-    var minDistance = width / (height / rectHeight);
-    var lineWidth = 3;
-    //记录故事线偏移位置,缩放比例
-    var transformk = 0;
-    var transformy = 0;
-    //old start
-    var dataresult1 = new Array();//处理的最终结果
-    var dataresult = new Array();
-    var max = 0
-    var memberfix = new Array();
-    var peopledistance = 2;
-    var eventdistance = 5;
-    var membering = new Array();
-    var member_c = new Array();
-    var mem_end = new Array();
-    //处理数据
+
+
+
     sessionListSL.sort(sessionListSLInit)
     var membercolor = new Array();
     var Rank = new Array();
