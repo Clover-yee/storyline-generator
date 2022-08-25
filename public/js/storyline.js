@@ -233,7 +233,6 @@ function drawStoryLine(sessionListSL) {
     var minMapWidth = 1000;
     var minMapHeight = 130;
     var liucunkongbai = 100;
-    var InitialScale = 4;//初始缩放比例
     var rightBoundary = width / InitialScale;
     var leftBoundary = 0;
 
@@ -1563,7 +1562,7 @@ function drawStoryLine(sessionListSL) {
         .attr("width", minMapWidth - 6)
         .attr('y', topY).attr('height', rectHeight)
     const storyLineGZoom = d3.zoom()
-        .scaleExtent([InitialScale, height / rectHeight])
+        .scaleExtent([(width / (Math.max(rightBoundary, rightX) - leftBoundary)), height / rectHeight])
         .translateExtent([[-300, -300], [width * height / rectHeight, height * height / rectHeight]])
         .on("start", zoomStart)
         .on("zoom", storyLineGZoomed)
@@ -1602,10 +1601,10 @@ function drawStoryLine(sessionListSL) {
             storylineMoveX = event.x;
             //中心放大
             if ((leftLineX + transformFix)) {
-                storyLineG
-                    .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+                // storyLineG
+                //     .attr("transform", "translate(" + [-(leftLineX + transformFix) * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
                 drawFramAndStoryLineMove(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
-                transformx1 = -(leftLineX + transformFix) * SvgTransformK
+                // transformx1 = -(leftLineX + transformFix) * SvgTransformK
             }
             {
                 // console.log("first change:", -(leftLineX + transformFix) * SvgTransformK);
@@ -1636,7 +1635,6 @@ function drawStoryLine(sessionListSL) {
         zoomFix()
 
         OldTransformK = transform.k
-        //调试信息
 
         for (i = 0; i < click_flag.length; i++) {
             if (click_flag[i] == 1) {
@@ -1919,4 +1917,4 @@ function drawStoryLine(sessionListSL) {
     transformx = -leftLineX * SvgTransformK
     reDrawFram()
     transformx = FramTranformX;
-}
+} --
