@@ -650,6 +650,15 @@
 			jumpPage(page)
 		}
 	}
+	function onkeyupPageNumJump() {
+		var input = document.getElementById('pageNumJump').value-1
+		if(input>=0 && input<totalPageNum){
+			if(window.event.keyCode === 13){			
+				page = input
+				jumpPage(page)
+			}
+		}
+	}
 	function jumpPage(page) {
 		divfuzhi(page)
 		_g.clearRect(0, 0, _rc.width, _rc.height);
@@ -678,15 +687,6 @@
 			if(page+1<itemPage) return menuItemIndex
 		}
 		return menuArray.length
-	}
-	function onkeyupPageNumJump() {
-		var input = document.getElementById('pageNumJump').value-1
-		if(input>=0 && input<totalPageNum){
-			if(window.event.keyCode === 13){			
-				page = input
-				jumpPage(page)
-			}
-		}
 	}
 
 	function getAllObjects() {

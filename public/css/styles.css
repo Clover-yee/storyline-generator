@@ -727,8 +727,8 @@ p{
     background: rgba(253, 252, 252, 1);
     stroke: rgba(213, 20, 20, 0.87);
     stroke-width: 1px;
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     position: fixed !important;
     border:1px solid rgb(7, 110, 212);
     z-index: 999;

@@ -1350,27 +1350,38 @@ function drawStoryLine(sessionListSL) {
                             .attr("id", "WordCloud" + this.id)
                             .attr("class", "WordCloud")
                             .style("opacity", 0)
-                            .style("width", "100px")
-                            .style("height", "100px");
+                            .style("width", "150px")
+                            .style("height", "150px");
                         d3.select("#WordCloud" + this.id)
                             .style("opacity", 1)
-                            .style("left", d.x - 35 + "px")
-                            .style("top", d.y - 120 + "px")
+                            .style("left", d.x - 60 + "px")
+                            .style("top", d.y - 180 + "px")
                             .style("position", 'fixed');
                         var line_x = d.x - 35;
                         var line_y = d.y - 120;
-                        var str = rect_event[parseInt(this.id)][5];//输入字符串
-                        var expression = /[\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\n|\t|\，|\。|\！|\？|\：|\；|\“|\”]/g;
-                        str = str.replace(expression, ",");
-                        var wordList = str.split(',').filter(Boolean);
-                        var length = wordList.length;
+
+                        
                         var newObj = new Array();
-                        console.log(wordList, "word")
-                        for (i = 0; i < length; i++) {
-                            var objectCounter = {};
-                            objectCounter.name = wordList[i];
-                            objectCounter.value = (i + 1) / length + 2;
-                            newObj.push(objectCounter);
+                        //划线字符串
+                        CreateWordCloudData(rect_event[parseInt(this.id)][5],20,20)
+                        //全文字符串
+                        var pageStr = ''
+                        for(i=rect_event[parseInt(this.id)][1];i<=rect_event[parseInt(this.id)][2];i++){
+                            pageStr += textArray[i]
+                        }
+                        CreateWordCloudData(pageStr,10,0)
+                        function CreateWordCloudData(str,weight,offset) {
+                            var expression = /[\　|\/\r|\/\n\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\n|\t|\，|\。|\！|\？|\：|\；|\“|\”]/g;
+                            str = str.replace(expression, ",");
+                            var wordList = str.split(',').filter(Boolean);
+                            var length = wordList.length;
+                            console.log(wordList, "word")
+                            for (i = 0; i < length; i++) {
+                                var objectCounter = {};
+                                objectCounter.name = wordList[i];
+                                objectCounter.value = Math.random()*weight + offset;
+                                newObj.push(objectCounter);
+                            }
                         }
                         console.log(newObj);
                         var myChart = echarts.init(document.getElementById("WordCloud" + this.id));
@@ -1381,7 +1392,7 @@ function drawStoryLine(sessionListSL) {
                             series: [{
                                 type: 'wordCloud',
                                 //maskImage: maskImage,
-                                sizeRange: [3, 20],
+                                sizeRange: [14, 24],
                                 rotationRange: [0, 0],
                                 rotationStep: 45,
                                 gridSize: 2,
@@ -1407,7 +1418,7 @@ function drawStoryLine(sessionListSL) {
                                         shadowColor: '#333'
                                     }
                                 },
-                                data: newObj
+                                data: newObj.slice(0,20)
                             }]
                         };
                         // 使用刚指定的配置项和数据显示图表。
