@@ -266,7 +266,7 @@ function drawStoryLine(sessionListSL) {
         .attr("y", height)
         .attr("width", minMapWidth)
         .attr("height", minMapHeight)
-    var minMapG = minMapSvg.append("g")
+    var minMapG = minMapSvg.append("g").attr("transform",`translate(0, 20)`)
 
     // var svg = d3.select("#storyline-view") // 选择文档中的body 元素
     //     .append("svg") //添加一个SVG元素
@@ -1587,7 +1587,7 @@ function drawStoryLine(sessionListSL) {
     var rectHeight = bottomY - topY;
     d3.select("#minMapBackGround")
         .attr("x", leftX)
-        .attr("width", minMapWidth - 6)
+        .attr("width", minMapWidth)
         .attr('y', topY).attr('height', rectHeight)
     const storyLineGZoom = d3.zoom()
         .scaleExtent([(width / (Math.max(rightBoundary, rightX) - leftBoundary)), height / rectHeight])
