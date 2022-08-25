@@ -227,13 +227,12 @@ var transformx = 0;
 var recommandY = -50;
 
 function drawStoryLine(sessionListSL) {
-    console.log(SvgTransformK, transformx);
     var width = 1000; // 画布的宽度
     var height = 370; // 画布的高度
     var minMapWidth = 1000;
     var minMapHeight = 130;
     var liucunkongbai = 100;
-    var rightBoundary = width / InitialScale;
+    var rightBoundary = width / SvgTransformK;
     var leftBoundary = 0;
 
     var storylineView = document.getElementById('storyline-view')
@@ -1359,17 +1358,17 @@ function drawStoryLine(sessionListSL) {
                         var line_x = d.x - 35;
                         var line_y = d.y - 120;
 
-                        
+
                         var newObj = new Array();
                         //划线字符串
-                        CreateWordCloudData(rect_event[parseInt(this.id)][5],20,20)
+                        CreateWordCloudData(rect_event[parseInt(this.id)][5], 20, 20)
                         //全文字符串
                         var pageStr = ''
-                        for(i=rect_event[parseInt(this.id)][1];i<=rect_event[parseInt(this.id)][2];i++){
+                        for (i = rect_event[parseInt(this.id)][1]; i <= rect_event[parseInt(this.id)][2]; i++) {
                             pageStr += textArray[i]
                         }
-                        CreateWordCloudData(pageStr,10,0)
-                        function CreateWordCloudData(str,weight,offset) {
+                        CreateWordCloudData(pageStr, 10, 0)
+                        function CreateWordCloudData(str, weight, offset) {
                             var expression = /[\　|\/\r|\/\n\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\n|\t|\，|\。|\！|\？|\：|\；|\“|\”]/g;
                             str = str.replace(expression, ",");
                             var wordList = str.split(',').filter(Boolean);
@@ -1378,7 +1377,7 @@ function drawStoryLine(sessionListSL) {
                             for (i = 0; i < length; i++) {
                                 var objectCounter = {};
                                 objectCounter.name = wordList[i];
-                                objectCounter.value = Math.random()*weight + offset;
+                                objectCounter.value = Math.random() * weight + offset;
                                 newObj.push(objectCounter);
                             }
                         }
@@ -1417,7 +1416,7 @@ function drawStoryLine(sessionListSL) {
                                         shadowColor: '#333'
                                     }
                                 },
-                                data: newObj.slice(0,20)
+                                data: newObj.slice(0, 20)
                             }]
                         };
                         // 使用刚指定的配置项和数据显示图表。
@@ -1599,11 +1598,13 @@ function drawStoryLine(sessionListSL) {
     var OldFramWidth = 0
     var PercentTranform = 0
     var transformFix = 0
+    var mode = 0;
     function storyLineGZoomed({ transform }) {
         //缩放状况下，保证比例不突变
 
-        if ((transform.k > SvgTransformK && transform.k > OldTransformK || transform.k < SvgTransformK && transform.k < OldTransformK)
+        if ((transform.k > SvgTransformK && transform.k > OldTransformK || transform.k < SvgTransformK && transform.k < OldTransformK && (mode == 0 || mode == 1))
         ) {
+            mode = 1
             OldFramWidth = rightLineX - leftLineX
             PercentTranform = event.x / width
             SvgTransformK = transform.k;
@@ -1617,23 +1618,13 @@ function drawStoryLine(sessionListSL) {
                 drawFramAndStoryLineMove(SvgTransformK, -(leftLineX + transformFix) * SvgTransformK)
                 // transformx1 = -(leftLineX + transformFix) * SvgTransformK
             }
-            {
-                // console.log("first change:", -(leftLineX + transformFix) * SvgTransformK);
-                // console.log("OldFramWidth", OldFramWidth);
-                // console.log("Possible leftLineX", leftLineX + transformFix);
-                // console.log(OldTransformK / transform.k);
-                // console.log("PercentTranform", PercentTranform);
-                // console.log(" width gap", OldFramWidth - (rightLineX - leftLineX));
-                // console.log("SvgTransformK",SvgTransformK);
-                // console.log("scale change");
-            }
 
         }
 
         //限制移动范围
-        else {
+        else if (mode == 0 || mode == 2) {
+            mode = 2
             storylineMoveX = event.x;
-
             if ((width - (transformx + storylineMoveX - transformStartX) > Math.max(rightBoundary, rightX) * SvgTransformK)
                 || -(transformx + storylineMoveX - transformStartX) < leftBoundary * SvgTransformK
                 || -(transformx + storylineMoveX - transformStartX) > rightX * SvgTransformK) {
@@ -1682,6 +1673,7 @@ function drawStoryLine(sessionListSL) {
     }
     function writeTransform() {
         transformx = -leftLineX * SvgTransformK
+        mode = 0;
         console.log("Zoom:" + transformx)
     }
     function drawFramAndStoryLineMove(k, x) {
@@ -1701,7 +1693,9 @@ function drawStoryLine(sessionListSL) {
         d3.select("#bottomLine")
             .attr("x", -x / k)
             .attr("width", (width + lineWidth) / k + lineWidth)
-
+        d3.select("#centerRect")
+            .attr("x", -x / k)
+            .attr("width", (width + lineWidth) / k + lineWidth)
         computeY()
         storyLineG
             .attr("transform", "translate(" + [x, recommandY] + ")scale(" + SvgTransformK + ")")
@@ -1820,6 +1814,9 @@ function drawStoryLine(sessionListSL) {
         d3.select("#bottomLine")
             .attr("x", hypoLeftX)
             .attr("width", rightLineX - leftLineX + lineWidth)
+        d3.select("#centerRect")
+            .attr("width", rightLineX - leftLineX + lineWidth)
+            .attr("x", hypoLeftX - dragRectWidth)
         endFramX = moveX;
         computeY()
         storyLineG
@@ -1843,6 +1840,7 @@ function drawStoryLine(sessionListSL) {
         d3.select("#bottomLine").remove()
         d3.select("#leftDragRect").remove()
         d3.select("#rightDragRect").remove()
+        d3.select("#centerRect").remove()
         var centerRectWidth = rightLineX - leftLineX;
         minMapG.append("rect")
             .attr("id", "topLine")
@@ -1869,6 +1867,15 @@ function drawStoryLine(sessionListSL) {
             .attr("y", bottomY)
             .attr("fill", FramColor)
             .attr('fill-opacity', 0.7)
+
+        minMapG.append("rect")
+            .attr("id", "centerRect")
+            .attr("width", centerRectWidth + lineWidth)
+            .attr("height", rectHeight)
+            .attr("x", leftLineX)
+            .attr("y", topY)
+            .attr("fill", mouseOverColor)
+            .attr('fill-opacity', 0.1)
 
         minMapG.append("rect")
             .attr("id", "leftDragRect")
@@ -1928,4 +1935,4 @@ function drawStoryLine(sessionListSL) {
     transformx = -leftLineX * SvgTransformK
     reDrawFram()
     transformx = FramTranformX;
-} --
+} 
