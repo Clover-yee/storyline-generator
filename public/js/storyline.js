@@ -15,16 +15,16 @@
 
                 var X = ev.clientX - disX;
                 var Y = ev.clientY - disY;
-                Drag_x = Math.min(Math.max(0, X), 1000);
-                Drag_y = Math.min(Math.max(200, Y), 400);
-                Drag.style.left = Drag_x + "px";
-                Drag.style.top = Drag_y + "px";
-                Drag_line.attributes.x1.value = Drag_x + 40 + "px";
-                Drag_line.attributes.y1.value = Drag_y - 220 + "px";
-                console.log(
-                    Drag_line.attributes.x1.value,
-                    Drag_line.attributes.y1.value
-                );
+                // Drag_x = Math.max(Math.max(0, X), 1000);
+                // Drag_y = Math.max(Math.max(200, Y), 400);
+                Drag.style.left = X + "px";
+                Drag.style.top = Y + "px";
+                // Drag_line.attributes.x1.value = Drag_x + 40 + "px";
+                // Drag_line.attributes.y1.value = Drag_y - 220 + "px";
+                // console.log(
+                //     Drag_line.attributes.x1.value,
+                //     Drag_line.attributes.y1.value
+                // );
             };
         };
         Dragout.onmouseup = function () {
@@ -1479,7 +1479,7 @@ function drawStoryLine(sessionListSL) {
                         //     // .attr("marker-start","url(#arrow)")
                         //     .attr("marker-end", "url(#arrow)");
                         
-                        dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
+                        dragFunc("WordCloud" + this.id,"WordCloud" + this.id, scale, SvgTransformK);
                     }
                     //fragment panel
                     {
@@ -1499,9 +1499,9 @@ function drawStoryLine(sessionListSL) {
                         jumpPage(page)
                         openFragmentPanel()
                     }
-                    console.log('openFragmentPanel');
+                    // console.log('openFragmentPanel');
                     click_flag[click_key] = 1;
-                    console.log(click_flag,click_key);
+                    // console.log(click_flag,click_key);
 
                 }
                 else {
@@ -1714,7 +1714,7 @@ function drawStoryLine(sessionListSL) {
     function writeTransform() {
         transformx = -leftLineX * SvgTransformK
         mode = 0;
-        console.log("Zoom:" + transformx)
+        // console.log("Zoom:" + transformx)
     }
     function drawFramAndStoryLineMove(k, x) {
         leftLineX = -x / k;

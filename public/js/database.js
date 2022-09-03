@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 14:59:27
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-21 16:35:46
+ * @LastEditTime: 2022-09-02 15:09:48
  * @FilePath: \storyline-generator\public\js\database.js
  * @Description: 数据库接口表
  * 
@@ -56,7 +56,7 @@ function findByIdAndUpdateObjectIntoDatabase(object) {
         axios.post('/post/findByIdAndUpdateObject', {
             data: object
         }).then((res) => {
-            console.log("🚀 ~ file: Database.js ~ line 33 ~ returnnewPromise ~ res", res)
+            console.log("🚀 ~ file: Database.js ~ findByIdAndUpdateObjectIntoDatabase ~ returnnewPromise ~ res", res)
 
             resolve(res.status)
 
@@ -64,4 +64,36 @@ function findByIdAndUpdateObjectIntoDatabase(object) {
 
     })
 
+}
+
+function classification(data) {
+    
+    return new Promise((resolve, reject) => {
+
+        axios.post('http://localhost:5000/classification',{
+            text:data
+        }).then((res) => {
+            console.log("🚀 ~ file: Database.js ~ classification ~ returnnewPromise ~ res", res)
+
+            resolve(res.status)
+
+        })
+
+    })
+}
+
+function summarization(data) {
+    
+    return new Promise((resolve, reject) => {
+
+        axios.post('http://localhost:5000/summarization',{
+            text:data
+        }).then((res) => {
+            console.log("🚀 ~ file: Database.js ~ classification ~ returnnewPromise ~ res", res)
+
+            resolve(res.status)
+
+        })
+
+    })
 }
