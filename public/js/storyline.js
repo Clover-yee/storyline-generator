@@ -1990,7 +1990,8 @@ function drawStoryLine(sessionListSL) {
     function adjustAxes() {
         xScaleG.selectAll("*").remove()
         var cy = height - 10;
-        var textY=cy-5
+        var fontSize = 12
+        var textY = cy - 5
         var cr = 5
         var xScaleColor = "#879bd7"
         var unitDistance = 30
@@ -2027,7 +2028,8 @@ function drawStoryLine(sessionListSL) {
                 .attr("y", textY)
                 .attr('text-anchor', 'middle')
                 .text(Math.round(endPageNum * i / xScaleCircleNum))
-                .attr("fill",xScaleColor)
+                .attr("fill", xScaleColor)
+                .attr("font-size", fontSize + "px")
         }
 
     }
