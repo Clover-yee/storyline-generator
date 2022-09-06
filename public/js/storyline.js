@@ -1990,8 +1990,9 @@ function drawStoryLine(sessionListSL) {
     function adjustAxes() {
         xScaleG.selectAll("*").remove()
         var cy = height - 10;
+        var textY=cy-5
         var cr = 5
-        var xScaleColor = "black"
+        var xScaleColor = "#409eff"
         var unitDistance = 30
         var rectLineHeight = 5
         var endPageNum = 300
@@ -2020,7 +2021,7 @@ function drawStoryLine(sessionListSL) {
             xScaleG.append("text")
                 .attr("id", "text" + i)
                 .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", cy)
+                .attr("y", textY)
                 .attr('text-anchor', 'middle')
                 .text(Math.round(endPageNum * i / xScaleCircleNum))
         }
