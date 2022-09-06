@@ -2008,10 +2008,10 @@ function drawStoryLine(sessionListSL) {
 
 
         var xScaleCircleNum = Math.round(((keytips[1] - keytips[0]) * SvgTransformK) / unitDistance)
-        console.log("((keytips[1] - keytips[0]) * SvgTransformK)", ((keytips[1] - keytips[0]) * SvgTransformK));
-        console.log("num", xScaleCircleNum);
+        // console.log("((keytips[1] - keytips[0]) * SvgTransformK)", ((keytips[1] - keytips[0]) * SvgTransformK));
+        // console.log("num", xScaleCircleNum);
         var circleDistance = (keytips[1] - keytips[0]) * SvgTransformK / xScaleCircleNum
-        console.log("circleDistance", circleDistance);
+        // console.log("circleDistance", circleDistance);
         for (var i = 0; i < xScaleCircleNum + 1; i++) {
             xScaleG.append("rect")
                 .attr("id", "xScaleCircle" + i)

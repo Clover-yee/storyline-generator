@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-30 16:15:56
+ * @LastEditTime: 2022-09-05 13:04:06
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -53,7 +53,9 @@
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
 		//var patterncontent= new RegExp("[/\\x{7b2c}+/w+\\x{56de}/u]")
-		var patterncontent=  /第[0-9][0-9]回/
+		// var patterncontent=  /第[0-9][0-9]回/
+		var patterncontent=  /Chapter/
+
 		var menuArray = []
 
 		document.ontouchstart = null;
@@ -582,8 +584,8 @@
 			 document.getElementById('totalPageNum').innerText = 'Total '+totalPageNum  // reader.result为获取结果
 			 createMenu()
 			 console.log(menuArray,'menuArray')
+			 getAllObjects()
 	   }, false})
-	   getAllObjects()
 	}
 	function divfuzhi(i)
 	{
@@ -656,7 +658,7 @@
 	{ 
 		if( page+1 < textArray.length){			
 			page=page+1
-			console.log('page',page);
+			// console.log('page',page);
 			jumpPage(page)
 		}
 	}
@@ -670,6 +672,7 @@
 		}
 	}
 	function jumpPage(page) {
+		var res = classification(textArray[page])
 		divfuzhi(page)
 		_g.clearRect(0, 0, _rc.width, _rc.height);
 		drawConnectedPointByPage()
@@ -718,6 +721,12 @@
 					}
 				}
 				let l=max-min
+				// var summarizationText = ''
+				// for(var i = min; i <= max; i++){
+				// 	summarizationText+=textArray[i]
+				// }
+				// var summarizationRes = summarization(summarizationText)
+				// console.log(summarizationRes);
 				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id])
 				eventCounter++
 			}
