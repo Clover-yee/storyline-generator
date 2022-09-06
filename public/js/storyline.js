@@ -1992,7 +1992,7 @@ function drawStoryLine(sessionListSL) {
         var cy = height - 10;
         var textY=cy-5
         var cr = 5
-        var xScaleColor = "#409eff"
+        var xScaleColor = "#879bd7"
         var unitDistance = 30
         var rectLineHeight = 5
         var endPageNum = 300
@@ -2003,6 +2003,8 @@ function drawStoryLine(sessionListSL) {
             .attr("x", keytips[0] * SvgTransformK)
             .attr("y", cy + cr)
             .attr("fill", xScaleColor)
+            .attr('fill-opacity', 0.8)
+
 
         var xScaleCircleNum = Math.round(((keytips[1] - keytips[0]) * SvgTransformK) / unitDistance)
         console.log("((keytips[1] - keytips[0]) * SvgTransformK)", ((keytips[1] - keytips[0]) * SvgTransformK));
@@ -2017,6 +2019,7 @@ function drawStoryLine(sessionListSL) {
                 .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
                 .attr("y", cy)
                 .attr("fill", xScaleColor)
+                .attr('fill-opacity', 0.8)
 
             xScaleG.append("text")
                 .attr("id", "text" + i)
@@ -2024,6 +2027,7 @@ function drawStoryLine(sessionListSL) {
                 .attr("y", textY)
                 .attr('text-anchor', 'middle')
                 .text(Math.round(endPageNum * i / xScaleCircleNum))
+                .attr("fill",xScaleColor)
         }
 
     }
