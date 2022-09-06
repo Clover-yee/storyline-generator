@@ -225,7 +225,7 @@
 var SvgTransformK = 4;
 var transformx = 0;
 var recommandY = -50;
-
+var xScaleOldTransformK = 4;
 var width = 1000; // 画布的宽度
 var height = 370; // 画布的高度
 var minMapWidth = 1000;
@@ -1988,6 +1988,13 @@ function drawStoryLine(sessionListSL) {
     }
     var xScaleG = Svg.append("g")
     function adjustAxes() {
+
+        if (xScaleOldTransformK != SvgTransformK) {
+            reSizeXScale()
+        }
+        xScaleOldTransformK = SvgTransformK
+    }
+    function reSizeXScale() {
         xScaleG.selectAll("*").remove()
         var cy = height - 10;
         var fontSize = 12
@@ -2031,11 +2038,10 @@ function drawStoryLine(sessionListSL) {
                 .attr("fill", xScaleColor)
                 .attr("font-size", fontSize + "px")
         }
-
     }
     drawFramAndStoryLineMove(SvgTransformK, transformx)
     transformx = -leftLineX * SvgTransformK
     reDrawFram()
-    adjustAxes()
+    reSizeXScale()
 
 } 
