@@ -12,15 +12,25 @@
             var disY = ev.clientY - Drag.offsetTop;
             document.onmousemove = function (event) {
                 var ev = event || window.event;
-
+                Y_border1 = 200;
+                Y_border2 = 400;
+                if(height == 370){
+                    Y_border1 = 470;
+                    Y_border2 = 670;
+                    var DIS = 170;
+                }
                 var X = ev.clientX - disX;
                 var Y = ev.clientY - disY;
-                // Drag_x = Math.max(Math.max(0, X), 1000);
-                // Drag_y = Math.max(Math.max(200, Y), 400);
-                Drag.style.left = X + "px";
-                Drag.style.top = Y + "px";
-                // Drag_line.attributes.x1.value = Drag_x + 40 + "px";
-                // Drag_line.attributes.y1.value = Drag_y - 220 + "px";
+                Drag_x = Math.max(Math.max(0, X), 1000);
+                Drag_y = Math.max(Math.max(Y_border1, Y), 400);
+                var X = ev.clientX - disX;
+                var Y = ev.clientY - disY;
+                Drag_x = Math.min(Math.max(0, X), 1000);
+                Drag_y = Math.min(Math.max(Y_border1, Y), Y_border2);
+                Drag.style.left = Drag_x + "px";
+                Drag.style.top = Drag_y + "px";
+                Drag_line.attributes.x1.value = Drag_x + 40 + "px";
+                Drag_line.attributes.y1.value = Drag_y - 220 - DIS + "px";
                 // console.log(
                 //     Drag_line.attributes.x1.value,
                 //     Drag_line.attributes.y1.value
@@ -310,6 +320,8 @@ function drawStoryLine(sessionListSL) {
     var membering = new Array();
     var member_c = new Array();
     var mem_end = new Array();
+    var place_array = new Array();
+    var time_array = new Array();
     //处理数据
     sessionListSL.sort(sessionListSLInit)
     var membercolor = new Array();
@@ -358,6 +370,28 @@ function drawStoryLine(sessionListSL) {
             var object = {};
             object.event = sessionListSL[i][0];
             object.name = sessionListSL[i][3];
+            object.place = sessionListSL[i][4];
+            object.time = sessionListSL[i][6];
+            //生出时间数组
+            var time_flag = 0;
+            for(k=0;k<time_array.length;k++){
+                if(time_array[k] == object.time){
+                    time_flag = 1;
+                }
+            }
+            if(time_flag == 0){
+                time_array.push(object.time)
+            }
+            //生成地点数组
+            var place_flag = 0;
+            for(k=0;k<place_array.length;k++){
+                if(place_array[k] == object.place){
+                    place_flag = 1;
+                }
+            }
+            if(place_flag == 0){
+                place_array.push(object.place)
+            }
             dataresult1[j].push(object);
         }
     }
@@ -404,7 +438,7 @@ function drawStoryLine(sessionListSL) {
         }
 
         for (j = 0; j < dataresult1[start].length; j++) {
-            dataresult.push([start, end - 1, dataresult1[start][j].event, dataresult1[start][j].name])
+            dataresult.push([start, end - 1, dataresult1[start][j].event, dataresult1[start][j].name, dataresult1[start][j].place, dataresult1[start][j].time])
         }
         i = end;
     }
@@ -552,7 +586,9 @@ function drawStoryLine(sessionListSL) {
                                 sum,//事件的平均 
                                 memberinformation[number][m][4],//
                                 memberinformation[number][m][5],
-                                members.length];
+                                members.length, dataresult[j][4],
+                                dataresult[j][5]
+                                ];
                         }
                     }
                 }
@@ -580,7 +616,7 @@ function drawStoryLine(sessionListSL) {
 
                     initmember[number].push([memberinformation[number][m][2],
                     memberinformation[number][m][3],
-                    5 * (x1 + 1), y, 5 * (x2 + 1), y, c])
+                    5 * (x1 + 1), y, 5 * (x2 + 1), y, c, memberinformation[number][m][8], memberinformation[number][m][9]])
 
                     line_array.push([5 * (x1 + 1), y, c]);
                     line_array.push([5 * (x2 + 1), y, c]);
@@ -682,7 +718,9 @@ function drawStoryLine(sessionListSL) {
                                 sum,//事件的平均 
                                 memberinformation[number][m][4],//
                                 memberinformation[number][m][5],
-                                members.length];
+                                members.length, 
+                                dataresult[j][4],
+                                dataresult[j][5]];
                         }
                     }
                 }
@@ -729,7 +767,7 @@ function drawStoryLine(sessionListSL) {
                     prey = y;
                     initmember[number].push([memberinformation[number][m][2],
                     memberinformation[number][m][3],
-                    5 * (x1 + 1), y, 5 * (x2 + 1), y, c])
+                    5 * (x1 + 1), y, 5 * (x2 + 1), y, c, memberinformation[number][m][8], memberinformation[number][m][9]])
                     line_array.push([2 * (x1 + 1), y, c]);
                     line_array.push([2 * (x2 + 1), y, c]);
                     for (r1 = 0; r1 < Rank.length; r1++) {
@@ -1096,10 +1134,135 @@ function drawStoryLine(sessionListSL) {
     var tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
+
+        line_array.sort(ascend);
+            //去重
+            for(i=1;i<line_array.length;i++){
+                line_flag = 0;
+                for(j=0;j<5;j++){
+                    if(line_array[i][j] != line_array[i-1][j]){
+                        line_flag = 1;
+                        j = 5;
+                    }
+                }
+                if(line_flag == 0){
+                    line_array.splice(i, 1);
+                }
+            }
+            
+            //去掉尖尖的地方bug
+            for(i=1;i<line_array.length-1;i++){
+                var line1_mem = line_array[i-1][3];
+                var line2_mem = line_array[i][3];
+                var line3_mem = line_array[i+1][3];
+                
+                    if(line_array[i][1] > line_array[i-1][1] && line_array[i][1] > line_array[i+1][1]){
+                        line_array.splice(i, 1);
+                    }
+                    if(line_array[i][1] < line_array[i-1][1] && line_array[i][1] < line_array[i+1][1]){
+                        line_array.splice(i, 1);
+                    }
+                
+            }
+        
+            //解决重合的bug
+            line_array.sort(function(x, y){
+                if(x[0] == y[0]){
+                    return x[1] - y[1];
+                }
+                else{
+                    return x[0] - y[0];
+                }
+            })
+            for(i=1;i<line_array.length;i++){
+                if(line_array[i-1][0] == line_array[i][0]){
+                    if(line_array[i-1][1] == line_array[i][1]){
+                        console.log("x")
+                        if(line_array[i-1][3] == line_array[i][3]){
+                            line_array[i][1] = line_array[i-1][1] + peopledistance;
+                        }
+                        else{
+                            line_array[i][1] = line_array[i-1][1] + eventdistance;
+                        }
+                    }
+                }
+            }
+
+    var new_middle_array = new Array();
+    var old_middle_array = new Array();
+    var middle_key = line_array[0][0];
+    var new_middle_flag_start = membercolor.length;
+    var old_middle_flag_start = membercolor.length;
+    var new_middle_flag_end = 0;
+    var old_middle_flag_end = 0;
+    var middle_k = 0;
+    
+    var needing_array = new Array();
+    new_middle_array.push([line_array[0][0], line_array[0][1], line_array[0][2], line_array[0][3], line_array[0][4]]);
+    //解决最上面最下面的bug
+    for(i=1;i<line_array.length-1;i++){
+        if(line_array[i][0] == line_array[i-1][0]){
+            new_middle_array.push([line_array[i][0], line_array[i][1], line_array[i][2], line_array[i][3], line_array[i][4]]);
+            // //
+            // for(j=0;j<old_middle_array.length;j++){
+            //     if(old_middle_array[j][4] == new_middle_array[0][4]){
+            //         if(new_middle_array[1][3] != new_middle_array[0][3]){
+            //             if(new_middle_array[1][1]-old_middle_array[j][1] > eventdistance){
+            //                 line_array[i]
+            //             }
+            //         }
+            //     }
+            // }
+        }
+        else if(line_array[i-1][0] != line_array[i][0]){
+            //判断最上面
+            new_middle_array.length -= 1;
+            console.log(new_middle_array);
+            if(line_array[i-1][3] != line_array[i-2][3]){
+
+                for(j=0;j<new_middle_array.length;j++){
+                    if(new_middle_array[j][4] == line_array[i-1][4]){
+                        console.log("aaa", new_middle_array[j][4], new_middle_array[j][1], line_array[i-2][1], line_array[i-2][4]);
+                        if(new_middle_array[j][1] - line_array[i-2][1] >= eventdistance){
+                            
+                            line_array[i-1][1] = new_middle_array[j][1]; 
+                        }
+                    }
+                }
+            }
+
+            //判断最下面
+            if(line_array[i+1][3] != line_array[i][3]){
+                for(j=0;j<new_middle_array.length;j++){
+                    if(new_middle_array[j][4] == line_array[i][4]){
+                        if(line_array[i+1][1] - new_middle_array[j][1] >= eventdistance){
+                            console.log("xajsda");
+                            line_array[i][1] = new_middle_array[j][1]; 
+                        }
+                    }
+                }
+            }
+            new_middle_array.length = 0;
+            new_middle_array.push([line_array[i-1][0], line_array[i-1][1], line_array[i-1][2], line_array[i-1][3], line_array[i-1][4]])
+            new_middle_array.push([line_array[i][0], line_array[i][1], line_array[i][2], line_array[i][3], line_array[i][4]])
+    
+        }
+    }
     //画线
 
     line_array.sort(ascend);
-
+    for(i=1;i<line_array.length-1;i++){
+        if(line_array[i-1][3] == line_array[i][3] && line_array[i+1][3]){
+            if(line_array[i][1] > line_array[i-1][1] && line_array[i][1] > line_array[i+1][1] && line_array[i-1][1] == line_array[i+1][1]){
+                line_array[i][1] = line_array[i-1][1];
+            }
+            if(line_array[i][1] < line_array[i-1][1] && line_array[i][1] < line_array[i+1][1] && line_array[i-1][1] == line_array[i+1][1]){
+                line_array[i][1] = line_array[i-1][1];
+            }
+        }
+    }
+        
+    console.log(line_array, "line")
     //小地图背景
     minMapG.append("rect")
         .attr("id", "minMapBackGround")
@@ -1450,35 +1613,41 @@ function drawStoryLine(sessionListSL) {
                         };
                         // 使用刚指定的配置项和数据显示图表。
                         myChart.setOption(option);
-                        // var defs = storyLineG.append("defs");
-                        // var arrowMarker = defs.append("marker")
-                        //     .attr("id", "arrow")
-                        //     .attr("markerUnits", "strokeWidth")
-                        //     .attr("markerWidth", 12)
-                        //     .attr("markerHeight", 12)
-                        //     .attr("viewBox", "0 0 12 12")
-                        //     .attr("refX", 6)
-                        //     .attr("refY", 6)
-                        //     .attr("orient", "auto");
-                        // x2 = parseInt(this.attributes.x.value) + parseInt(this.attributes.width.value);
-                        // y2 = parseInt(this.attributes.y.value);
-                        // console.log(this.attributes);
-                        // console.log(d);
-                        // var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
-                        // arrowMarker.append("path")
-                        //     .attr("d", arrow_path)
-                        //     .attr("fill", "#000");
-                        // //指向词云的线
-                        // var line = Svg.append("line")
-                        //     .attr("id", "line" + this.id)
-                        //     .attr("x1", line_x + 40)
-                        //     .attr("y1", line_y - 220)
-                        //     .attr("x2", event.x)
-                        //     .attr("y2", event.y - 313)
-                        //     .attr("stroke", "blue")
-                        //     .attr("stroke-width", 1)
-                        //     // .attr("marker-start","url(#arrow)")
-                        //     .attr("marker-end", "url(#arrow)");
+                        var defs = storyLineG.append("defs");
+                        var arrowMarker = defs.append("marker")
+                            .attr("id", "arrow")
+                            .attr("markerUnits", "strokeWidth")
+                            .attr("markerWidth", 12)
+                            .attr("markerHeight", 12)
+                            .attr("viewBox", "0 0 12 12")
+                            .attr("refX", 6)
+                            .attr("refY", 6)
+                            .attr("orient", "auto");
+                        x2 = parseInt(this.attributes.x.value) + parseInt(this.attributes.width.value);
+                        y2 = parseInt(this.attributes.y.value);
+                        console.log(this.attributes);
+                        console.log(d);
+                        var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
+                        arrowMarker.append("path")
+                            .attr("d", arrow_path)
+                            .attr("fill", "#000");
+                        //指向词云的线
+                        var line_append_X = 40;
+                        svg_height1 = 0;
+                        if(height == 370){
+                            svg_height1 = 170;
+                        }
+
+                        var line = Svg.append("line")
+                            .attr("id", "line" + this.id)
+                            .attr("x1", line_x + 40)
+                            .attr("y1", line_y - 220 - svg_height1)
+                            .attr("x2", event.x)
+                            .attr("y2", event.y - 313 - svg_height1)
+                            .attr("stroke", "blue")
+                            .attr("stroke-width", 1)
+                            // .attr("marker-start","url(#arrow)")
+                            .attr("marker-end", "url(#arrow)");
                         
                         dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
                     }
