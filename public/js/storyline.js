@@ -252,6 +252,7 @@ var rightX = 600;
 var rectHeight = bottomY - topY;
 var minDistance = width / (height / rectHeight);
 var lineWidth = 3;
+var xScaleCircleNum = 2;
 
 function drawStoryLine(sessionListSL) {
 
@@ -1479,7 +1480,7 @@ function drawStoryLine(sessionListSL) {
                         //     // .attr("marker-start","url(#arrow)")
                         //     .attr("marker-end", "url(#arrow)");
                         
-                        dragFunc("WordCloud" + this.id,"WordCloud" + this.id, scale, SvgTransformK);
+                        dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
                     }
                     //fragment panel
                     {
@@ -1739,6 +1740,10 @@ function drawStoryLine(sessionListSL) {
         computeY()
         storyLineG
             .attr("transform", "translate(" + [x, recommandY] + ")scale(" + SvgTransformK + ")")
+        adjustAxes()
+        xScaleG
+            .attr("transform", "translate(" + [x,] + ")")
+
     }
 
     Svg.call(storyLineGZoom)
@@ -1861,6 +1866,11 @@ function drawStoryLine(sessionListSL) {
         computeY()
         storyLineG
             .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK, recommandY] + ")scale(" + SvgTransformK + ")")
+
+        adjustAxes()
+        xScaleG
+            .attr("transform", "translate(" + [transformx - (moveX - startFramX) * scale * SvgTransformK,] + ")")
+
         for (i = 0; i < click_flag.length; i++) {
             if (click_flag[i] == 1) {
                 d3.select("#WordCloud" + i).remove();
@@ -1958,6 +1968,11 @@ function drawStoryLine(sessionListSL) {
         storyLineG
             .attr("transform", "translate(" + [- leftLineX * SvgTransformK * scale, recommandY] + ")scale(" + (SvgTransformK) + ")")
         FramTranformX = - leftLineX * SvgTransformK * scale;
+
+        adjustAxes()
+        xScaleG
+            .attr("transform", "translate(" + [- leftLineX * SvgTransformK * scale,] + ")")
+
         for (i = 0; i < click_flag.length; i++) {
             if (click_flag[i] == 1) {
                 d3.select("#WordCloud" + i).remove();
@@ -1971,8 +1986,51 @@ function drawStoryLine(sessionListSL) {
         // recommandY = - (bottomY - topY) * SvgTransformK / 2
         recommandY = ((height - rectHeight * SvgTransformK) / 2 - topY * SvgTransformK)
     }
+    var xScaleG = Svg.append("g")
+    function adjustAxes() {
+        xScaleG.selectAll("*").remove()
+        var cy = 10;
+        var cr = 5
+        var xScaleColor = "black"
+        var unitDistance = 30
+        creat_Start_Or_End_Circle("startCircle", keytips[0])
+        creat_Start_Or_End_Circle("endCircle", keytips[1])
+        xScaleG.append("rect")
+            .attr("id", "xScaleLine")
+            .attr("height", 5)
+            .attr("width", (keytips[1] - keytips[0]) * SvgTransformK)
+            .attr("x", keytips[0] * SvgTransformK)
+            .attr("y", cy - cr / 2)
+            .attr("fill", xScaleColor)
+
+        var xScaleCircleNum = Math.round(((keytips[1] - keytips[0]) * SvgTransformK) / unitDistance)
+        console.log("((keytips[1] - keytips[0]) * SvgTransformK)", ((keytips[1] - keytips[0]) * SvgTransformK));
+        console.log("num", xScaleCircleNum);
+        var circleDistance = (keytips[1] - keytips[0]) * SvgTransformK / xScaleCircleNum
+        console.log("circleDistance", circleDistance);
+        for (var i = 1; i < xScaleCircleNum; i++) {
+            xScaleG.append("circle")
+                .attr("id", "xScaleCircle" + i)
+                .attr("r", cr)
+                .attr("cx", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("cy", cy)
+                .attr("fill", xScaleColor)
+        }
+
+
+        function creat_Start_Or_End_Circle(id, cx) {
+            xScaleG.append("circle")
+                .attr("id", id)
+                .attr("r", cr)
+                .attr("cx", cx * SvgTransformK)
+                .attr("cy", cy)
+                .attr("fill", xScaleColor)
+        }
+
+    }
     drawFramAndStoryLineMove(SvgTransformK, transformx)
     transformx = -leftLineX * SvgTransformK
     reDrawFram()
+    adjustAxes()
 
 } 
