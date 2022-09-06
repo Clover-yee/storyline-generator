@@ -1989,18 +1989,18 @@ function drawStoryLine(sessionListSL) {
     var xScaleG = Svg.append("g")
     function adjustAxes() {
         xScaleG.selectAll("*").remove()
-        var cy = 10;
+        var cy = height - 10;
         var cr = 5
         var xScaleColor = "black"
         var unitDistance = 30
-        creat_Start_Or_End_Circle("startCircle", keytips[0])
-        creat_Start_Or_End_Circle("endCircle", keytips[1])
+        var rectLineHeight = 5
+        var endPageNum = 300
         xScaleG.append("rect")
             .attr("id", "xScaleLine")
-            .attr("height", 5)
+            .attr("height", 1)
             .attr("width", (keytips[1] - keytips[0]) * SvgTransformK)
             .attr("x", keytips[0] * SvgTransformK)
-            .attr("y", cy - cr / 2)
+            .attr("y", cy + cr)
             .attr("fill", xScaleColor)
 
         var xScaleCircleNum = Math.round(((keytips[1] - keytips[0]) * SvgTransformK) / unitDistance)
@@ -2008,23 +2008,21 @@ function drawStoryLine(sessionListSL) {
         console.log("num", xScaleCircleNum);
         var circleDistance = (keytips[1] - keytips[0]) * SvgTransformK / xScaleCircleNum
         console.log("circleDistance", circleDistance);
-        for (var i = 1; i < xScaleCircleNum; i++) {
-            xScaleG.append("circle")
+        for (var i = 0; i < xScaleCircleNum + 1; i++) {
+            xScaleG.append("rect")
                 .attr("id", "xScaleCircle" + i)
-                .attr("r", cr)
-                .attr("cx", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("cy", cy)
+                .attr("height", rectLineHeight)
+                .attr("width", 1)
+                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("y", cy)
                 .attr("fill", xScaleColor)
-        }
 
-
-        function creat_Start_Or_End_Circle(id, cx) {
-            xScaleG.append("circle")
-                .attr("id", id)
-                .attr("r", cr)
-                .attr("cx", cx * SvgTransformK)
-                .attr("cy", cy)
-                .attr("fill", xScaleColor)
+            xScaleG.append("text")
+                .attr("id", "text" + i)
+                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("y", cy)
+                .attr('text-anchor', 'middle')
+                .text(Math.round(endPageNum * i / xScaleCircleNum))
         }
 
     }
