@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-07 11:05:07
+ * @LastEditTime: 2022-09-08 11:39:52
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -863,9 +863,27 @@
 <body onload="onLoadEvent()">
 	<div class="outer-wrapper">
 		<div class="panel-wrapper flex-panel-wrapper inner-wrapper">
-			<div class="panel h-flex-panel">
+			<div class="panel h-left-panel">
 				<div class="panel-wrapper">
-					<div class="panel v-panel panel-right-top" id="panel-right-top" >
+					<div class="panel v-panel panel-left-top">
+						<div class="view">
+							<div class="view-content menu-view-content">
+
+							</div>
+						</div>
+					</div>
+					<div class="panel v-panel panel-left-bottom">
+						<div class="view">
+							<div class="view-content overview-view-content">
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel h-center-panel">
+				<div class="panel-wrapper">
+					<div class="panel v-panel panel-center-top" id="panel-center-top" >
 						<div class="view">
 						
 							<div id="text-view" class="view-content text-view-content">
@@ -894,7 +912,7 @@
 								<div id="text"></div>
 								<div id="test0"></div>
 						
-								<canvas id="myCanvas" width="950" height="400"
+								<canvas id="myCanvas" width="1000" height="400"
 								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
 								onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
 								onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
@@ -905,10 +923,28 @@
 							</div>
 						</div>
 					</div>
-					<div class="panel v-panel panel-right-bottom" id="panel-right-bottom" >
+					<div class="panel v-panel panel-center-bottom" id="panel-center-bottom" >
 						<div class="view">
 							<span id="storyline-view-title">Storyline</span>
 							<div id="storyline-view" class="view-content storyline-view-content">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="panel h-right-panel">
+				<div class="panel-wrapper">
+					<div class="panel v-panel panel-right-top">
+						<div class="view">
+							<div class="view-content relationship-view-content">
+
+							</div>
+						</div>
+					</div>
+					<div class="panel v-panel panel-right-bottom">
+						<div class="view">
+							<div class="view-content fragment-view-content">
+
 							</div>
 						</div>
 					</div>

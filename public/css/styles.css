@@ -183,12 +183,16 @@ body {
     flex: 1;
 }
 
-.h-fix-panel {
-    width: 300px;
+.h-left-panel {
+    width: 17.5%;
 }
 
-.h-flex-panel {
-    width: calc(100% - 0px);
+.h-center-panel {
+    width: 1072px;
+}
+
+.h-right-panel {
+    width: calc(100% - 17.5% - 1072px);
 }
 
 .divider-h {
@@ -222,23 +226,35 @@ body {
 }
 
 .panel-left-top {
-	height: calc(50% - 0.5px);
-	width: 100%;
+	height: calc(50%);
+    width: 100%
+
 }
 
 .panel-left-bottom {
-	height: calc(50% - 0.5px);
+	height: calc(50%);
+	width: 100%
+}
+
+.panel-center-top {
+	height: calc(50%);
+	width: 100%;
+}
+
+.panel-center-bottom {
+	height: calc(50%);
 	width: 100%;
 }
 
 .panel-right-top {
 	height: calc(50%);
-	width: 100%;
+    width: 100%;
+
 }
 
 .panel-right-bottom {
 	height: calc(50%);
-	width: 100%;
+    width: 100%;
 }
 
 .view-title-container {
@@ -266,30 +282,52 @@ body {
 
 .view-content, .text-view-content, .fragment-view-content, .storyline-view-content{
     float: left;
-    width: calc(100% - 12px);
-    height: calc(100% - 8px);
+    width: calc(100% - 9px);
+    height: calc(100% - 9px);
 }
 
-.fragment-view-content{
+.menu-view-content{
     background: var(--gray1);
-    height: calc(100% - 5px);
-    border-radius: 0 0 5px 5px;
+    border-radius: 5px;
+    margin: 6px 3px 3px 6px;
+}
+
+.overview-view-content{
+    background: var(--gray1);
+
+    border-radius: 5px;
+    margin: 3px 3px 6px 6px;
 }
 
 .text-view-content{
     background: var(--gray1);
-    height: calc(100% - 5px);
-    border-radius: 0 0 5px 5px;
-    margin: 0 6px 0;
+    border-radius: 5px;
+    margin: 6px 3px 3px;
+    width: calc(100% - 6px);
 }
 
 .storyline-view-content {
     background: var(--gray3);
-    height: calc(100% - 9px);
     border-radius: 5px;
-    margin: 3px 6px 6px;
+    margin: 3px 3px 6px;
+    width: calc(100% - 6px);
     user-select: none;
 }
+
+.relationship-view-content{
+    background: var(--gray1);
+    border-radius: 5px;
+    margin: 6px 6px 3px 3px;
+}
+
+.fragment-view-content{
+    background: var(--gray1);
+    border-radius: 5px;
+    margin: 3px 6px 6px 3px;
+    user-select: none;
+}
+
+
 
 #storyline-view-title{
     position: absolute;
@@ -305,7 +343,7 @@ body {
 
 #text{
 	position:absolute;
-	width: 950px;
+	width: 1000px;
 	height: 400px;
 	overflow: hidden;
     line-height:25px;  /*设置文字行高， 可被高度整除*/
@@ -315,7 +353,7 @@ body {
 }
 #test0{
 	position:absolute;
-	width: 950px;
+	width: 1000px;
 	height: 400px;
     opacity:0;
 	overflow: hidden;
@@ -736,10 +774,10 @@ p{
 }
 
 #legend{
-    position: fixed;
+    position: absolute;
     background: none;
+    bottom: 160px;
     left: 10px;
-    bottom: 150px;
     width: 150px;
     height: 60px;
     z-index: 999;

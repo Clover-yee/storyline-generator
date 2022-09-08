@@ -14,7 +14,7 @@
                 var ev = event || window.event;
                 Y_border1 = 200;
                 Y_border2 = 400;
-                if(height == 370){
+                if(height ==  410){
                     Y_border1 = 470;
                     Y_border2 = 670;
                     var DIS = 170;
@@ -236,10 +236,10 @@ var SvgTransformK = 4;
 var transformx = 0;
 var recommandY = -50;
 var xScaleOldTransformK = 4;
-var width = 1000; // 画布的宽度
-var height = 370; // 画布的高度
-var minMapWidth = 1000;
-var minMapHeight = 130;
+var width = 1048; // 画布的宽度
+var height =  410; // 画布的高度
+var minMapWidth = 1066;
+var minMapHeight = 90;
 var liucunkongbai = 100;
 var rightBoundary = width / SvgTransformK;
 var leftBoundary = 0;
@@ -297,7 +297,7 @@ function drawStoryLine(sessionListSL) {
         .attr("y", height)
         .attr("width", minMapWidth)
         .attr("height", minMapHeight)
-    var minMapG = minMapSvg.append("g").attr("transform", `translate(0, 20)`)
+    var minMapG = minMapSvg.append("g").attr("transform", `translate(0, -30)`)
     var storyLineG = Svg.append("g");
 
     // var svg = d3.select("#storyline-view") // 选择文档中的body 元素
@@ -1274,10 +1274,10 @@ function drawStoryLine(sessionListSL) {
 
     //添加图例
     var legend_scale = 1;
-    if (height == 370) {
+    if (height ==  410) {
         legend_scale = 2;//控制缩放比例
     }
-    var legend = d3.select("body")
+    var legend = d3.select("#storyline-view")
         .append("div")
         .attr("id", "legend");
 
@@ -1634,7 +1634,7 @@ function drawStoryLine(sessionListSL) {
                         //指向词云的线
                         var line_append_X = 40;
                         svg_height1 = 0;
-                        if(height == 370){
+                        if(height ==  410){
                             svg_height1 = 170;
                         }
 
