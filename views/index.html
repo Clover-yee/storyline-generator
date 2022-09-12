@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-08 11:39:52
+ * @LastEditTime: 2022-09-12 13:17:13
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -12,7 +12,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>$N Recognizer</title>
+	<title>StoryInOne</title>
 	<!--[if IE]><script src="excanvas.js"></script><![endif]-->
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<!-- 新 Bootstrap5 核心 CSS 文件 -->
@@ -22,7 +22,10 @@
 	<!-- 最新的 Bootstrap5 核心 JavaScript 文件 -->
 	<script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
 	<script src="https://cdn.bootcss.com/wordcloud2.js/1.1.0/wordcloud2.js"></script>
+
 	<link href="css/styles.css" rel="stylesheet" type="text/css" />
+	<link href="css/menu.view.css" rel="stylesheet" type="text/css" />
+
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
@@ -37,6 +40,7 @@
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/panel.js"></script>
 
+	<script type="text/javascript" src="js/relationship.view.js"></script>
 
 
 	<script type="text/javascript">
@@ -632,18 +636,18 @@
 			})
 			$('.menu-content').append(contentItem)
 		}
-		$('#float-panel-menu').addClass('float-panel-menu-active')
+		// $('#float-panel-menu').addClass('float-panel-menu-active')
 		$('.content-item').first().addClass('content-item-active')
 	}
 
 	function onClickOpenMenu() {
-		if($('#float-panel-menu').hasClass('float-panel-menu-active')){
-			$('#float-panel-menu').removeClass('float-panel-menu-active')
-			$('#float-panel-menu').addClass('float-panel-menu-unactive')
-		}else{
-			$('#float-panel-menu').addClass('float-panel-menu-active')
-			$('#float-panel-menu').removeClass('float-panel-menu-unactive')
-		}	
+		// if($('#float-panel-menu').hasClass('float-panel-menu-active')){
+		// 	$('#float-panel-menu').removeClass('float-panel-menu-active')
+		// 	$('#float-panel-menu').addClass('float-panel-menu-unactive')
+		// }else{
+		// 	$('#float-panel-menu').addClass('float-panel-menu-active')
+		// 	$('#float-panel-menu').removeClass('float-panel-menu-unactive')
+		// }	
 	}
 
 	function prepage() 
@@ -733,6 +737,7 @@
 
 			console.log(sessionListSL,'sessionListSL');
 			drawStoryLine(sessionListSL)
+			drawRelationshipMap()
 		})	
 	}
 	//chosen 选中
@@ -867,15 +872,36 @@
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-left-top">
 						<div class="view">
-							<div class="view-content menu-view-content">
+							<div id="menu-view" class="view-content menu-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="title">Menu View</span>
+									</div>
+								</div>
+								<div class="menu-wrapper">
+									<div class="menu-header">Contents</div>
+									<div class="menu-content">
+										<!-- <div class="content-item active">
+											<span class="item-title">第21回 女儿国唐三藏奇遇</span>
+											<span class="item-page">01</span>
+										</div> -->
+									</div>
+								</div>
+								<div class="menu-map">
+
+								</div>
 
 							</div>
 						</div>
 					</div>
 					<div class="panel v-panel panel-left-bottom">
 						<div class="view">
-							<div class="view-content overview-view-content">
-
+							<div id="fragment-view" class="view-content fragment-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="title">Fragment View</span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -936,15 +962,26 @@
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-right-top">
 						<div class="view">
-							<div class="view-content relationship-view-content">
+							<div id="relationship-view" class="view-content relationship-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="title">Relationship View</span>
+									</div>
+								</div>	
+								<div id="relationship-view-map" class="relationship-view-map">
 
+								</div>
 							</div>
 						</div>
 					</div>
 					<div class="panel v-panel panel-right-bottom">
 						<div class="view">
-							<div class="view-content fragment-view-content">
-
+							<div id="overview-view" class="view-content overview-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="title">Overview</span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -952,18 +989,18 @@
 			</div>
 		</div>
 	</div>
-	<div id="float-panel-menu" class="float-panel-menu">
+	<!-- <div id="float-panel-menu" class="float-panel-menu">
 		<div class="menu-wrapper">
 			<div class="menu-header">Contents</div>
 			<div class="menu-content">
-				<!-- <div class="content-item active">
+				<div class="content-item active">
 					<span class="item-title">第21回 女儿国唐三藏奇遇</span>
 					<span class="item-page">01</span>
-				</div> -->
+				</div>
 			</div>
 		</div>
 
-	</div>
+	</div> -->
 	<div id="float-panel-chosen" class="float-panel-chosen">
 		<div class="text-wrapper">
 			<!-- <div id="chosen-text" class="text"></div> -->
