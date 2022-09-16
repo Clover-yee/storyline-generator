@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-12 13:17:13
+ * @LastEditTime: 2022-09-14 13:10:41
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -41,26 +41,32 @@
 	<script type="text/javascript" src="js/panel.js"></script>
 
 	<script type="text/javascript" src="js/relationship.view.js"></script>
+	<script type="text/javascript" src="js/menu.view.js"></script>
+
 
 
 	<script type="text/javascript">
 		//
 		// Startup
 		//
-		var _isDown, _points, _strokes, _r, _g, _rc,_isStart,sessionList; // global variables
+		var _isDown, _points, _strokes, _r, _g, _rc,_isStart; // global variables
+		var sessionList = new Array()
 		var session = new Session()
 		var curSessionID =''
-		var page=0;
-		var totalPageNum = 0;
 		//i1,i2...
 		var eventCounter = 0;
+
+		var page=0;
+		var totalPageNum = 0;
+
 		var textArray = []
 	    var pattern = new RegExp("[A-Za-z]+");
 		//var patterncontent= new RegExp("[/\\x{7b2c}+/w+\\x{56de}/u]")
 		// var patterncontent=  /第[0-9][0-9]回/
 		var patterncontent=  /Chapter/
-
 		var menuArray = []
+		
+		var entityDict = new Array()
 
 		document.ontouchstart = null;
 		document.ontouchmove = null;
@@ -84,8 +90,6 @@
 
 			_isDown = false;
 			_isStart = false
-			sessionList = new Array()
-			session = new Session()
 		}
 		function getCanvasRect(canvas)
 		{
@@ -576,7 +580,7 @@
 					if(patterncontent.test(element))
 					{
                        //console.log(element)
-					   let cobj={pagenum:pagecontent, title:element}
+					   let cobj={pagenum:pagecontent, title:element, sessionNum:0}
 					   menuArray.push(cobj)
 					}
 				    })			
@@ -585,8 +589,9 @@
 			 }
 			 divfuzhi(page)
 			 totalPageNum = textArray.length 
+			 document.getElementById('menu-header').innerText = input.files[0].name.split('.')[0]
 			 document.getElementById('totalPageNum').innerText = 'Total '+totalPageNum  // reader.result为获取结果
-			 createMenu()
+			 
 			 console.log(menuArray,'menuArray')
 			 getAllObjects()
 	   }, false})
@@ -614,31 +619,6 @@
 	    test0.innerHTML="";
 		test0.innerHTML = textArray[page]
     }
-	function createMenu() {
-		for (const menuItem of menuArray) {
-			var contentItem = document.createElement("div")
-			contentItem.classList.add('content-item')
-			var itemTitle = document.createElement("span")
-			itemTitle.innerHTML = menuItem.title
-			itemTitle.classList.add('item-title')
-			var itemPage = document.createElement("span")
-			itemPage.innerHTML = menuItem.pagenum
-			itemPage.classList.add('item-page')
-			contentItem.appendChild(itemTitle)
-			contentItem.appendChild(itemPage)
-			contentItem.addEventListener('click',function(){
-				page = menuItem.pagenum - 1
-				jumpPage(page)
-				$('.menu-content').children().each(function(){
-					$(this).removeClass('content-item-active')
-				});
-				$(this).addClass('content-item-active')
-			})
-			$('.menu-content').append(contentItem)
-		}
-		// $('#float-panel-menu').addClass('float-panel-menu-active')
-		$('.content-item').first().addClass('content-item-active')
-	}
 
 	function onClickOpenMenu() {
 		// if($('#float-panel-menu').hasClass('float-panel-menu-active')){
@@ -693,9 +673,11 @@
 		if((menuItemIndex - 1) <= 3){
 			var curTransformY = 0
 			$('.menu-content').scrollTop(curTransformY)
+			d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
 		}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
 			var curTransformY = (menuItemIndex - 4) * 40
 			$('.menu-content').scrollTop(curTransformY)
+			d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
 		}
 	}
 	function findMenuItem(page) {
@@ -708,8 +690,10 @@
 
 	function getAllObjects() {
 		getObjectFromDatabase().then(res=>{
-			sessionListSL = new Array()
 			sessionList = res.data
+
+			sessionListSL = new Array()
+			entityDict = new Array()
 			eventCounter = 1
 			//数据转换
 			let str = "event,start,last,members,place,content\n";
@@ -722,9 +706,22 @@
 							if(element.stroke.pageNum > max) max = element.stroke.pageNum
 							if(element.stroke.pageNum < min) min = element.stroke.pageNum
 						}
+						if(key === 'person'){
+							var entities = element.value.split(',')
+							entities.forEach(entity => {
+								if(!entityDict.find(item => item === entity)){
+									entityDict.push(entity)
+								}
+							});
+						}
 					}
 				}
 				let l=max-min
+
+				//统计章节交互片段数量
+				menuArray[findMenuItem(min)-1].sessionNum++
+
+
 				// var summarizationText = ''
 				// for(var i = min; i <= max; i++){
 				// 	summarizationText+=textArray[i]
@@ -735,7 +732,10 @@
 				eventCounter++
 			}
 
+			console.log(entityDict,'entityDict');
 			console.log(sessionListSL,'sessionListSL');
+			console.log(menuArray,'menuArray');		
+			drawMenuMap(menuArray)
 			drawStoryLine(sessionListSL)
 			drawRelationshipMap()
 		})	
@@ -879,18 +879,16 @@
 									</div>
 								</div>
 								<div class="menu-wrapper">
-									<div class="menu-header">Contents</div>
-									<div class="menu-content">
+									<div id="menu-header" class="menu-header">Contents</div>
+									<div id="menu-content" class="menu-content">
 										<!-- <div class="content-item active">
 											<span class="item-title">第21回 女儿国唐三藏奇遇</span>
 											<span class="item-page">01</span>
 										</div> -->
 									</div>
+									<div id="menu-map" class="menu-map"></div>
+									<div id="menu-minimap" class="menu-minimap"></div>
 								</div>
-								<div class="menu-map">
-
-								</div>
-
 							</div>
 						</div>
 					</div>
@@ -962,25 +960,25 @@
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-right-top">
 						<div class="view">
-							<div id="relationship-view" class="view-content relationship-view-content">
-								<div class="nav">
-									<div class="nav-tool-container">
-										<span class="title">Relationship View</span>
-									</div>
-								</div>	
-								<div id="relationship-view-map" class="relationship-view-map">
-
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="panel v-panel panel-right-bottom">
-						<div class="view">
 							<div id="overview-view" class="view-content overview-view-content">
 								<div class="nav">
 									<div class="nav-tool-container">
 										<span class="title">Overview</span>
 									</div>
+								</div>	
+							</div>
+						</div>
+					</div>
+					<div class="panel v-panel panel-right-bottom">
+						<div class="view">
+							<div id="relationship-view" class="view-content relationship-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="title">Relationship View</span>
+									</div>
+								</div>
+								<div id="relationship-view-map" class="relationship-view-map">
+
 								</div>
 							</div>
 						</div>
