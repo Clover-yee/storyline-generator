@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-14 13:10:41
+ * @LastEditTime: 2022-09-16 16:57:40
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -589,7 +589,7 @@
 			 }
 			 divfuzhi(page)
 			 totalPageNum = textArray.length 
-			 document.getElementById('menu-header').innerText = input.files[0].name.split('.')[0]
+			//  document.getElementById('menu-header').innerText = input.files[0].name.split('.')[0]
 			 document.getElementById('totalPageNum').innerText = 'Total '+totalPageNum  // reader.result为获取结果
 			 
 			 console.log(menuArray,'menuArray')
@@ -737,7 +737,7 @@
 			console.log(menuArray,'menuArray');		
 			drawMenuMap(menuArray)
 			drawStoryLine(sessionListSL)
-			drawRelationshipMap()
+			// drawRelationshipMap()
 		})	
 	}
 	//chosen 选中
@@ -878,17 +878,17 @@
 										<span class="title">Menu View</span>
 									</div>
 								</div>
-								<div class="menu-wrapper">
+								<!-- <div class="menu-wrapper">
 									<div id="menu-header" class="menu-header">Contents</div>
 									<div id="menu-content" class="menu-content">
-										<!-- <div class="content-item active">
+										<div class="content-item active">
 											<span class="item-title">第21回 女儿国唐三藏奇遇</span>
 											<span class="item-page">01</span>
-										</div> -->
+										</div>
 									</div>
 									<div id="menu-map" class="menu-map"></div>
 									<div id="menu-minimap" class="menu-minimap"></div>
-								</div>
+								</div> -->
 							</div>
 						</div>
 					</div>
@@ -951,35 +951,6 @@
 						<div class="view">
 							<span id="storyline-view-title">Storyline</span>
 							<div id="storyline-view" class="view-content storyline-view-content">
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="panel h-right-panel">
-				<div class="panel-wrapper">
-					<div class="panel v-panel panel-right-top">
-						<div class="view">
-							<div id="overview-view" class="view-content overview-view-content">
-								<div class="nav">
-									<div class="nav-tool-container">
-										<span class="title">Overview</span>
-									</div>
-								</div>	
-							</div>
-						</div>
-					</div>
-					<div class="panel v-panel panel-right-bottom">
-						<div class="view">
-							<div id="relationship-view" class="view-content relationship-view-content">
-								<div class="nav">
-									<div class="nav-tool-container">
-										<span class="title">Relationship View</span>
-									</div>
-								</div>
-								<div id="relationship-view-map" class="relationship-view-map">
-
-								</div>
 							</div>
 						</div>
 					</div>

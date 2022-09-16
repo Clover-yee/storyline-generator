@@ -190,16 +190,16 @@ body {
 }
 
 .h-left-panel {
-    width: 17.5%;
+    width: 350px;
 }
 
 .h-center-panel {
     width: 1072px;
 }
 
-.h-right-panel {
+/* .h-right-panel {
     width: calc(100% - 17.5% - 1072px);
-}
+} */
 
 .divider-h {
 	width: 3px;
