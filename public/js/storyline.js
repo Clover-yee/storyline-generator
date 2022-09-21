@@ -289,7 +289,7 @@ var legend_click = new Array();
 
 
 
-function drawStoryLine(sessionListSL) {
+function drawStoryLine(sessionListSL,menuArray) {
     var storylineView = document.getElementById('storyline-view')
     // var width = storylineView.offsetWidth; // 画布的宽度
     // var height = storylineView.offsetHeight; // 画布*的高度
