@@ -535,8 +535,8 @@ function drawStoryLine(sessionListSL) {
     var RectFilledColor = '#78909c'
     //时间颜色
     var time_color = [
-        d3.rgb("#800000"),
-        d3.rgb("#FF0000"),
+        d3.rgb("#336633"),
+        d3.rgb("#0099CC"),
         d3.rgb("#FF8C00"),
         d3.rgb("#FFD700"),
         d3.rgb("#556B2F"),
@@ -2114,7 +2114,7 @@ function drawStoryLine(sessionListSL) {
                         return time_color[0];
                     }
                 })
-                .attr("opacity", 0.6);
+                .attr("opacity", 0.2);
         storyLineG.append("rect")
             .attr("id", 12)
             .attr("x", points1[i][0].xpoint)
@@ -2662,7 +2662,7 @@ function drawStoryLine(sessionListSL) {
     //记录框变化信息
     var FramTranformX = 0;
 
-    function dragged() {
+    function dragged(event) {
         minDistance = width / (height / rectHeight)
         {
             if ((this.id == "leftLine" || this.id == "leftDragRect") && rightLineX - event.x >= minDistance
