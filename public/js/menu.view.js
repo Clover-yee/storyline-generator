@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-09-11 15:41:54
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-16 16:40:51
+ * @LastEditTime: 2022-09-19 15:55:04
  * @FilePath: \storyline-generator\public\js\menu.view.js
  * @Description: 
  * 

@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-16 16:57:40
+ * @LastEditTime: 2022-09-19 22:30:08
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -25,6 +25,9 @@
 
 	<link href="css/styles.css" rel="stylesheet" type="text/css" />
 	<link href="css/menu.view.css" rel="stylesheet" type="text/css" />
+	<link href="css/fragment.view.css" rel="stylesheet" type="text/css" />
+	<link href="css/entity.view.css" rel="stylesheet" type="text/css" />
+
 
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
@@ -40,7 +43,7 @@
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/panel.js"></script>
 
-	<script type="text/javascript" src="js/relationship.view.js"></script>
+	<script type="text/javascript" src="js/entity.view.js"></script>
 	<script type="text/javascript" src="js/menu.view.js"></script>
 
 
@@ -493,7 +496,7 @@
 			console.log(_r);
 			_points.length = 0; // clear and signal to clear strokes on next mousedown
 			_g.clearRect(0, 0, _rc.width, _rc.height);
-			drawText("Canvas cleared.");
+			// drawText("Canvas cleared.");
 		}
 		function onClickAddFragment()
 		{
@@ -587,7 +590,7 @@
 					startIndex += splitNum - 1
 					pagecontent+=1			
 			 }
-			 divfuzhi(page)
+			 jumpPage(0)
 			 totalPageNum = textArray.length 
 			//  document.getElementById('menu-header').innerText = input.files[0].name.split('.')[0]
 			 document.getElementById('totalPageNum').innerText = 'Total '+totalPageNum  // reader.result为获取结果
@@ -596,38 +599,110 @@
 			 getAllObjects()
 	   }, false})
 	}
-	function divfuzhi(i)
+	function divfuzhi(i,entityNLP)
 	{
 		document.getElementById("text").innerText="";
 		var lines = textArray[i].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
 		var str = ''
+		// let charIdArray = new Array()
+		
+		//绘制实体面板
+		drawPageEntity(entityDict,entityNLP)
+
 		lines.forEach(element => {
+			let entityDictLine = new Array()
+			entityDict.forEach(entity => {
+				let index = element.indexOf(entity)
+				if(index !== -1 ){
+					entityDictLine.push(
+						{
+							str:entity,
+							index,
+							length:entity.length,
+							type:'Dict-PER'
+						}
+					)
+				}
+			});
+			entityNLP.forEach(entity => {
+				let index = element.indexOf(entity.word)
+				if(index !== -1 ){
+					entityDictLine.push(
+						{
+							str:entity.word,
+							index,
+							length:entity.word.length,
+							type:`NLP-${entity.entity_group}`
+						}
+					)
+				}
+			});
+			entityDictLine.sort((x,y)=>{
+				return x.index - y.index
+			})
+			console.log(entityDictLine);
 			var p = document.createElement('p')
+			
 			if(element.length >0){
-				for(let char of element){
+				let counter = 0 //entityDictLine 计数器
+				for (let i = 0; i < element.length; i++) {
+					if(entityDictLine[counter]){
+						let entity = entityDictLine[counter]
+						if(i === entity.index){
+							var div = document.createElement('div')
+							while(i< entity.index + entity.length ){
+								const char = element[i];
+								var e = document.createElement('div')
+								e.id = guid()
+								e.innerHTML = char
+								div.appendChild(e)
+								i++
+							}
+							switch (entity.type) {
+								case 'Dict-PER':
+									div.classList.add('entity-dict-bg')	
+									break;
+								case 'Dict-LOC':
+									div.classList.add('place-dict-bg')	
+									break;
+								case 'NLP-PER':
+									div.classList.add('entity-nlp-bg')	
+									break;
+								case 'NLP-LOC':
+									div.classList.add('place-nlp-bg')	
+									break;
+								default:
+									break;
+							}
+							p.appendChild(div)
+							counter++
+						}
+					}
+					const char = element[i];
 					var e = document.createElement('div')
 						e.id = guid()
 						e.innerHTML = char
 						p.appendChild(e)
-					
+						// charIdArray.push(e.id)
 				}
 				// var e = document.createElement('div')
 				// e.innerHTML = "\r"
 				document.getElementById('text').appendChild(p)
 			}
+			
 		});
 	    test0.innerHTML="";
 		test0.innerHTML = textArray[page]
     }
 
 	function onClickOpenMenu() {
-		// if($('#float-panel-menu').hasClass('float-panel-menu-active')){
-		// 	$('#float-panel-menu').removeClass('float-panel-menu-active')
-		// 	$('#float-panel-menu').addClass('float-panel-menu-unactive')
-		// }else{
-		// 	$('#float-panel-menu').addClass('float-panel-menu-active')
-		// 	$('#float-panel-menu').removeClass('float-panel-menu-unactive')
-		// }	
+		if($('#float-panel-menu').hasClass('float-panel-menu-active')){
+			$('#float-panel-menu').removeClass('float-panel-menu-active')
+			$('#float-panel-menu').addClass('float-panel-menu-unactive')
+		}else{
+			$('#float-panel-menu').addClass('float-panel-menu-active')
+			$('#float-panel-menu').removeClass('float-panel-menu-unactive')
+		}	
 	}
 
 	function prepage() 
@@ -656,29 +731,41 @@
 		}
 	}
 	function jumpPage(page) {
-		var res = classification(textArray[page])
-		divfuzhi(page)
-		_g.clearRect(0, 0, _rc.width, _rc.height);
-		drawConnectedPointByPage()
-		document.getElementById('curpage').innerText = page+1
-		document.getElementById('pageNumJump').value = page+1
-
-		//menu update
-		var menuItemIndex = findMenuItem(page)
-		$('.menu-content').children().each(function(){
-			$(this).removeClass('content-item-active')
-		});
-		$(`.content-item:nth-child(${menuItemIndex})`).addClass('content-item-active')
+		classification(textArray[page]).then(res=>{
+			//去重
+			var obj = {}
+			res.forEach(item => {
+				obj[item.word] = item
+			});
+			var entityNLP = []
+			for (let key in obj) {
+				entityNLP.push(obj[key])
+			}
+			console.log(entityNLP);
+			divfuzhi(page,entityNLP)
+			_g.clearRect(0, 0, _rc.width, _rc.height);
+			drawConnectedPointByPage()
+			document.getElementById('curpage').innerText = page+1
+			document.getElementById('pageNumJump').value = page+1
+	
+			//menu update
+			var menuItemIndex = findMenuItem(page)
+			$('.menu-content').children().each(function(){
+				$(this).removeClass('content-item-active')
+			});
+			$(`.content-item:nth-child(${menuItemIndex})`).addClass('content-item-active')
+			
+			if((menuItemIndex - 1) <= 3){
+				var curTransformY = 0
+				$('.menu-content').scrollTop(curTransformY)
+				d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
+			}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
+				var curTransformY = (menuItemIndex - 4) * 40
+				$('.menu-content').scrollTop(curTransformY)
+				d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
+			}
+		})
 		
-		if((menuItemIndex - 1) <= 3){
-			var curTransformY = 0
-			$('.menu-content').scrollTop(curTransformY)
-			d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
-		}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
-			var curTransformY = (menuItemIndex - 4) * 40
-			$('.menu-content').scrollTop(curTransformY)
-			d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
-		}
 	}
 	function findMenuItem(page) {
 		for (const menuItemIndex in menuArray) {
@@ -872,23 +959,35 @@
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-left-top">
 						<div class="view">
-							<div id="menu-view" class="view-content menu-view-content">
+							<div id="menu-view" class="view-content entity-view-content">
 								<div class="nav">
 									<div class="nav-tool-container">
-										<span class="title">Menu View</span>
+										<span class="title">Entity View</span>
 									</div>
 								</div>
-								<!-- <div class="menu-wrapper">
-									<div id="menu-header" class="menu-header">Contents</div>
-									<div id="menu-content" class="menu-content">
-										<div class="content-item active">
-											<span class="item-title">第21回 女儿国唐三藏奇遇</span>
-											<span class="item-page">01</span>
+								<div class="entity-view-container">
+									<div class="person-entity-wrapper">
+										<div class="title title-person">Person</div>
+										<div id="person-entity-container" class="entity-container">
+											<!-- <div class="entity entity-person-dict">
+												Benney
+											</div> -->
 										</div>
 									</div>
-									<div id="menu-map" class="menu-map"></div>
-									<div id="menu-minimap" class="menu-minimap"></div>
-								</div> -->
+									<!-- <div class="time-entity-wrapper">
+										<div class="title title-time">Time</div>
+									</div> -->
+									<div class="place-entity-wrapper">
+										<div class="title title-place">Place</div>
+										<div id="person-place-container" class="entity-container">
+
+										</div>
+									</div>
+									<div class="event-entity-wrapper">
+										<div class="title title-event">Event</div>
+									</div>
+
+								</div>
 							</div>
 						</div>
 					</div>
@@ -899,7 +998,50 @@
 									<div class="nav-tool-container">
 										<span class="title">Fragment View</span>
 									</div>
+									<div class="nav-tool-container-right">
+										<div id="fragment-cancel" class="fragment-cancel" onmouseup="onmouseupFragmentCancel(this)">
+											<span class="cancel-img"><img class="svg-icon" src="/img/cancel.png"></span>
+										</div>
+										<div id="fragment-confirm" class="fragment-confirm" onmouseup="onmouseupFragmentConfirm(this)">
+											<span class="confirm-img"><img class="svg-icon" src="/img/confirm.png"></span>
+										</div>
+									</div>
 								</div>
+								<div id="panel-fragment" class="panel-fragment">
+					
+									<div class="fragments-wrapper">
+										<div class="fragment-wrapper border-person" style="margin-top:20px">
+											<span class="fragment-img"><img class="svg-icon" src="/img/person-fill.png"></span>
+											<div class="fragment-text text-person">Person</div>
+											<span class="fragment-separator"></span>
+							
+											<input type="text" id="person" class="fragment-content" onkeyup="onkeyupFragmentText('person')">
+										</div>
+										<div class="fragment-wrapper border-time">
+											<span class="fragment-img"><img class="svg-icon" src="/img/time-fill.png"></span>
+											<div class="fragment-text text-time">Time</div>
+											<span class="fragment-separator"></span>
+											
+											<input type="text" id="time" class="fragment-content" onkeyup="onkeyupFragmentText('time')">
+										</div>
+										<div class="fragment-wrapper border-place">
+											<span class="fragment-img"><img class="svg-icon" src="/img/place-fill.png"></span>
+											<div class="fragment-text text-place">Place</div>
+											<span class="fragment-separator"></span>
+							
+											<input type="text" id="place" class="fragment-content" onkeyup="onkeyupFragmentText('place')">
+										</div>
+										<div class="fragment-wrapper fragment-wrapper-event border-event">
+											<span class="fragment-img fragment-img-event"><img class="svg-icon" src="/img/event-fill.png"></span>
+											<div class="fragment-text text-event">Event</div>
+											<span class="fragment-separator"></span>
+							
+											<textarea rows="3" id="event" class="fragment-content" onkeyup="onkeyupFragmentText('event')"></textarea>
+										</div>
+							
+									</div>
+								</div>
+								
 							</div>
 						</div>
 					</div>
@@ -958,18 +1100,18 @@
 			</div>
 		</div>
 	</div>
-	<!-- <div id="float-panel-menu" class="float-panel-menu">
+	<div id="float-panel-menu" class="float-panel-menu">
 		<div class="menu-wrapper">
 			<div class="menu-header">Contents</div>
 			<div class="menu-content">
-				<div class="content-item active">
+				<!-- <div class="content-item active">
 					<span class="item-title">第21回 女儿国唐三藏奇遇</span>
 					<span class="item-page">01</span>
-				</div>
+				</div> -->
 			</div>
 		</div>
 
-	</div> -->
+	</div>
 	<div id="float-panel-chosen" class="float-panel-chosen">
 		<div class="text-wrapper">
 			<!-- <div id="chosen-text" class="text"></div> -->
@@ -994,49 +1136,6 @@
 			</div>
 		</div>
 	</div>
-	<div id="float-panel-fragment" class="float-panel-fragment">
-		<div id="fragments-top" class="fragments-top">
-			<div id="fragment-cancel" class="fragment-cancel" onmouseup="onmouseupFragmentCancel(this)">
-				<span class="cancel-img"><img class="svg-icon" src="/img/cancel.png"></span>
-			</div>
-			<div id="fragment-header" class="text">Session</div>
-			<div id="fragment-confirm" class="fragment-confirm" onmouseup="onmouseupFragmentConfirm(this)">
-				<span class="confirm-img"><img class="svg-icon" src="/img/confirm.png"></span>
-			</div>
-		</div>
-		
-		<div class="fragments-wrapper">
-			<div class="fragment-wrapper border-person" style="margin-top:20px">
-				<span class="fragment-img"><img class="svg-icon" src="/img/person-fill.png"></span>
-				<div class="fragment-text text-person">Person</div>
-				<span class="fragment-separator"></span>
-
-				<input type="text" id="person" class="fragment-content" onkeyup="onkeyupFragmentText('person')">
-			</div>
-			<div class="fragment-wrapper border-time">
-				<span class="fragment-img"><img class="svg-icon" src="/img/time-fill.png"></span>
-				<div class="fragment-text text-time">Time</div>
-				<span class="fragment-separator"></span>
-				
-				<input type="text" id="time" class="fragment-content" onkeyup="onkeyupFragmentText('time')">
-			</div>
-			<div class="fragment-wrapper border-place">
-				<span class="fragment-img"><img class="svg-icon" src="/img/place-fill.png"></span>
-				<div class="fragment-text text-place">Place</div>
-				<span class="fragment-separator"></span>
-
-				<input type="text" id="place" class="fragment-content" onkeyup="onkeyupFragmentText('place')">
-			</div>
-			<div class="fragment-wrapper border-event">
-				<span class="fragment-img"><img class="svg-icon" src="/img/event-fill.png"></span>
-				<div class="fragment-text text-event">Event</div>
-				<span class="fragment-separator"></span>
-
-				<input type="text" id="event" class="fragment-content" onkeyup="onkeyupFragmentText('event')">
-			</div>
-
-		</div>
-	</div>
 	<defs>
         <!-- 添加带箭头的标线 -->
         <marker
@@ -1052,6 +1151,6 @@
     </defs>
 </body>
 <script type="text/javascript">
-	dragFuncIndex('float-panel-fragment','fragments-top')
+	// dragFuncIndex('float-panel-fragment','fragments-top')
 </script>
 </html>

@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 14:59:27
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-02 15:09:48
+ * @LastEditTime: 2022-09-18 12:19:33
  * @FilePath: \storyline-generator\public\js\database.js
  * @Description: 数据库接口表
  * 
@@ -75,7 +75,7 @@ function classification(data) {
         }).then((res) => {
             console.log("🚀 ~ file: Database.js ~ classification ~ returnnewPromise ~ res", res)
 
-            resolve(res.status)
+            resolve(res.data)
 
         })
 

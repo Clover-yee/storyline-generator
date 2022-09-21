@@ -26,6 +26,10 @@
     --highlight-orange: #ff9246;
     --selected-bg: #cbeaff;
     --selected-text-bg : #FFF6D0;
+    --selected-entity-dict-bg : #f39b9c;
+    --selected-entity-nlp-bg : #eec0c1;
+    --selected-place-dict-bg : #a2da4e;
+    --selected-place-nlp-bg : #B8D68C;
     --person : #DC6062;
     --time:#458BC5;
     --place:#B8D68C;
@@ -190,7 +194,7 @@ body {
 }
 
 .h-left-panel {
-    width: 350px;
+    width: 300px;
 }
 
 .h-center-panel {
@@ -252,17 +256,6 @@ body {
 	width: 100%;
 }
 
-.panel-right-top {
-	height: calc(50%);
-    width: 100%;
-
-}
-
-.panel-right-bottom {
-	height: calc(50%);
-    width: 100%;
-}
-
 .view-title-container {
     display: flex;
     box-sizing: border-box;
@@ -292,7 +285,7 @@ body {
     height: calc(100% - 9px);
 }
 
-.menu-view-content{
+.entity-view-content{
     background: var(--gray1);
     border-radius: 5px;
     margin: 6px 3px 3px 6px;
@@ -317,19 +310,6 @@ body {
     border-radius: 5px;
     margin: 3px 3px 6px;
     width: calc(100% - 6px);
-    user-select: none;
-}
-
-.overview-view-content{
-    background: var(--gray1);
-    border-radius: 5px;
-    margin: 6px 6px 3px 3px;
-}
-
-.relationship-view-content{
-    background: var(--gray1);
-    border-radius: 5px;
-    margin: 3px 6px 6px 3px;
     user-select: none;
 }
 
@@ -381,7 +361,26 @@ p{
 	margin: auto;
 }
 
-.text-bg{
+.entity-dict-bg{
+    background-color: var(--selected-entity-dict-bg);
+    /* padding: 0 2px;
+    border: rgb(220, 96, 98) solid 1px;
+    border-radius: 2px; */
+}
+
+.entity-nlp-bg {
+    background-color: var(--selected-entity-nlp-bg);
+}
+
+.place-dict-bg{
+    background-color: var(--selected-place-dict-bg);
+}
+
+.place-nlp-bg {
+    background-color: var(--selected-place-nlp-bg);
+}
+
+.text-bg {
     background-color: var(--selected-text-bg);
 }
 
@@ -532,149 +531,6 @@ p{
     color: #F4C515;
 }
 
-.float-panel-fragment{
-    height: 350px;
-    width: 250px;
-    right: -260px;
-    bottom: 25px;
-    position: fixed;
-    display: block;
-    z-index: 99;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0px 1px 10px rgba(0,0,0,0.2);
-}
-
-.options{
-    transition: all .5s;
-    transform: translateX(-275px); 
-}
-
-#float-panel-fragment .fragments-top {
-	width: 250px;
-	height: 20px;
-    background-color: var(--gray4);
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
-    display: flex;
-    cursor:move;
-}
-
-#float-panel-fragment .fragments-top .text {
-    width: 100px;
-	height: 20px;
-    margin:0 auto;
-    font-size: 16px;
-    /* background-color: var(--gray13); */
-    line-height:20px;  /*设置文字行高， 可被高度整除*/
-    word-wrap:break-word; 
-    text-align: center;
-    z-index: 999;
-    /* border-radius: 0 0 10px 10px; */
-    /* border-bottom: 2px solid var(--gray13); */
-    /* box-shadow: 0px 1px 3px rgba(0,0,0,0.2); */
-    user-select:none;
-}
-
-#float-panel-fragment .fragments-top .fragment-cancel{
-    width: 20px;
-	height: 20px;
-    background-color: var(--person);
-    border-radius: 5px 0 5px 0px;
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
-}
-
-#float-panel-fragment .fragments-top .fragment-confirm{
-    width: 20px;
-	height: 20px;
-    background-color: var(--place);
-    border-radius: 0 5px 0px 5px;
-    box-shadow: 0px 1px 3px rgba(0,0,0,0.2);
-    margin-right: 0;
-}
-
-.fragment-cancel .cancel-img {
-    width: 20px;
-    height: 20px;
-}
-
-.fragment-confirm .confirm-img {
-    width: 20px;
-    height: 20px;
-}
-
-.fragments-top .svg-icon {
-    width: 100%;
-    height: 100%;
-    display: inline-block;
-    background-repeat: no-repeat;
-    background-size: 94%;
-}
-
-
-
-.fragments-wrapper{
-    float: left;
-    width: 100%;
-    height: 100%;
-}
-
-.fragment-wrapper{
-    float: left;
-    width: calc(100% - 20px - 4px);
-    height: 56px;
-    margin: 10px 10px;
-    border-width: 2px;
-    border-style: dashed;
-    border-radius: 10px;    
-    background-color: #fff;
-    color: #000000;
-}
-
-.fragment-wrapper .fragment-img {
-    width: 46px;
-    height: 46px;
-    padding: 5px;
-    float: left;
-}
-
-.fragment-wrapper .fragment-img .svg-icon {
-    width: 100%;
-    height: 100%;
-    display: inline-block;
-    background-repeat: no-repeat;
-    background-size: 94%;
-}
-
-.fragment-text{
-    float: left;
-    width: calc(100% - 56px);
-    font-size: 14px;
-    text-align: center;
-}
-
-.fragment-separator{
-    float: left;
-    height: 0px;
-    margin: 2px calc((100% - 56px - 70px )/ 2);
-    width: 70px;
-    border-top: 2px solid var(--gray13);
-    z-index: 9999;
-}
-
-.fragment-content{
-    float: left;
-    color: var(--gray14);
-    text-align: center;
-    font-size: 14px;
-	line-height: 25px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-all;
-    white-space: nowrap;
-    box-shadow: none;
-    border: none;
-}
-
 .tooltip {
     position: absolute;
     padding: 16px;
@@ -708,7 +564,7 @@ p{
     position: absolute;
     background: none;
     bottom: 160px;
-    left: 10px;
+    left: 310px;
     width: 150px;
     height: 60px;
     z-index: 999;

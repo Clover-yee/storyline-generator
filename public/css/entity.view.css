@@ -1,0 +1,80 @@
+.entity-view-container{
+    width: 100%;
+    height: calc(100% - 30px);
+}
+
+.person-entity-wrapper{
+    width: 100%;
+    height: 40%;
+}
+
+.time-entity-wrapper{
+    width: 100%;
+    height: 10%;
+}
+
+.place-entity-wrapper{
+    width: 100%;
+    height: 30%;
+}
+
+.event-entity-wrapper{
+    width: 100%;
+    height: 30%;
+}
+
+.entity-view-container .title{
+    height:fit-content;
+    width: fit-content;
+    font-size: 16px;
+    border-radius: 5px;
+    padding: 3px 5px;
+    margin-left: 10px;
+    color: #fff;
+    display: block;
+}
+
+.title-person{
+    background-color: var(--person);
+}
+.title-time{
+    background-color: var(--time);
+}
+.title-place{
+    background-color: var(--place);
+}
+.title-event{
+    background-color: var(--event);
+}
+
+.entity-container{
+    margin-top: 5px;
+}
+
+.entity{
+    height:fit-content;
+    width: fit-content;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 1px 3px;
+    margin:3px 0 3px 10px;
+    color: #fff;
+    float: left;
+}
+
+.entity-person-dict{
+    background-color: var(--selected-entity-dict-bg);
+}
+.entity-person-nlp{
+    background-color: var(--selected-entity-nlp-bg);
+}
+/* .entity-time{
+    background-color: var(--selected-entity-dict-bg);
+} */
+.entity-place-dict{
+    background-color: var(--selected-place-dict-bg);
+}
+.entity-place-nlp{
+    background-color: var(--selected-place-nlp-bg);
+}
+

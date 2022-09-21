@@ -9,11 +9,11 @@ function openFragmentPanel(){
 }
 
 function closeFragmentPanel(){
-    var floatPanelFragment = document.getElementById('float-panel-fragment')
-    floatPanelFragment.style.top = ''
-    floatPanelFragment.style.left = ''
-    floatPanelFragment.style.right = '-260px'
-    floatPanelFragment.style.bottom = '25px'
+    // var floatPanelFragment = document.getElementById('float-panel-fragment')
+    // floatPanelFragment.style.top = ''
+    // floatPanelFragment.style.left = ''
+    // floatPanelFragment.style.right = '-260px'
+    // floatPanelFragment.style.bottom = '25px'
     clearFragmentText()
 }
 
