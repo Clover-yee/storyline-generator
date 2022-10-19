@@ -82,12 +82,31 @@ body {
 
 .nav-tool-container .title{
     font-size: 16px;
+    font-weight: 600;
     position: relative;
-    margin: auto 0 auto 5px;
+    margin: 7px 0 auto 12px;
+    color: #333333;
+}
+
+.nav-tool-container .header-icon{
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    width: 20px;
+    height: 10px;
+    display: inline-block;
+}
+
+.header-icon .svg-icon{
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 94%;
 }
 
 .nav-tool-container-right{
-    margin-right: 5px;
+    margin-right: 21px;
     margin-left: auto;
     display: flex;
 }
@@ -132,52 +151,115 @@ body {
     float: right;
 }
 
-.page-container .tool-btn {
+.page-container .tool-btn{
     float: left;
     width: var(--nav-content-height);
     height: var(--nav-content-height);
     padding: 5px 2px;
-    margin: 0 2px;
+    user-select: none;
 }
 
-.page-container .tool-text-main {
-    float: left;
-    width: 15px;
-    text-align: center;
-    padding: 5px 0;
-    height: var(--nav-content-height);
-    line-height:var(--nav-content-height);
-    filter: invert(40%);
-}
-
-.page-container .tool-text-other {
-    float: left;
-    font-size: 14px;
-    padding: 5px 0;
-    height: var(--nav-content-height);
-    line-height:var(--nav-content-height);
-    filter: invert(40%);
-}
-
-.page-container .tool-text-input {
-    float: left;
-    padding: 5px 2px;
-    width: 20px;
-    font-size: 14px;
-    background-color:rgba(0, 0, 0, 0);
-    text-align: center;
-    filter: invert(40%);
-    box-shadow: none;
-    border: none;
-}
-
-.page-container .tool-btn .svg-icon {
+.page-container .tool-btn .svg-icon{
     width: 100%;
     height: 100%;
     display: inline-block;
     background-repeat: no-repeat;
     background-size: 94%;
     filter: invert(70%);
+}
+
+.pagination-left{
+    position: absolute;
+    left: 33px;
+    bottom: 5px;
+}
+
+.pagination-right{
+    position: absolute;
+    right: 33px;
+    bottom: 5px;
+}
+
+.pagination .tool-text-other{
+    float: left;
+    font-size: 17px;
+    font-style: italic;
+    color: #808080;
+    padding: 5px 0;
+    height: var(--nav-content-height);
+    line-height:var(--nav-content-height);
+    user-select: none;
+}
+
+.pagination .tool-text-totalpage{
+    float: left;
+    font-size: 20px;
+    font-style: italic;
+    color: #808080;
+    padding: 4px 5px;
+    filter: invert(40%);
+    user-select: none;
+}
+
+.pagination .tool-text-main {
+    float: left;
+    width: 18px;
+    text-align: center;
+    font-size: 17px;
+    color: #999999;
+    background-color: #f8f8f8;
+    border-radius: 2px;
+    padding: 0 3px;
+    margin: 6px 0;
+    height: var(--nav-content-height);
+    line-height:var(--nav-content-height);
+    user-select: none;
+}
+
+.pagination .tool-text-input {
+    float: left;
+    padding: 0px 2px;
+    margin: 5px 3px 5px 15px;
+    width: 22px;
+    font-size: 17px;
+    color: #999999;
+    background-color: #f4f4f4;
+    border: 1px solid #b3b3b3;
+    border-radius: 5px;
+    text-align: center;
+    box-shadow: none;
+}
+
+.pagination .tool-text-go{
+    width: 30px;
+    height: 22px;
+    float: left;
+    font-size: 17px;
+    font-style: italic;
+    color: #999999;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    margin: 5px 0;
+    text-align: center;
+    line-height:22px;
+    user-select: none;
+}
+
+.pagination .tool-btn{
+    float: left;
+    width: 10px;
+    height: 16px;
+    margin: 3px 2px;
+    padding: 5px 2px;
+    user-select: none;
+}
+
+.pagination .tool-btn .svg-icon{
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: 94%;
 }
 
 .panel-wrapper {
@@ -226,7 +308,6 @@ body {
 
 .v-panel {
     max-height: calc(100% - 300px);
-    min-height: 300px;
 }
 
 .view {
@@ -236,9 +317,13 @@ body {
 }
 
 .panel-left-top {
-	height: calc(50%);
+    height: 165px;
     width: 100%
+}
 
+.panel-left-center {
+	height: calc(50% - 165px);
+    width: 100%
 }
 
 .panel-left-bottom {
@@ -285,17 +370,23 @@ body {
     height: calc(100% - 9px);
 }
 
-.entity-view-content{
+.over-view-content{
     background: var(--gray1);
     border-radius: 5px;
     margin: 6px 3px 3px 6px;
 }
 
+.configuration-view-content{
+    height: calc(100% - 6px);
+    background: var(--gray1);
+    border-radius: 5px;
+    margin: 3px 3px 3px 6px;
+}
+
 .fragment-view-content{
     background: var(--gray1);
-
     border-radius: 5px;
-    margin: 3px 3px 6px 6px;
+    margin: 3px 3px 3px 6px;
 }
 
 .text-view-content{
@@ -306,28 +397,16 @@ body {
 }
 
 .storyline-view-content {
-    background: var(--gray3);
+    background: var(--gray1);
     border-radius: 5px;
     margin: 3px 3px 6px;
     width: calc(100% - 6px);
     user-select: none;
 }
 
-#storyline-view-title{
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 18px;
-}
-
-.relationship-view-map{
-    position: relative;
-    height: calc(100% - 30px - 12px);
-}
-
 #myCanvas{
 	position:relative;
-    margin: 10px 25px;
+    margin: 5px 33px;
 }
 
 #text{
@@ -338,7 +417,7 @@ body {
     line-height:25px;  /*设置文字行高， 可被高度整除*/
     white-space: pre-wrap;	/*设置文本换行*/
     word-wrap:break-word; 
-    margin: 10px 25px;
+    margin: 5px 33px;
 }
 #test0{
 	position:absolute;
@@ -350,7 +429,7 @@ body {
     white-space: pre-wrap;
     word-wrap:break-word; 
     z-index: -1;
-    margin: 10px 25px;
+    margin: 5px 33px;
 }
 
 #text div{
@@ -568,5 +647,6 @@ p{
     width: 150px;
     height: 60px;
     z-index: 999;
+    user-select: none;
     /* border:1px solid rgb(23, 249, 46); */
     }

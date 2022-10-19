@@ -16,7 +16,7 @@
                 var ev = event || window.event;
                 Y_border1 = 200;
                 Y_border2 = 400;
-                if(height == 410){
+                if(height == 380){
                     Y_border1 = 470;
                     Y_border2 = 670;
                     var DIS = 170;
@@ -239,7 +239,7 @@ var transformx = 0;
 var recommandY = -50;
 var xScaleOldTransformK = 4;
 var width = 1048; // 画布的宽度
-var height =  410; // 画布的高度
+var height =  380; // 画布的高度
 var minMapWidth = 1066;
 var minMapHeight = 90;
 var liucunkongbai = 100;
@@ -299,7 +299,7 @@ function drawStoryLine(sessionListSL,menuArray) {
     var FramColor = "#DFE6F3"
     var mouseOverColor = "#c1d1f7"
     var dragRectColor = "#adb9d2"   
-    var backgroundColor = "#f6f8fc"
+    var backgroundColor = "#f2f2f2"
     
     var mainSvg = d3.select("#storyline-view")
         .attr("id", "storyline-view")
@@ -325,7 +325,7 @@ function drawStoryLine(sessionListSL,menuArray) {
         .attr("y", height)
         .attr("width", minMapWidth)
         .attr("height", minMapHeight)
-    var minMapG = minMapSvg.append("g").attr("transform", `translate(0, -30)`)
+    var minMapG = minMapSvg.append("g").attr("transform", `translate(0, -28)`)
     var storyLineG = Svg.append("g");
 
     // var svg = d3.select("#storyline-view") // 选择文档中的body 元素
@@ -1466,6 +1466,8 @@ function drawStoryLine(sessionListSL,menuArray) {
         .attr("width", rightX)
         .attr("height", rectHeight)
         .attr("fill", backgroundColor)
+        .attr("stroke", '#e9edf7')
+        .attr("stroke-width", "3px")
 
     // console.log(dataresult, "dataresult");
     
@@ -1510,7 +1512,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                     .y((p) => p.ypoint)
                     .curve(d3.curveBasis);
                 storyLineG.append("path")
-                    .attr("id", line_array[i][2])
+                    .attr("id", "path" + line_array[i][2])
                     .attr("d", Gen(reline))
                     .attr("fill", "none")
                     .attr("stroke", color[line_array[i - 1][2]])
@@ -1544,7 +1546,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                 .y((p) => p.ypoint)
                 .curve(d3.curveBasis);
             storyLineG.append("path")
-                .attr("id", line_array[i - 1][2])
+                .attr("id", "path" + line_array[i - 1][2])
                 .attr("d", Gen(reline))
                 .attr("fill", "none")
                 .attr("stroke", color[line_array[i - 1][2]])
@@ -1611,6 +1613,109 @@ function drawStoryLine(sessionListSL,menuArray) {
                 .text(line_array[i][4])
         }
     }
+
+    //添加人物名字
+    var line_name_dis = 50;
+    var pre_line = line_array[0][0];
+    // for(i=1;i<line_array.length;i++){
+    //     if(line_array[i][4] != line_array[i-1][4]){
+    //         pre_line = line_array[i][0];
+    //     }
+    //     while(line_array[i][0] - pre_line >= line_name_dis){
+    //         storyLineG.append("rect")
+    //                 .attr("x", line_array[i][0] - 0.3)
+    //                 .attr("y", line_array[i][1] - 1)
+    //                 .attr("width", line_array[i][4].length * 1.1)
+    //                 .attr("height", 2)
+    //                 .attr("rx", 0.3)
+    //                 .attr("ry", 0.3)
+    //                 // .attr("rect-anchor", "middle")
+    //                 .attr("fill", d3.rgb(242, 242, 242));
+    //         storyLineG.append("text")
+    //                 .attr("x", line_array[i][0])
+    //                 .attr("y", line_array[i][1]+1)
+    //                 .style('font-size', 2)
+    //                 .style('fill', "black")
+    //                 // .attr('text-anchor',"middle")
+    //                 .text(line_array[i][4])
+    //                 .attr("fill", "white");
+
+    //         pre_line += line_array[i][0];
+    //         if(line_array[i][0] - pre_line < line_name_dis){
+    //             break;
+    //         }
+    //     }         
+        
+    // }
+    var dis1 = line_array[0][0];
+    var dis2, dis3, dis4;
+    for(i=1;i<line_array.length;i++){
+        if(line_array[i][4] != line_array[i-1][4]){
+            var text_num = line_array[i-1][0] / 50;
+            dis2 = line_array[i-1][0]
+            console.log(dis2, dis1, line_array[i-1][4], (dis2 - dis1) / 5, line_array[i-1][4].length*1.1);
+
+
+
+            for(j=0;j<text_num;j++){
+                dis4 = line_array[i-1][4].length*1.2
+                dis3 = 50 - dis4;
+
+                storyLineG.append("text")
+                            .attr("dy", 0.75)
+                            .style("background-color", "white")
+                            .append("textPath")
+                            .attr("xlink:href", "#path" + line_array[i-1][2])
+                            .style("text-anchor", "middle") 
+                            .attr("startOffset", (j + 1)*50 - dis4/2)
+                            .attr("dy", 0.75)
+                            .style('font-size', 2)
+                            .style('fill', color[line_array[i-1][2]])
+                            .text(line_array[i-1][4])
+                            .style("background-color", "white")
+
+                
+               
+                d3.select("#path" + line_array[i-1][2])
+                    .attr("stroke-dasharray", dis3.toString() + " " + dis4.toString())
+                // storyLineG.append("rect")
+                //             .append("rectPath")
+                //             .attr("xlink:href", "#" + line_array[i-1][2])
+                //             // .style("text-anchor","middle") 
+                //             .attr("startOffset", (j + 1)*24 + "%")
+                //             .attr("width", )
+                //             .attr("width", )
+                //             .text(line_array[i-1][4]);
+            }
+            dis1 = line_array[i][0]
+        }
+        else if(i == line_array.length - 1){
+            var text_num = line_array[i][0] / 50;
+            dis2 = line_array[i][0]
+            console.log(dis2, dis1, line_array[i-1][4], (dis2 - dis1) / 5, line_array[i][4].length *1.1);
+            for(j=0;j<text_num;j++){
+                dis4 = line_array[i][4].length * 1.2
+                dis3 = 50 - dis4
+                storyLineG.append("text")
+                            .attr("dy", 0.75)
+                            .append("textPath")
+                            .attr("xlink:href", "#path" + line_array[i][2])
+                            .style("text-anchor","middle") 
+                            .attr("dy", 1)
+                            .attr("startOffset", (j + 1)*50 - dis4/2)
+                            .style('font-size', 2)
+                            .style('fill', color[line_array[i][2]])
+                            .text(line_array[i][4]);
+                
+             
+                dis4 = line_array[i][4].length * 1.1
+                dis3 = 50 - dis4
+                d3.select("#path" + line_array[i][2]).attr("stroke-dasharray", dis3.toString() + " " + dis4.toString())
+            }
+        }
+    }
+
+
     var sum = 1;
     var k = 1;
     var rect_event = new Array();
@@ -2180,12 +2285,21 @@ function drawStoryLine(sessionListSL,menuArray) {
     //             })
     //             .attr("opacity", 0.6);
     // }
-
+    var font_weight = 400;
+    var font_size = 2;
 
     //事件框生成
     for (i = 0; i < rect_event.length; i++) {
         
-        
+        storyLineG.append("text")
+                    // .attr("id", "legend_Time_text")
+                    .attr("x", eventdistance * (rect_event[i][1] + 1) + 100)
+                    .attr("y", rect_event[i][3] - 2)
+                    .attr("text-anchor", "start")
+                    .attr("font-weight", font_weight)
+                    .attr("font-size", font_size)
+                    .style("fill", "black")
+                    .text(rect_event[i][0]);
         
         
         storyLineG.append("rect")
@@ -2239,138 +2353,158 @@ function drawStoryLine(sessionListSL,menuArray) {
                 var click_key = parseInt(this.id);//记录被点击的rect值
                 if (click_flag[click_key] == 0) {
                     //词云
-                    {
-                        d3.select("body")
-                            .append("div")
-                            .attr("id", "WordCloud" + this.id)
-                            .attr("class", "WordCloud")
-                            .style("opacity", 0)
-                            .style("width", "150px")
-                            .style("height", "150px");
-                        d3.select("#WordCloud" + this.id)
-                            .style("opacity", 1)
-                            .style("left", d.x - 60 + "px")
-                            .style("top", d.y - 180 + "px")
-                            .style("position", 'fixed');
-                        var line_x = d.x - 35;
-                        var line_y = d.y - 120;
+                    // {
+                    //     d3.select("body")
+                    //         .append("div")
+                    //         .attr("id", "WordCloud" + this.id)
+                    //         .attr("class", "WordCloud")
+                    //         .style("opacity", 0)
+                    //         .style("width", "150px")
+                    //         .style("height", "150px");
+                    //     d3.select("#WordCloud" + this.id)
+                    //         .style("opacity", 1)
+                    //         .style("left", d.x - 60 + "px")
+                    //         .style("top", d.y - 180 + "px")
+                    //         .style("position", 'fixed');
+                    //     var line_x = d.x - 35;
+                    //     var line_y = d.y - 120;
 
 
-                        var newObj = new Array();
-                        //划线字符串
-                        CreateWordCloudData(rect_event[parseInt(this.id)][5], 20, 20)
-                        //全文字符串
-                        var pageStr = ''
-                        for (i = rect_event[parseInt(this.id)][1]; i <= rect_event[parseInt(this.id)][2]; i++) {
-                            pageStr += textArray[i]
-                        }
-                        CreateWordCloudData(pageStr, 10, 0)
-                        function CreateWordCloudData(str, weight, offset) {
-                            var expression = /[\　|\/\r|\/\n\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\n|\t|\，|\。|\！|\？|\：|\；|\“|\”]/g;
-                            str = str.replace(expression, ",");
-                            var wordList = str.split(',').filter(Boolean);
-                            var length = wordList.length;
-                            for (i = 0; i < length; i++) {
-                                var objectCounter = {};
-                                objectCounter.name = wordList[i];
-                                objectCounter.value = Math.random() * weight + offset;
-                                newObj.push(objectCounter);
-                            }
-                        }
-                        var myChart = echarts.init(document.getElementById("WordCloud" + this.id));
-                        var option = {
-                            tooltip: {
-                                show: false
-                            },
-                            series: [{
-                                type: 'wordCloud',
-                                //maskImage: maskImage,
-                                sizeRange: [14, 24],
-                                rotationRange: [0, 0],
-                                rotationStep: 45,
-                                gridSize: 2,
-                                shape: 'pentagon',
-                                width: '100%',
-                                height: '80%',
-                                left: 'center',
-                                top: 'center',
-                                textStyle: {
-                                    normal: {
-                                        color: function () {
-                                            return 'rgb(' + [
-                                                Math.round(Math.random() * 160),
-                                                Math.round(Math.random() * 160),
-                                                Math.round(Math.random() * 160)
-                                            ].join(',') + ')';
-                                        },
-                                        fontFamily: 'sans-serif',
-                                        fontWeight: 'normal'
-                                    },
-                                    emphasis: {
-                                        shadowBlur: 10,
-                                        shadowColor: '#333'
-                                    }
-                                },
-                                data: newObj.slice(0, 20)
-                            }]
-                        };
-                        // 使用刚指定的配置项和数据显示图表。
-                        myChart.setOption(option);
-                        var defs = storyLineG.append("defs");
-                        var arrowMarker = defs.append("marker")
-                            .attr("id", "arrow")
-                            .attr("markerUnits", "strokeWidth")
-                            .attr("markerWidth", 12)
-                            .attr("markerHeight", 12)
-                            .attr("viewBox", "0 0 12 12")
-                            .attr("refX", 6)
-                            .attr("refY", 6)
-                            .attr("orient", "auto");
-                        x2 = parseInt(this.attributes.x.value) + parseInt(this.attributes.width.value);
-                        y2 = parseInt(this.attributes.y.value);
-                        // console.log(this.attributes);
-                        // console.log(d);
-                        var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
-                        arrowMarker.append("path")
-                            .attr("d", arrow_path)
-                            .attr("fill", "#000");
-                        //指向词云的线
-                        var line_append_X = 40;
-                        svg_height1 = 0;
-                        if(height == 370){
-                            svg_height1 = 170;
-                        }
+                    //     var newObj = new Array();
+                    //     //划线字符串
+                    //     CreateWordCloudData(rect_event[parseInt(this.id)][5], 20, 20)
+                    //     //全文字符串
+                    //     var pageStr = ''
+                    //     for (i = rect_event[parseInt(this.id)][1]; i <= rect_event[parseInt(this.id)][2]; i++) {
+                    //         pageStr += textArray[i]
+                    //     }
+                    //     CreateWordCloudData(pageStr, 10, 0)
+                    //     function CreateWordCloudData(str, weight, offset) {
+                    //         var expression = /[\　|\/\r|\/\n\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\n|\t|\，|\。|\！|\？|\：|\；|\“|\”]/g;
+                    //         str = str.replace(expression, ",");
+                    //         var wordList = str.split(',').filter(Boolean);
+                    //         var length = wordList.length;
+                    //         for (i = 0; i < length; i++) {
+                    //             var objectCounter = {};
+                    //             objectCounter.name = wordList[i];
+                    //             objectCounter.value = Math.random() * weight + offset;
+                    //             newObj.push(objectCounter);
+                    //         }
+                    //     }
+                    //     var myChart = echarts.init(document.getElementById("WordCloud" + this.id));
+                    //     var option = {
+                    //         tooltip: {
+                    //             show: false
+                    //         },
+                    //         series: [{
+                    //             type: 'wordCloud',
+                    //             //maskImage: maskImage,
+                    //             sizeRange: [14, 24],
+                    //             rotationRange: [0, 0],
+                    //             rotationStep: 45,
+                    //             gridSize: 2,
+                    //             shape: 'pentagon',
+                    //             width: '100%',
+                    //             height: '80%',
+                    //             left: 'center',
+                    //             top: 'center',
+                    //             textStyle: {
+                    //                 normal: {
+                    //                     color: function () {
+                    //                         return 'rgb(' + [
+                    //                             Math.round(Math.random() * 160),
+                    //                             Math.round(Math.random() * 160),
+                    //                             Math.round(Math.random() * 160)
+                    //                         ].join(',') + ')';
+                    //                     },
+                    //                     fontFamily: 'sans-serif',
+                    //                     fontWeight: 'normal'
+                    //                 },
+                    //                 emphasis: {
+                    //                     shadowBlur: 10,
+                    //                     shadowColor: '#333'
+                    //                 }
+                    //             },
+                    //             data: newObj.slice(0, 20)
+                    //         }]
+                    //     };
+                    //     // 使用刚指定的配置项和数据显示图表。
+                    //     myChart.setOption(option);
+                    //     var defs = storyLineG.append("defs");
+                    //     var arrowMarker = defs.append("marker")
+                    //         .attr("id", "arrow")
+                    //         .attr("markerUnits", "strokeWidth")
+                    //         .attr("markerWidth", 12)
+                    //         .attr("markerHeight", 12)
+                    //         .attr("viewBox", "0 0 12 12")
+                    //         .attr("refX", 6)
+                    //         .attr("refY", 6)
+                    //         .attr("orient", "auto");
+                    //     x2 = parseInt(this.attributes.x.value) + parseInt(this.attributes.width.value);
+                    //     y2 = parseInt(this.attributes.y.value);
+                    //     // console.log(this.attributes);
+                    //     // console.log(d);
+                    //     var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
+                    //     arrowMarker.append("path")
+                    //         .attr("d", arrow_path)
+                    //         .attr("fill", "#000");
+                    //     //指向词云的线
+                    //     var line_append_X = 40;
+                    //     svg_height1 = 0;
+                    //     if(height == 370){
+                    //         svg_height1 = 170;
+                    //     }
 
-                        var line = Svg.append("line")
-                            .attr("id", "line" + this.id)
-                            .attr("x1", line_x + 40)
-                            .attr("y1", line_y - 220 - svg_height1)
-                            .attr("x2", event.x)
-                            .attr("y2", event.y - 313 - svg_height1)
-                            .attr("stroke", "blue")
-                            .attr("stroke-width", 1)
-                            // .attr("marker-start","url(#arrow)")
-                            .attr("marker-end", "url(#arrow)");
+                    //     var line = Svg.append("line")
+                    //         .attr("id", "line" + this.id)
+                    //         .attr("x1", line_x + 40)
+                    //         .attr("y1", line_y - 220 - svg_height1)
+                    //         .attr("x2", event.x)
+                    //         .attr("y2", event.y - 313 - svg_height1)
+                    //         .attr("stroke", "blue")
+                    //         .attr("stroke-width", 1)
+                    //         // .attr("marker-start","url(#arrow)")
+                    //         .attr("marker-end", "url(#arrow)");
                         
-                        dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
-                    }
+                    //     dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
+                    // }
                     //fragment panel
                     {
-                        closeFragmentPanel()
+                        // closeFragmentPanel()
                         var fragment = sessionListSL.find((elem) => {
                             return elem[0] === rect_event[parseInt(this.id)][0]
                         })
-                        document.getElementById('person').value = fragment[3]
-                        document.getElementById('time').value = fragment[6]
-                        document.getElementById('place').value = fragment[4]
-                        document.getElementById('event').value = fragment[5]
+                        console.log(fragment);
                         curSessionID = fragment[7]
                         session = sessionList.find(elem => {
                             return elem._id === curSessionID
                         })
                         page = fragment[1]
                         jumpPage(page)
-                        openFragmentPanel()
+                        var data = [
+                            {
+                                event_number:fragment[0],
+                                page_start:page = fragment[1],
+                                page_end:page = fragment[1]+fragment[2],
+                                persons:fragment[3],
+                                place:fragment[4],
+                                time:fragment[6],
+                                event:fragment[5]
+                            }
+                        ]
+                        var persons_array = entityDict 
+                        var page_max = totalPageNum
+                        drawFragmentView(data,persons_array,page_max)
+                        // openFragmentPanel()
+                    }
+                    //text summarization
+                    {
+                        var summarizationText = ''
+                        for(var i = fragment[1]; i <= fragment[1]+fragment[2]; i++){
+                        	summarizationText+=textArray[i]
+                        }
+                        var summarizationRes = summarization(summarizationText)
+                        console.log(summarizationRes);
                     }
                     // console.log('openFragmentPanel');
                     click_flag[click_key] = 1;
@@ -2393,7 +2527,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                     }
 
                     session = new Session()
-                    closeFragmentPanel()
+                    // closeFragmentPanel()
                 }
             })
             .on("mouseover", function (d) {
@@ -2867,8 +3001,11 @@ function drawStoryLine(sessionListSL,menuArray) {
         xScaleOldTransformK = SvgTransformK
     }
     function reSizeXScale() {
+
         xScaleG.selectAll("*").remove()
-        var cy = height - 10;
+        
+        var cy = height - 30;
+        // var cy = height - 330;
         var fontSize = 12
         var textY = cy - 5
         var cr = 5
@@ -2876,7 +3013,7 @@ function drawStoryLine(sessionListSL,menuArray) {
         var unitDistance = 30
         var rectLineHeight = 5
         var endPageNum = dataresult1.length;
-        console.log(endPageNum, "endPageNum");
+        // console.log(endPageNum, "endPageNum");
         xScaleG.append("rect")
             .attr("id", "xScaleLine")
             .attr("height", 1)
@@ -2887,13 +3024,28 @@ function drawStoryLine(sessionListSL,menuArray) {
             .attr('fill-opacity', 0.8)
 
 
-        var xScaleCircleNum = Math.round(((keytips[1] - keytips[0]) * SvgTransformK) / unitDistance)
+        // var xScaleCircleNum = Math.round(((keytips[1] - keytips[0]) * SvgTransformK) / unitDistance);
         // console.log("((keytips[1] - keytips[0]) * SvgTransformK)", ((keytips[1] - keytips[0]) * SvgTransformK));
         // console.log("num", xScaleCircleNum);
-        var circleDistance = (keytips[1] - keytips[0]) * SvgTransformK / xScaleCircleNum
+        var circleDistance = (keytips[1] - keytips[0]) * SvgTransformK / endPageNum;
         // console.log("circleDistance", circleDistance);
-        for (var i = 0; i < xScaleCircleNum + 1; i++) {
-            xScaleG.append("rect")
+        // console.log(keytips);
+        // console.log(menuArray);
+        var jiange = 10 - Math.round(SvgTransformK);
+        if(jiange >= 3){
+            jiange = 3;
+        }
+        else if(jiange > 1){
+            jiange -= 1;
+        }
+        // console.log(SvgTransformK, "TT");
+        // console.log(jiange);
+        // console.log(circleDistance);
+        var menuArray_num  = 1;
+        var menuArray_num1 = 0;
+        for (var i = 0; i < endPageNum + 1; i++) {
+            if(i % jiange == 0){
+                xScaleG.append("rect")
                 .attr("id", "xScaleCircle" + i)
                 .attr("height", rectLineHeight)
                 .attr("width", 1)
@@ -2902,14 +3054,69 @@ function drawStoryLine(sessionListSL,menuArray) {
                 .attr("fill", xScaleColor)
                 .attr('fill-opacity', 0.8)
 
-            xScaleG.append("text")
+                xScaleG.append("text")
                 .attr("id", "text" + i)
                 .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
                 .attr("y", textY)
                 .attr('text-anchor', 'middle')
-                .text(Math.round(endPageNum * i / xScaleCircleNum))
+                .text(i)
                 .attr("fill", xScaleColor)
                 .attr("font-size", fontSize + "px")
+            }
+
+            if(i == Math.round((menuArray[menuArray_num1 + 1].pagenum - menuArray[menuArray_num1].pagenum) / 2) + menuArray[menuArray_num1].pagenum){
+                xScaleG.append("text")
+                .attr("id", "text" + i)
+                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("y", textY + fontSize * 2)
+                .attr('text-anchor', 'middle')
+                .text(menuArray[menuArray_num1].title)
+                .attr("fill", xScaleColor)
+                .attr("font-size", fontSize / 1.1 + "px");
+                menuArray_num1++;
+            }
+
+            if(i == 0){
+                xScaleG.append("rect")
+                .attr("id", "xScaleCircle" + i)
+                .attr("height", rectLineHeight)
+                .attr("width", 1)
+                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("y", cy + rectLineHeight)
+                .attr("fill", xScaleColor)
+                .attr('fill-opacity', 1);
+                menuArray_num++;
+            }
+
+            if(i == menuArray[menuArray_num].pagenum){
+                xScaleG.append("rect")
+                .attr("id", "xScaleCircle" + i)
+                .attr("height", rectLineHeight)
+                .attr("width", 1)
+                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("y", cy + rectLineHeight)
+                .attr("fill", xScaleColor)
+                .attr('fill-opacity', 1);
+                menuArray_num++;
+            }
+
+            // xScaleG.append("rect")
+            //     .attr("id", "xScaleCircle" + i)
+            //     .attr("height", rectLineHeight)
+            //     .attr("width", 1)
+            //     .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+            //     .attr("y", cy)
+            //     .attr("fill", xScaleColor)
+            //     .attr('fill-opacity', 0.8)
+
+            // xScaleG.append("text")
+            //     .attr("id", "text" + i)
+            //     .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+            //     .attr("y", textY)
+            //     .attr('text-anchor', 'middle')
+            //     .text(i)
+            //     .attr("fill", xScaleColor)
+            //     .attr("font-size", fontSize + "px")
         }
     }
     drawFramAndStoryLineMove(SvgTransformK, transformx)
@@ -2925,7 +3132,7 @@ function drawStoryLine(sessionListSL,menuArray) {
 function update1(legend_click){
 
     var legend_scale = 1;
-    if (height == 410) {
+    if (height == 380) {
         legend_scale = 2;//控制缩放比例
     }
 

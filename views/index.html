@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-19 22:30:08
+ * @LastEditTime: 2022-10-18 20:55:15
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -26,16 +26,19 @@
 	<link href="css/styles.css" rel="stylesheet" type="text/css" />
 	<link href="css/menu.view.css" rel="stylesheet" type="text/css" />
 	<link href="css/fragment.view.css" rel="stylesheet" type="text/css" />
-	<link href="css/entity.view.css" rel="stylesheet" type="text/css" />
+	<link href="css/overview.css" rel="stylesheet" type="text/css" />
+	<link href="css/configuration.view.css" rel="stylesheet" type="text/css" />
+	<link href="css/lib/jquery.range.css" rel="stylesheet" type="text/css" />
 
 
 	<script type="text/javascript" src="js/canvas.text.js"></script>
 	<script type="text/javascript" src="js/faces/gentilis-normal-normal.js"></script>
 	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 	<script type="text/javascript" src="js/d3.js"></script>
-    <script src="./js/d3.layout.cloud.js"></script>
-	<script src="./js/echart.js"></script>
-    <script src="./js/echarts-wordcloud.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.range.js"></script>
+    <script src="js/d3.layout.cloud.js"></script>
+	<script src="js/echart.js"></script>
+    <script src="js/echarts-wordcloud.js"></script>
 	<script type="text/javascript" src="js/ndollar.js"></script>
 	<script type="text/javascript" src="js/storyline.js"></script>
 	<script type="text/javascript" src="js/database.js"></script>
@@ -43,6 +46,7 @@
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/panel.js"></script>
 
+	<script type="text/javascript" src="js/fragment.view.js"></script>
 	<script type="text/javascript" src="js/entity.view.js"></script>
 	<script type="text/javascript" src="js/menu.view.js"></script>
 
@@ -53,6 +57,8 @@
 		// Startup
 		//
 		var _isDown, _points, _strokes, _r, _g, _rc,_isStart; // global variables
+		var isNerEnable=true,isTsEnable=true//configration variables
+
 		var sessionList = new Array()
 		var session = new Session()
 		var curSessionID =''
@@ -130,7 +136,7 @@
 		function mouseDownEvent(x, y, button)
 		{
 			document.onselectstart = function() { return false; } // disable drag-select
-			document.onmousedown = function() { return false; } // disable drag-select
+			// document.onmousedown = function() { return false; } // disable drag-select
 			if (button <= 1)
 			{
 			console.log(getScrollX(),getScrollY());
@@ -170,6 +176,10 @@
 		{
 			document.onselectstart = function() { return true; } // enable drag-select
 			document.onmousedown = function() { return true; } // enable drag-select
+
+			const pointDoms = document.elementsFromPoint(x,y)
+			pointDoms[2].click()
+
 			if (button <= 1)
 			{
 				if (_isDown)
@@ -183,7 +193,7 @@
 						console.log('isDown');
 					}else{
 						if (_strokes.length > 1 || (_strokes.length == 1 && _strokes[0].length >= 10))
-						{
+						{ 
 							var text = new Array();
 							var result = _r.Recognize(
 								_strokes,
@@ -211,7 +221,6 @@
 										dom.classList.add('text-bg')
 									});
 									_textValue = _text.join('')									
-
 									//弹出面板
 									const floatPanelChosen = document.getElementById('float-panel-chosen')
 									const chosenText = document.getElementById('chosen-text')	
@@ -500,7 +509,6 @@
 		}
 		function onClickAddFragment()
 		{
-			closeFragmentPanel()
 			curSessionID = ''
 			session = new Session()	
 			_points.length = 0; // clear and signal to clear strokes on next mousedown
@@ -593,13 +601,18 @@
 			 jumpPage(0)
 			 totalPageNum = textArray.length 
 			//  document.getElementById('menu-header').innerText = input.files[0].name.split('.')[0]
-			 document.getElementById('totalPageNum').innerText = 'Total '+totalPageNum  // reader.result为获取结果
+			 document.getElementById('totalPageNum').innerText = totalPageNum  // reader.result为获取结果
 			 
+			 //控制面板赋值
+			 $('#uploadFileTitle').val(input.files[0].name.split('.')[0])
+			 $('#statistic-chapters').text(menuArray.length)
+			 $('#statistic-words').text(text0.length.toLocaleString('en-US'))
+
 			 console.log(menuArray,'menuArray')
 			 getAllObjects()
 	   }, false})
 	}
-	function divfuzhi(i,entityNLP)
+	function divfuzhiNLP(i,entityNLP)
 	{
 		document.getElementById("text").innerText="";
 		var lines = textArray[i].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
@@ -607,7 +620,7 @@
 		// let charIdArray = new Array()
 		
 		//绘制实体面板
-		drawPageEntity(entityDict,entityNLP)
+		// drawPageEntity(entityDict,entityNLP)
 
 		lines.forEach(element => {
 			let entityDictLine = new Array()
@@ -640,7 +653,7 @@
 			entityDictLine.sort((x,y)=>{
 				return x.index - y.index
 			})
-			console.log(entityDictLine);
+			// console.log(entityDictLine);
 			var p = document.createElement('p')
 			
 			if(element.length >0){
@@ -650,6 +663,7 @@
 						let entity = entityDictLine[counter]
 						if(i === entity.index){
 							var div = document.createElement('div')
+							div.id = guid()
 							while(i< entity.index + entity.length ){
 								const char = element[i];
 								var e = document.createElement('div')
@@ -674,6 +688,12 @@
 								default:
 									break;
 							}
+
+							//click event
+							div.addEventListener('click',function(){
+								console.log(this);
+							})
+							
 							p.appendChild(div)
 							counter++
 						}
@@ -690,6 +710,30 @@
 				document.getElementById('text').appendChild(p)
 			}
 			
+		});
+	    test0.innerHTML="";
+		test0.innerHTML = textArray[page]
+    }
+
+	function divfuzhi(i)
+	{
+		document.getElementById("text").innerText="";
+		var lines = textArray[i].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
+		var str = ''
+		lines.forEach(element => {
+			var p = document.createElement('p')
+			if(element.length >0){
+				for(let char of element){
+					var e = document.createElement('div')
+						e.id = guid()
+						e.innerHTML = char
+						p.appendChild(e)
+					
+				}
+				// var e = document.createElement('div')
+				// e.innerHTML = "\r"
+				document.getElementById('text').appendChild(p)
+			}
 		});
 	    test0.innerHTML="";
 		test0.innerHTML = textArray[page]
@@ -721,51 +765,68 @@
 			jumpPage(page)
 		}
 	}
-	function onkeyupPageNumJump() {
+	function onPageNumJump() {
+		console.log(1);
 		var input = document.getElementById('pageNumJump').value-1
-		if(input>=0 && input<totalPageNum){
-			if(window.event.keyCode === 13){			
-				page = input
-				jumpPage(page)
-			}
+		if(input>=0 && input<totalPageNum){		
+			page = input
+			jumpPage(page)
 		}
 	}
-	function jumpPage(page) {
-		classification(textArray[page]).then(res=>{
-			//去重
-			var obj = {}
-			res.forEach(item => {
-				obj[item.word] = item
-			});
-			var entityNLP = []
-			for (let key in obj) {
-				entityNLP.push(obj[key])
-			}
-			console.log(entityNLP);
-			divfuzhi(page,entityNLP)
+	function jumpPage(page,strategy='max') {
+		if(isNerEnable){
+			classification(textArray[page],strategy).then(res=>{
+				//去重
+				var obj = {}
+				res.forEach(item => {
+					obj[item.word] = item
+				});
+				var entityNLP = []
+				for (let key in obj) {
+					entityNLP.push(obj[key])
+				}
+				console.log(entityNLP);
+	
+				divfuzhiNLP(page,entityNLP)
+				_g.clearRect(0, 0, _rc.width, _rc.height);
+				drawConnectedPointByPage()
+				document.getElementById('curpage').innerText = page+1
+				document.getElementById('pageNumJump').value = page+1
+		
+				//menu update
+				var menuItemIndex = findMenuItem(page)
+				$('.menu-content').children().each(function(){
+					$(this).removeClass('content-item-active')
+				});
+				$(`.content-item:nth-child(${menuItemIndex})`).addClass('content-item-active')
+				
+				if((menuItemIndex - 1) <= 3){
+					var curTransformY = 0
+					$('.menu-content').scrollTop(curTransformY)
+					d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
+				}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
+					var curTransformY = (menuItemIndex - 4) * 40
+					$('.menu-content').scrollTop(curTransformY)
+					d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
+				}
+			})
+			//text summarization
+			var summarizationText = textArray[page]
+			summarization(summarizationText).then(summarizationRes=>{
+				var resStr = ''
+				console.log(summarizationRes);
+				summarizationRes.forEach(each => {
+					resStr += each['summary_text']
+				});
+				$('#event-container').val(resStr)
+			})
+		}else{
+			divfuzhi(page)
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawConnectedPointByPage()
 			document.getElementById('curpage').innerText = page+1
 			document.getElementById('pageNumJump').value = page+1
-	
-			//menu update
-			var menuItemIndex = findMenuItem(page)
-			$('.menu-content').children().each(function(){
-				$(this).removeClass('content-item-active')
-			});
-			$(`.content-item:nth-child(${menuItemIndex})`).addClass('content-item-active')
-			
-			if((menuItemIndex - 1) <= 3){
-				var curTransformY = 0
-				$('.menu-content').scrollTop(curTransformY)
-				d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
-			}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
-				var curTransformY = (menuItemIndex - 4) * 40
-				$('.menu-content').scrollTop(curTransformY)
-				d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
-			}
-		})
-		
+		}
 	}
 	function findMenuItem(page) {
 		for (const menuItemIndex in menuArray) {
@@ -808,13 +869,6 @@
 				//统计章节交互片段数量
 				menuArray[findMenuItem(min)-1].sessionNum++
 
-
-				// var summarizationText = ''
-				// for(var i = min; i <= max; i++){
-				// 	summarizationText+=textArray[i]
-				// }
-				// var summarizationRes = summarization(summarizationText)
-				// console.log(summarizationRes);
 				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id])
 				eventCounter++
 			}
@@ -824,7 +878,9 @@
 			console.log(menuArray,'menuArray');		
 			drawMenuMap(menuArray)
 			drawStoryLine(sessionListSL,menuArray)
-			// drawRelationshipMap()
+			drawFragmentView();
+			//控制面板
+			$('#statistic-sessions').text(sessionListSL.length)
 		})	
 	}
 	//chosen 选中
@@ -898,6 +954,7 @@
 			drawConnectedPointByPoints(_strokes[0],index,index+1)
 		}	
 	}
+	//已废除
 	function onmouseupFragmentCancel(dom){
 		closeFragmentPanel()
 	}
@@ -950,6 +1007,48 @@
 				break;
 		}
 	}
+
+	//configration view
+	{
+		function onEnableClick(id) {
+			switch (id) {
+				case 'ner':
+					if($('#ner-enable').hasClass('disable')){
+						$('#ner-enable').removeClass('disable')
+					}else{
+						$('#ner-enable').addClass('disable')
+					}					
+					isNerEnable = !isNerEnable
+					jumpPage(page)
+					break;
+				case 'ts':
+					if($('#ts-enable').hasClass('disable')){
+						$('#ts-enable').removeClass('disable')
+					}else{
+						$('#ts-enable').addClass('disable')
+					}	
+					isTsEnable = !isTsEnable
+					break;
+			}
+		}
+
+		function onStrategyClick(name) {
+			$('.strategy-choices').children().each(function(){
+				if(this.id === 'choices-'+name){
+					$(this).removeClass('strategy-uncheck')
+					$(this).addClass('strategy-check')
+				}else{
+					$(this).removeClass('strategy-check')
+					$(this).addClass('strategy-uncheck')
+				}
+			})
+			jumpPage(page,name)
+		}
+
+		function onDragEnd(e) {
+			console.log(e);
+		}
+	}
 	</script>
 </head>
 <body onload="onLoadEvent()">
@@ -959,35 +1058,90 @@
 				<div class="panel-wrapper">
 					<div class="panel v-panel panel-left-top">
 						<div class="view">
-							<div id="menu-view" class="view-content entity-view-content">
+							<div id="menu-view" class="view-content over-view-content">
 								<div class="nav">
 									<div class="nav-tool-container">
-										<span class="title">Entity View</span>
+										<span class="header-icon"><img class="svg-icon" src="/img/header-icon.png"></span>
+										<span class="title">System Overview</span>
 									</div>
 								</div>
-								<div class="entity-view-container">
-									<div class="person-entity-wrapper">
-										<div class="title title-person">Person</div>
-										<div id="person-entity-container" class="entity-container">
-											<!-- <div class="entity entity-person-dict">
-												Benney
-											</div> -->
+								<div class="over-view-container">
+									<div class="input-group input-group-sm input-file">
+										<span class="input-group-text">Upload</span>
+										<input id="uploadFileTitle" type="text" class="form-control upload-file">
+										<span class="tool-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>	
+									</div>
+									<div class="statistics-panel-wrapper">
+										<div class="statistic-panel">
+											<div id="statistic-chapters" class="statistic-num">0</div>
+											<div class="statistic-title">Chapters</div>
+										</div>
+										<div class="statistic-panel">
+											<div id="statistic-words" class="statistic-num">0</div>
+											<div class="statistic-title">Total words</div>
+										</div>
+										<div class="statistic-panel">
+											<div id="statistic-sessions" class="statistic-num">0</div>
+											<div class="statistic-title">Sessions</div>
 										</div>
 									</div>
-									<!-- <div class="time-entity-wrapper">
-										<div class="title title-time">Time</div>
-									</div> -->
-									<div class="place-entity-wrapper">
-										<div class="title title-place">Place</div>
-										<div id="person-place-container" class="entity-container">
-
-										</div>
-									</div>
-									<div class="event-entity-wrapper">
-										<div class="title title-event">Event</div>
-									</div>
-
 								</div>
+							</div>
+						</div>
+					</div>
+					<div class="panel v-panel panel-left-center">
+						<div class="view">
+							<div id="menu-view" class="view-content configuration-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="header-icon"><img class="svg-icon" src="/img/header-icon.png"></span>
+										<span class="title">Configuration View</span>
+									</div>
+								</div>
+								<div class="configuration-view-container">
+									<div class="ner-container">
+										<div class="title">
+											<div>Named Entity</div>
+											<div class="title-bottom">Recognition</div>
+										</div>
+										<div class="title-enable">Enable</div>
+										<span class="tool-btn choose-box"><img class="svg-icon" src="/img/single-choice.png"></span>
+										<span class="tool-btn choose-box-confirm" id="ner-enable" onclick="onEnableClick('ner')"><img class="svg-icon" src="/img/gou.png"></span>
+										
+										<div class="title-strategy">Strategy:</div>
+										<div class="strategy-choices">
+											<div id="choices-first" class="strategy-check" onclick="onStrategyClick('first')">first</div>
+											<div id="choices-max" class="strategy-uncheck" onclick="onStrategyClick('max')">max</div>
+											<div id="choices-none" class="strategy-uncheck" onclick="onStrategyClick('none')">none</div>
+											<div id="choices-simple" class="strategy-uncheck" onclick="onStrategyClick('simple')">simple</div>
+											<div id="choices-average" class="strategy-uncheck" onclick="onStrategyClick('average')">average</div>
+										</div>
+									</div>
+									<div class="ts-container">
+										<div class="title">
+											<div>Text</div>
+											<div>Summarization</div>
+										</div>
+
+										<div class="title-enable">Enable</div>
+										<span class="tool-btn choose-box"><img class="svg-icon" src="/img/single-choice.png"></span>
+										<span class="tool-btn choose-box-confirm" id="ts-enable" onclick="onEnableClick('ts')"><img class="svg-icon" src="/img/gou.png"></span>
+										
+										<div class="title-length">Length</div>
+										<div class="slider">
+											<input type="hidden" id="length-slider" value="40,80"/>
+										</div>
+
+										<div class="title-numbeams">Num Beams</div>
+										<div class="numbeams-content">
+											<input type="text" value="3" id="num-beams" class="numbeams-text">
+											<div class="numbeams-confirm">
+												<span class="tool-btn numbeams-confirm-icon"><img class="svg-icon" src="/img/gou2.png"></span>
+											</div>
+										</div>
+									</div>
+								</div>
+
 							</div>
 						</div>
 					</div>
@@ -996,48 +1150,23 @@
 							<div id="fragment-view" class="view-content fragment-view-content">
 								<div class="nav">
 									<div class="nav-tool-container">
+										<span class="header-icon"><img class="svg-icon" src="/img/header-icon.png"></span>
 										<span class="title">Fragment View</span>
-									</div>
-									<div class="nav-tool-container-right">
-										<div id="fragment-cancel" class="fragment-cancel" onmouseup="onmouseupFragmentCancel(this)">
-											<span class="cancel-img"><img class="svg-icon" src="/img/cancel.png"></span>
-										</div>
-										<div id="fragment-confirm" class="fragment-confirm" onmouseup="onmouseupFragmentConfirm(this)">
-											<span class="confirm-img"><img class="svg-icon" src="/img/confirm.png"></span>
-										</div>
 									</div>
 								</div>
 								<div id="panel-fragment" class="panel-fragment">
 					
 									<div class="fragments-wrapper">
-										<div class="fragment-wrapper border-person" style="margin-top:20px">
-											<span class="fragment-img"><img class="svg-icon" src="/img/person-fill.png"></span>
-											<div class="fragment-text text-person">Person</div>
-											<span class="fragment-separator"></span>
-							
-											<input type="text" id="person" class="fragment-content" onkeyup="onkeyupFragmentText('person')">
+										<input id="time_input" type="text">
+										<input id="place_input" type="text">
+										<textarea id="event_input" rows="5" cols="30"></textarea>
+										<img src="/img/event2.png" id="event_img">
+
+										<div id="operation_panel">
 										</div>
-										<div class="fragment-wrapper border-time">
-											<span class="fragment-img"><img class="svg-icon" src="/img/time-fill.png"></span>
-											<div class="fragment-text text-time">Time</div>
-											<span class="fragment-separator"></span>
-											
-											<input type="text" id="time" class="fragment-content" onkeyup="onkeyupFragmentText('time')">
-										</div>
-										<div class="fragment-wrapper border-place">
-											<span class="fragment-img"><img class="svg-icon" src="/img/place-fill.png"></span>
-											<div class="fragment-text text-place">Place</div>
-											<span class="fragment-separator"></span>
-							
-											<input type="text" id="place" class="fragment-content" onkeyup="onkeyupFragmentText('place')">
-										</div>
-										<div class="fragment-wrapper fragment-wrapper-event border-event">
-											<span class="fragment-img fragment-img-event"><img class="svg-icon" src="/img/event-fill.png"></span>
-											<div class="fragment-text text-event">Event</div>
-											<span class="fragment-separator"></span>
-							
-											<textarea rows="3" id="event" class="fragment-content" onkeyup="onkeyupFragmentText('event')"></textarea>
-										</div>
+
+										<img src="/img/bj.png" id="bj_img">
+										<img src="/img/ok.png" id="ok_img">
 							
 									</div>
 								</div>
@@ -1055,23 +1184,16 @@
 							<div id="text-view" class="view-content text-view-content">
 								<div class="nav">
 									<div class="nav-tool-container">
-										<span class="tool-btn" title="Open File"><span class="open-icon" onclick="onClickImportText()"></span></span>
-										<span class="tool-btn" title="Menu" onclick="onClickOpenMenu()" ><img class="svg-icon" src="/img/menu.png"></span>
-										<span class="tool-separator"></span>
-										<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
-										<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
+										<span class="header-icon"><img class="svg-icon" src="/img/header-icon.png"></span>
+										<span class="title">Text View</span>
 									</div>
 									<div class="nav-tool-container-right">
 										<div class="page-container">
-											<span class="tool-text-other" id="totalPageNum">Total 1</span>
-											
-											<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow.png"></span>
-											<span class="tool-text-main" id="curpage">1</span>
-											<span class="tool-btn" title="nextpage" id="nextpage" onclick="nextpage()"><img style="transform: rotateY(-180deg);" class="svg-icon" src="/img/arrow.png"></span>
-											<span class="tool-text-other" >Go to</span>
-											<input class="tool-text-input" type="text" id="pageNumJump" value="1" onkeyup="onkeyupPageNumJump()">
-											
-											
+											<span class="tool-btn" title="Menu" onclick="onClickOpenMenu()" ><img class="svg-icon" src="/img/menu.png"></span>
+											<span class="tool-separator"></span>
+											<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
+											<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
+
 										</div>
 									</div>
 								</div>	
@@ -1085,14 +1207,35 @@
 								oncontextmenu="return false;">
 									<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
 								</canvas>
-			
+								<div class="pagination">
+									<div class="pagination-left">
+										<span class="tool-text-other" >Total </span>
+										<span class="tool-text-totalpage" id="totalPageNum">100</span>
+									</div>
+									<div class="pagination-right">
+										<span class="tool-btn" title="prepage" id="prepage" onclick="prepage()"><img class="svg-icon" src="/img/arrow-new-left.png"></span>
+										<span class="tool-text-main" id="curpage">1</span>
+										<span class="tool-btn" title="nextpage" id="nextpage" onclick="nextpage()"><img class="svg-icon" src="/img/arrow-new-right.png"></span>
+										
+										<input class="tool-text-input" type="text" id="pageNumJump" value="1">
+										<span class="tool-text-go" onclick="onPageNumJump()">Go</span>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 					<div class="panel v-panel panel-center-bottom" id="panel-center-bottom" >
 						<div class="view">
-							<span id="storyline-view-title">Storyline</span>
-							<div id="storyline-view" class="view-content storyline-view-content">
+							<div class="view-content storyline-view-content">
+								<div class="nav">
+									<div class="nav-tool-container">
+										<span class="header-icon"><img class="svg-icon" src="/img/header-icon.png"></span>
+										<span class="title">Storyline</span>
+									</div>
+								</div>
+								<div id="storyline-view">
+
+								</div>
 							</div>
 						</div>
 					</div>
@@ -1152,5 +1295,19 @@
 </body>
 <script type="text/javascript">
 	// dragFuncIndex('float-panel-fragment','fragments-top')
+	$(document).ready(function(){
+		  $('#length-slider').jRange({
+			  from: 20,
+			  to: 100,
+			  step: 1, 
+			  format: '%s',
+			  width: 135,
+			  showLabels: true,
+			  showScale: true,
+			  isRange : true,
+			  ondragend:(e)=>onDragEnd(e)
+		  });
+	  });
+	drawFragmentView();
 </script>
 </html>
