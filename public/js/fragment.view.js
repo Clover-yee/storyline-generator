@@ -7,9 +7,9 @@ function drawFragmentView(
             page_start:0,
             page_end:100,
             persons:"",
-            place:"Netherfield",
-            time:"The evening",
-            event:"something happened"
+            place:"",
+            time:"",
+            event:""
         }
     ],
     persons_array=
@@ -26,6 +26,8 @@ function drawFragmentView(
         "dkw2"
     ],
     page_max=160) {
+
+    console.log(session);
     var all_width = 291;
     var all_height = 487.5;//div的宽度和高度
     // console.log(width)
@@ -36,13 +38,17 @@ function drawFragmentView(
     var fragment_width = 180;
 
     //添加svg
-    var operation_panel = document.getElementById('operation_panel')
-    operation_panel.innerHTML = ''
-    var panel_svg = d3.select("#operation_panel")
+    // var operation_panel = document.getElementById('operation_panel')
+    // operation_panel.innerHTML = ''
+    console.log(document.getElementById('panel_svg'));
+    if(!document.getElementById('panel_svg')){
+        var panel_svg = d3.select("#operation_panel")
         .append("svg")
         .attr("id", "panel_svg")
         .attr("width", svg_width)
         .attr("height", svg_height);
+    }
+
 
     //存储person——click——flag
     var person_click_flag_array = new Array();
@@ -118,7 +124,7 @@ function drawFragmentView(
             var ev = event || window.event;
             event.stopPropagation();
             var disX = ev.clientX;
-            console.log(Drag.style.transform);
+            // console.log(Drag.style.transform);
             t_x = transform_x
             document.onmousemove = function (event) {
                 var ev = event || window.event;
@@ -344,13 +350,15 @@ function drawFragmentView(
                 circle_num += 1;
             }
         }
-        console.log(circle_num)
+        // console.log(circle_num)
         if(circle_num != 0){
             circle_every_angle = 360 / circle_num;
             circle6_r = 190 / circle_num;
+        }else{
+            circle6_r = 0
         }
         console.log(person_click_flag_array);
-        console.log(circle6_r)
+        // console.log(circle6_r)
         if(circle6_r < 19){
             circle6_r = 19
         }
@@ -374,7 +382,8 @@ function drawFragmentView(
             .style("opacity", 0);
 
     function draw_panel(){
-        d3.select("#panel_svg").selectAll('*').remove();
+        console.log(panel_svg);
+        // d3.select("#panel_svg").selectAll('*').remove();
         var the_first_line_x = 10;
         var the_first_line_y = 10;
         var between_height = 15;
@@ -695,7 +704,7 @@ function drawFragmentView(
             var page_text = parseInt(every_page * i + 0.5);
             var page_text_size1 = 9
             var circle5_r = circle1_r - 8;
-            console.log(Math.sin(1.7))
+            // console.log(Math.sin(1.7))
             panel_svg.append("text")
                         .attr("x", circle_x - (circle5_r - page_text_size1 / 2) * Math.sin(angle * i *(Math.PI / 180)) )
                         .attr("y", circle_y - (circle5_r - page_text_size1 / 2) * Math.cos(angle * i *(Math.PI / 180)))
@@ -828,6 +837,24 @@ function drawFragmentView(
             time_input.disabled = false;
         }
 
+        d3.select('#time_input')
+            .on('keyup',function() {
+                data[0].time = this.value
+                session.time.value = this.value
+            })
+
+        d3.select('#place_input')
+            .on('keyup',function() {
+                data[0].place = this.value
+                session.place.value = this.value
+            })
+
+        d3.select('#event_input')
+            .on('keyup',function() {
+                data[0].event = this.value
+                session.event.value = this.value
+            })
+
         //导进图片
         event_img_width = 25;
         event_img_x = vertical_line_x - event_img_width ;
@@ -859,7 +886,36 @@ function drawFragmentView(
                 if(bj_flag == 1){
                     bj_flag = 0;
                 }
-                //动画效果
+
+                console.log('confirm');
+                _g.clearRect(0, 0, _rc.width, _rc.height);
+        
+                if(curSessionID === ''){ //new session TODO
+                    session.curtime = transTimestamp()
+                    console.log(session);
+                    saveObjectIntoDatabase(session).then((status)=>{
+                        if(status === 200)	console.log('Save successfully !!!');
+                        getAllObjects()
+                    })
+                }else{ // modify session
+                                    //动画效果
+                    let newPersonList = []
+                    for(let index in person_click_flag_array){
+                        if (person_click_flag_array[index] === 1) {
+                            newPersonList.push(persons_array[index])
+                        }
+                    }
+                    newPersonList = newPersonList.join(',')
+                    session.person.value = newPersonList
+                    session.curtime = transTimestamp()
+
+                    console.log(session);
+                    findByIdAndUpdateObjectIntoDatabase(session).then((status)=>{
+                        if(status === 200)	console.log('Modify successfully !!!');
+                        getAllObjects()
+                    })
+                }
+                
                 draw_panel();
             })
         

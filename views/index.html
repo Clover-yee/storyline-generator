@@ -1,8 +1,8 @@
 <!--
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
- * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-10-18 20:55:15
+ * @LastEditors: error: git config user.name && git config user.email & please set dead value or install git
+ * @LastEditTime: 2022-10-19 15:15:22
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -57,7 +57,7 @@
 		// Startup
 		//
 		var _isDown, _points, _strokes, _r, _g, _rc,_isStart; // global variables
-		var isNerEnable=true,isTsEnable=true//configration variables
+		var isImportText=false,isNerEnable=true,isTsEnable=true//configration variables
 
 		var sessionList = new Array()
 		var session = new Session()
@@ -526,6 +526,7 @@
 		}
 		function onClickImportText()
 		{
+			isImportText= true
 			const input = document.createElement('input')
 			input.setAttribute('type','file')
 			input.click()
@@ -811,15 +812,17 @@
 				}
 			})
 			//text summarization
-			var summarizationText = textArray[page]
-			summarization(summarizationText).then(summarizationRes=>{
-				var resStr = ''
-				console.log(summarizationRes);
-				summarizationRes.forEach(each => {
-					resStr += each['summary_text']
-				});
-				$('#event-container').val(resStr)
-			})
+			if(isTsEnable){
+				var summarizationText = textArray[page]
+				summarization(summarizationText).then(summarizationRes=>{
+					var resStr = ''
+					console.log(summarizationRes);
+					summarizationRes.forEach(each => {
+						resStr += each['summary_text']
+					});
+					$('#event-container').val(resStr)
+				})
+			}
 		}else{
 			divfuzhi(page)
 			_g.clearRect(0, 0, _rc.width, _rc.height);
@@ -876,11 +879,14 @@
 			console.log(entityDict,'entityDict');
 			console.log(sessionListSL,'sessionListSL');
 			console.log(menuArray,'menuArray');		
+			//统计面板
+			$('#statistic-sessions').text(sessionListSL.length)
+
 			drawMenuMap(menuArray)
 			drawStoryLine(sessionListSL,menuArray)
-			drawFragmentView();
-			//控制面板
-			$('#statistic-sessions').text(sessionListSL.length)
+			if (curSessionID === '') {
+				drawFragmentView()
+			}
 		})	
 	}
 	//chosen 选中
@@ -954,32 +960,6 @@
 			drawConnectedPointByPoints(_strokes[0],index,index+1)
 		}	
 	}
-	//已废除
-	function onmouseupFragmentCancel(dom){
-		closeFragmentPanel()
-	}
-	function onmouseupFragmentConfirm(dom){
-		console.log('confirm');
-		_g.clearRect(0, 0, _rc.width, _rc.height);
-
-		if(curSessionID === ''){ //new session
-			session.curtime = transTimestamp()
-			console.log(session);
-			saveObjectIntoDatabase(session).then((status)=>{
-				if(status === 200)	console.log('Save successfully !!!');
-				getAllObjects()
-			})
-		}else{ // modify session
-			console.log(session);
-			findByIdAndUpdateObjectIntoDatabase(session).then((status)=>{
-				if(status === 200)	console.log('Modify successfully !!!');
-				getAllObjects()
-			})
-		}
-		session=new Session()
-		closeFragmentPanel()
-		d3.selectAll(".WordCloud").remove();
-	}
 
 	//chosen界面input事件
 	function onkeyupChosenText() {
@@ -1019,7 +999,9 @@
 						$('#ner-enable').addClass('disable')
 					}					
 					isNerEnable = !isNerEnable
-					jumpPage(page)
+					if (isImportText) {
+						jumpPage(page)
+					}
 					break;
 				case 'ts':
 					if($('#ts-enable').hasClass('disable')){
@@ -1042,7 +1024,9 @@
 					$(this).addClass('strategy-uncheck')
 				}
 			})
-			jumpPage(page,name)
+			if (isImportText) {	
+				jumpPage(page,name)
+			}
 		}
 
 		function onDragEnd(e) {
@@ -1308,6 +1292,6 @@
 			  ondragend:(e)=>onDragEnd(e)
 		  });
 	  });
-	drawFragmentView();
+	// drawFragmentView();
 </script>
 </html>

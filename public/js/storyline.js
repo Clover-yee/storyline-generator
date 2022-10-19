@@ -2499,12 +2499,14 @@ function drawStoryLine(sessionListSL,menuArray) {
                     }
                     //text summarization
                     {
-                        var summarizationText = ''
-                        for(var i = fragment[1]; i <= fragment[1]+fragment[2]; i++){
-                        	summarizationText+=textArray[i]
+                        if(isTsEnable){
+                            var summarizationText = ''
+                            for(var i = fragment[1]; i <= fragment[1]+fragment[2]; i++){
+                                summarizationText+=textArray[i]
+                            }
+                            var summarizationRes = summarization(summarizationText)
+                            console.log(summarizationRes);
                         }
-                        var summarizationRes = summarization(summarizationText)
-                        console.log(summarizationRes);
                     }
                     // console.log('openFragmentPanel');
                     click_flag[click_key] = 1;
