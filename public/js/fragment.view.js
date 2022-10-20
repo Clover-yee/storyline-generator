@@ -4,8 +4,8 @@ function drawFragmentView(
     [
         {
             event_number:"i1",
-            page_start:0,
-            page_end:100,
+            page_start:10,
+            page_end:20,
             persons:"",
             place:"",
             time:"",
@@ -28,6 +28,7 @@ function drawFragmentView(
     page_max=160) {
 
     console.log(session);
+    console.log(persons_array);
     var all_width = 291;
     var all_height = 487.5;//div的宽度和高度
     // console.log(width)
@@ -38,8 +39,8 @@ function drawFragmentView(
     var fragment_width = 180;
 
     //添加svg
-    // var operation_panel = document.getElementById('operation_panel')
-    // operation_panel.innerHTML = ''
+    var operation_panel = document.getElementById('operation_panel')
+    operation_panel.innerHTML = ''
     console.log(document.getElementById('panel_svg'));
     if(!document.getElementById('panel_svg')){
         var panel_svg = d3.select("#operation_panel")
@@ -383,7 +384,7 @@ function drawFragmentView(
 
     function draw_panel(){
         console.log(panel_svg);
-        // d3.select("#panel_svg").selectAll('*').remove();
+        d3.select("#panel_svg").selectAll('*').remove();
         var the_first_line_x = 10;
         var the_first_line_y = 10;
         var between_height = 15;
@@ -729,6 +730,26 @@ function drawFragmentView(
                     .attr('text-anchor',"middle")
                     .text(p_text);
         
+        //绘制起始时间和终点时间
+        var angle_g = panel_svg.append("g").attr("transform", "translate(" + circle_x + "," + circle_y + ")");
+        var start_page = data[0].page_start;
+        var end_page = data[0].page_end;
+        console.log(start_page, end_page)
+        var angle_max = Math.PI * 11 / 6
+        var start_angle = angle_max / page_max * start_page;
+        var end_angle = angle_max / page_max * end_page;
+        console.log(start_angle, end_angle)
+        var arc = d3.arc()
+                .innerRadius(circle1_r + 3) 
+                .outerRadius(circle1_r - 3) 
+                .startAngle(start_angle) 
+                .endAngle(end_angle); 
+        
+        angle_g.append("path") 
+                .attr("class", "arc") 
+                .attr("d", arc) 
+                .attr("fill", d3.rgb(182, 194, 236)); 
+
 
         //绘制地点和时间
         var circle_rect_dis = 10;
@@ -841,18 +862,21 @@ function drawFragmentView(
             .on('keyup',function() {
                 data[0].time = this.value
                 session.time.value = this.value
+                curSessionDetail[0].time = this.value
             })
 
         d3.select('#place_input')
             .on('keyup',function() {
                 data[0].place = this.value
                 session.place.value = this.value
+                curSessionDetail[0].place = this.value
             })
 
         d3.select('#event_input')
             .on('keyup',function() {
                 data[0].event = this.value
                 session.event.value = this.value
+                curSessionDetail[0].event = this.value
             })
 
         //导进图片
@@ -906,10 +930,13 @@ function drawFragmentView(
                         }
                     }
                     newPersonList = newPersonList.join(',')
+                    curSessionDetail[0].persons = newPersonList
                     session.person.value = newPersonList
                     session.curtime = transTimestamp()
 
                     console.log(session);
+                    console.log(curSessionDetail);
+
                     findByIdAndUpdateObjectIntoDatabase(session).then((status)=>{
                         if(status === 200)	console.log('Modify successfully !!!');
                         getAllObjects()

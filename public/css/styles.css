@@ -642,9 +642,9 @@ p{
 #legend{
     position: absolute;
     background: none;
-    bottom: 160px;
-    left: 310px;
-    width: 150px;
+    bottom: 380px;
+    left: 450px;
+    width: 1000px;
     height: 60px;
     z-index: 999;
     user-select: none;

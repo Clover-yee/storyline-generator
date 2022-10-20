@@ -290,6 +290,7 @@ var legend_click = new Array();
 
 
 function drawStoryLine(sessionListSL,menuArray) {
+    console.log(membercolor);
     var storylineView = document.getElementById('storyline-view')
     // var width = storylineView.offsetWidth; // 画布的宽度
     // var height = storylineView.offsetHeight; // 画布*的高度
@@ -470,6 +471,7 @@ function drawStoryLine(sessionListSL,menuArray) {
     // console.log(dataresult1, "result1");
     // console.log(Rank, "rank");
     // console.log(membercolor, "color");
+    entityDict = membercolor
     // 进行二次处理
     i = 0;
     while (i < dataresult1.length) {
@@ -2469,6 +2471,9 @@ function drawStoryLine(sessionListSL,menuArray) {
                     //     dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
                     // }
                     //fragment panel
+                    
+
+
                     {
                         // closeFragmentPanel()
                         var fragment = sessionListSL.find((elem) => {
@@ -2492,6 +2497,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                                 event:fragment[5]
                             }
                         ]
+                        curSessionDetail = data
                         var persons_array = entityDict 
                         var page_max = totalPageNum
                         drawFragmentView(data,persons_array,page_max)
@@ -3139,7 +3145,7 @@ function update1(legend_click){
     }
 
     var legend = d3.select("#legend");
-    var legendSvg_width = 150;
+    var legendSvg_width = 1000;
     var legendSvg_height = 60;
     if(sessionListSL1_flag1 == 0){
         var legendSvg = legend.append("svg")
@@ -3160,7 +3166,8 @@ function update1(legend_click){
         sessionListSL2[i] = sessionListSL[i];
     }
     var legendSvg = d3.select("#legendSvg");
-
+    var legendSvg_width = 1000;
+    var legendSvg_height = 60
     var legend_distancex = 60;
     var legend_distancey = 9;
     var legend_x = 0;
@@ -3267,9 +3274,9 @@ function update1(legend_click){
             .style('fill', color[i])
             .text(membercolor[i]);
         legend_x += 45;
-        if (legend_x >= 45 * 2) {
-            legend_x = 0;
-            legend_y += 9
-        }
+        // if (legend_x >= 45 * 2) {
+        //     legend_x = 0;
+        //     legend_y += 9
+        // }
     }
 }

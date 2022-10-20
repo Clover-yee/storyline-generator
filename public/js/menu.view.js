@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-09-11 15:41:54
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-09-19 15:55:04
+ * @LastEditTime: 2022-10-19 18:55:55
  * @FilePath: \storyline-generator\public\js\menu.view.js
  * @Description: 
  * 
@@ -117,6 +117,6 @@ function initMenu(menuArray) {
         })
         // document.getElementById('menu-content').addEventListener('mousewheel')
     }
-    $('#float-panel-menu').addClass('float-panel-menu-active')
+    // $('#float-panel-menu').addClass('float-panel-menu-active')
     $('.content-item').first().addClass('content-item-active')
 }

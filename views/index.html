@@ -1,8 +1,8 @@
 <!--
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
- * @LastEditors: error: git config user.name && git config user.email & please set dead value or install git
- * @LastEditTime: 2022-10-19 15:15:22
+ * @LastEditors: Clover 304363641@qq.com
+ * @LastEditTime: 2022-10-20 21:36:28
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -58,10 +58,15 @@
 		//
 		var _isDown, _points, _strokes, _r, _g, _rc,_isStart; // global variables
 		var isImportText=false,isNerEnable=true,isTsEnable=true//configration variables
+		var chooseStatus = 'stroke/recognition' // chosen-panel响应的标记 stroke or recognition
+		var isRecognition = false;
 
 		var sessionList = new Array()
 		var session = new Session()
 		var curSessionID =''
+		var curSessionDetail = new Object()
+
+		var pageEntityList = new Array()
 		//i1,i2...
 		var eventCounter = 0;
 
@@ -202,6 +207,8 @@
 								false
 								);
 							// drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
+							console.log(_strokes[0]); //TODO
+							console.log($('#text').offset);
 							console.log(result);
 							switch (result.Name) {
 								case 'line/person':
@@ -602,15 +609,15 @@
 			 jumpPage(0)
 			 totalPageNum = textArray.length 
 			//  document.getElementById('menu-header').innerText = input.files[0].name.split('.')[0]
-			 document.getElementById('totalPageNum').innerText = totalPageNum  // reader.result为获取结果
+			document.getElementById('totalPageNum').innerText = totalPageNum  // reader.result为获取结果
 			 
-			 //控制面板赋值
-			 $('#uploadFileTitle').val(input.files[0].name.split('.')[0])
-			 $('#statistic-chapters').text(menuArray.length)
-			 $('#statistic-words').text(text0.length.toLocaleString('en-US'))
+			//控制面板赋值
+			$('#uploadFileTitle').val(input.files[0].name.split('.')[0])
+			$('#statistic-chapters').text(menuArray.length)
+			$('#statistic-words').text(text0.length.toLocaleString('en-US'))
 
-			 console.log(menuArray,'menuArray')
-			 getAllObjects()
+			console.log(menuArray,'menuArray')
+			getAllObjects()
 	   }, false})
 	}
 	function divfuzhiNLP(i,entityNLP)
@@ -618,10 +625,8 @@
 		document.getElementById("text").innerText="";
 		var lines = textArray[i].split("\n")//split() 方法用于把一个字符串分割成字符串数组。
 		var str = ''
-		// let charIdArray = new Array()
-		
-		//绘制实体面板
-		// drawPageEntity(entityDict,entityNLP)
+
+		let entityList = []
 
 		lines.forEach(element => {
 			let entityDictLine = new Array()
@@ -665,6 +670,11 @@
 						if(i === entity.index){
 							var div = document.createElement('div')
 							div.id = guid()
+							entityList.push({
+								id:div.id,
+								str:entity.str,
+								type:entity.type
+							})
 							while(i< entity.index + entity.length ){
 								const char = element[i];
 								var e = document.createElement('div')
@@ -691,8 +701,32 @@
 							}
 
 							//click event
-							div.addEventListener('click',function(){
-								console.log(this);
+							div.addEventListener('click',function(e){
+								//弹出面板
+								const floatPanelChosen = document.getElementById('float-panel-chosen')
+								const chosenText = document.getElementById('chosen-text')
+								
+								var pageEntity = pageEntityList.find(item=>{
+									return item.page === page
+								})
+								var entity = pageEntity.entityList.find(item => {
+									return item.id === this.id 
+								})
+								var top = entity.top				
+								var left = entity.left
+								console.log(entity);
+
+								floatPanelChosen.style.display = 'block'
+								floatPanelChosen.style.top = top+25+'px'
+								if(left+250 > document.body.clientWidth){
+									floatPanelChosen.style.left = ''
+									floatPanelChosen.style.right = '10px'
+								}else{
+									floatPanelChosen.style.right = ''
+									floatPanelChosen.style.left = left+'px'
+								}
+								chosenText.value = 	entity.str	
+								isRecognition = true					
 							})
 							
 							p.appendChild(div)
@@ -714,6 +748,24 @@
 		});
 	    test0.innerHTML="";
 		test0.innerHTML = textArray[page]
+
+		//加入每页实体
+		entityList.forEach(entity => {
+			entity.left = $('#'+entity.id).offset().left
+			entity.top = $('#'+entity.id).offset().top
+			entity.right = $('#'+entity.id).offset().right
+			entity.bottom = $('#'+entity.id).offset().bottom
+		});
+
+		if(!pageEntityList.find(item=>{
+			return item.page === page
+		})){
+			pageEntityList.push({
+				page,
+				entityList
+			})
+		}
+		console.log(pageEntityList);
     }
 
 	function divfuzhi(i)
@@ -839,7 +891,7 @@
 		return menuArray.length
 	}
 
-	function getAllObjects() {
+	function getAllObjects(flag = true) {
 		getObjectFromDatabase().then(res=>{
 			sessionList = res.data
 
@@ -857,14 +909,14 @@
 							if(element.stroke.pageNum > max) max = element.stroke.pageNum
 							if(element.stroke.pageNum < min) min = element.stroke.pageNum
 						}
-						if(key === 'person'){
-							var entities = element.value.split(',')
-							entities.forEach(entity => {
-								if(!entityDict.find(item => item === entity)){
-									entityDict.push(entity)
-								}
-							});
-						}
+						// if(key === 'person'){
+						// 	var entities = element.value.split(',')
+						// 	entities.forEach(entity => {
+						// 		if(!entityDict.find(item => item === entity)){
+						// 			entityDict.push(entity)
+						// 		}
+						// 	});
+						// }
 					}
 				}
 				let l=max-min
@@ -884,9 +936,15 @@
 
 			drawMenuMap(menuArray)
 			drawStoryLine(sessionListSL,menuArray)
-			if (curSessionID === '') {
+			if(curSessionID === ''){
 				drawFragmentView()
+			}else{
+				var persons_array = entityDict 
+				var page_max = totalPageNum
+				console.log(curSessionDetail);
+				drawFragmentView(curSessionDetail,persons_array,page_max)
 			}
+			
 		})	
 	}
 	//chosen 选中
@@ -1292,6 +1350,6 @@
 			  ondragend:(e)=>onDragEnd(e)
 		  });
 	  });
-	// drawFragmentView();
+	drawFragmentView();
 </script>
 </html>
