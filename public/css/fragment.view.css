@@ -2,6 +2,26 @@
     --icon-size:25px
 }
 
+@font-face {
+    font-family: 'MyriadPro-SemiboldCondIt';
+    src: url('/font/MyriadPro-SemiboldCondIt-11.otf');
+}
+
+@font-face {
+    font-family: 'MyriadPro-SemiboldSemiCnIt';
+    src: url('/font/MyriadPro-SemiboldSemiCnIt-8.otf');
+}
+
+@font-face {
+    font-family: 'MyriadPro-SemiCnIt';
+    src: url('/font/MyriadPro-SemiCnIt-4.otf');
+}
+
+@font-face {
+    font-family: 'MyriadPro-Regular';
+    src: url('/font/MyriadPro-Regular-14.otf');
+}
+
 .panel-fragment{
     display: block;
     z-index: 99;
@@ -65,9 +85,11 @@
     /* border: 5px 2px dashed; */
     border-radius: 5px;
     color: rgb(62, 177, 204);
-    font-size: 5px;
+    font-size: 13px;
     display: inline-block;
     outline: none;
+    z-index: 99;
+    font-family: 'MyriadPro-SemiboldSemiCnIt';
 }
 
 #place_input{
@@ -81,8 +103,10 @@
     border-radius: 5px;
     color: rgb(93, 219, 161);
     outline: none;
-    font-size: 10px;
+    font-size: 13px;
     display: inline-block;
+    z-index: 99;
+    font-family: 'MyriadPro-SemiboldSemiCnIt';
 }
 
 #event_input{
@@ -96,9 +120,15 @@
     outline: none;
     font-size: 10px;
     display: inline-block;
-    padding: 5px 5px 5px 5px;
-    overflow:hidden; 
+    margin: 5px 5px 5px 5px;
+    overflow-y:scroll; 
     resize:none;
+    z-index: 99;
+    font-family: "MyriadPro-SemiCnIt";
+}
+
+#event_input::-webkit-scrollbar{
+    display: none;
 }
 
 #event_img{
@@ -120,6 +150,13 @@
     top: 450px;
 }
 
+#click_img{
+    position: absolute;
+    width: 155px;
+    height: 155px;
+    z-index: 9999900;
+}
+
 .panel_tooltip {
     position: absolute;
     padding: 5px;
@@ -137,6 +174,12 @@
 .panel_tooltip hr {
     padding: 0;
     margin: 8px 0;
+}
+
+.circle{
+    border-radius: 50%;
+    position: absolute;
+    z-index: 999999999;
 }
 
 /* .fragment-wrapper{

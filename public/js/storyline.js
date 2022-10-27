@@ -290,7 +290,14 @@ var legend_click = new Array();
 
 
 function drawStoryLine(sessionListSL,menuArray) {
+    for (let i = 0; i < sessionListSL.length; i++) {
+        d3.select("#WordCloud" + i)
+            .remove();
+        d3.select("#line" + i)
+            .remove();
+    }
     console.log(membercolor);
+    console.log(SvgTransformK,'SvgTransformK');
     var storylineView = document.getElementById('storyline-view')
     // var width = storylineView.offsetWidth; // 画布的宽度
     // var height = storylineView.offsetHeight; // 画布*的高度
@@ -1649,73 +1656,218 @@ function drawStoryLine(sessionListSL,menuArray) {
     //     }         
         
     // }
-    var dis1 = line_array[0][0];
+
+
+    var line_people = new Array();
+    
+    console.log(rect_event, "rect");
+    console.log(line_array, "line");
+    var x_start_dis = line_array[0][0];
+    var x_dis_x1 = line_array[0][0];
+    var x_dis_x2 = 0;//事件相隔距离
+    var y_dis_x1 = 0;
+    var line_max = new Array();
+    var y_dis_x2 = 0;//事件连续的距离
     var dis2, dis3, dis4;
-    for(i=1;i<line_array.length;i++){
-        if(line_array[i][4] != line_array[i-1][4]){
-            var text_num = line_array[i-1][0] / 50;
-            dis2 = line_array[i-1][0]
-            console.log(dis2, dis1, line_array[i-1][4], (dis2 - dis1) / 5, line_array[i-1][4].length*1.1);
+    for(i=1;i<line_array.length-1;i++){
+        var pre_line_mem = line_array[i-1][3].split('')
+        var now_line_mem = line_array[i][3].split('')
+        var last_line_mem = line_array[i+1][3].split('')
+        // console.log(pre_line_mem, now_line_mem, last_line_mem)
+        if(pre_line_mem[0] == 'i' && now_line_mem[0] == 'x'){
+            y_dis_x1 = line_array[i][0];
+            x_dis_x1 = line_array[i-1][0];
+        }
+        else if(now_line_mem[0] == 'x' && last_line_mem[0] == 'i'){//
+            y_dis_x2 = line_array[i][0];
+            x_dis_x2 = line_array[i+1][0];
+            console.log(x_dis_x1, x_dis_x2, y_dis_x1, y_dis_x2)
+            if(x_dis_x2 - x_dis_x1 > line_array[i][4].length * 1.2){
+                line_people.push([x_dis_x1 + (x_dis_x2 - x_dis_x1)/2 - x_start_dis, line_array[i][2], line_array[i][4]])
+            }
+        }
+        if(line_array[i][4] != line_array[i+1][4]){
+            // line_people.push([line_array[i][0] - line_people[line_people.length - 1][0], line_array[i][2], line_array[i][4]])
+            line_max.push(line_array[i][0])
+            x_dis_x1 = line_array[i+1][0];
+            x_start_dis = line_array[i+1][0];
+        }
+        if( i == line_array.length - 2){
+            line_max.push(line_array[i+1][0])
+        }
+    }
 
+    console.log(line_people, "people");
+    console.log(line_max, "max");
+    var xx_str = new Array();
+    var xx_num = 0;
+    for(i=0;i<membercolor.length;i++){
+        xx_str[i] = "";
+    }
+    var last_i = 0;
+    for(i=1;i<line_people.length;i++){
+        if(line_people[i][1] != line_people[i-1][1]){
+            t = last_i;
+            k = 1;
+            console.log(i)
+            while(t < i){
 
-
-            for(j=0;j<text_num;j++){
-                dis4 = line_array[i-1][4].length*1.2
-                dis3 = 50 - dis4;
-
-                storyLineG.append("text")
+                if(t < i){
+                    storyLineG.append("text")
                             .attr("dy", 0.75)
                             .style("background-color", "white")
                             .append("textPath")
-                            .attr("xlink:href", "#path" + line_array[i-1][2])
+                            .attr("xlink:href", "#path" + line_people[t][1])
                             .style("text-anchor", "middle") 
-                            .attr("startOffset", (j + 1)*50 - dis4/2)
+                            .attr("startOffset", line_people[t][0])
                             .attr("dy", 0.75)
                             .style('font-size', 2)
-                            .style('fill', color[line_array[i-1][2]])
-                            .text(line_array[i-1][4])
+                            .style('fill', color[line_people[t][1]])
+                            .text(line_people[t][2])
+
+                }
+                if(k == 1){
+                    dis3 = line_people[t][0] - line_people[t][2].length * 1.2/2
+                    dis4 = line_people[t][2].length * 1.2
+                    xx_str[xx_num] = xx_str[xx_num] + dis3 + " " + dis4 + " "
+                    k = 0;
+                }
+                else{
+                    if(t != 0){
+                        dis3 = line_people[t][0] - line_people[t-1][0] - line_people[t][2].length * 1.2 
+                    }
+                    else{
+                        dis3 = line_people[t][0] - line_people[t][2].length * 1.2 / 2
+                    }                   
+                    dis4 = line_people[t][2].length * 1.2
+                    xx_str[xx_num] = xx_str[xx_num] + dis3 + " " + dis4 + " "
+                    
+                }
+                t++
+            }
+            console.log(xx_str, "str")
+            var end_pl = line_max[xx_num] - dis3
+            d3.select("#path" + line_people[i-1][1]).attr("stroke-dasharray", xx_str[xx_num] + end_pl);
+            last_i = i
+            xx_num++;
+        }
+        if(i == line_people.length-1){
+            t = last_i;
+            k = 1;
+            console.log(i)
+            while(t < i){
+
+                if(t < i){
+                    storyLineG.append("text")
+                            .attr("dy", 0.75)
                             .style("background-color", "white")
+                            .append("textPath")
+                            .attr("xlink:href", "#path" + line_people[t][1])
+                            .style("text-anchor", "middle") 
+                            .attr("startOffset", line_people[t][0])
+                            .attr("dy", 0.75)
+                            .style('font-size', 2)
+                            .style('fill', color[line_people[t][1]])
+                            .text(line_people[t][2])
+
+                }
+                if(k == 1){
+                    dis3 = line_people[t][0] - line_people[t][2].length * 1.2/2
+                    dis4 = line_people[t][2].length * 1.2
+                    xx_str[xx_num] = xx_str[xx_num] + dis3 + " " + dis4 + " "
+                    k = 0;
+                }
+                else{
+                    if(t != 0){
+                        dis3 = line_people[t][0] - line_people[t-1][0] - line_people[t][2].length * 1.2 
+                    }
+                    else{
+                        dis3 = line_people[t][0] - line_people[t][2].length * 1.2 / 2
+                    }                   
+                    dis4 = line_people[t][2].length * 1.2
+                    xx_str[xx_num] = xx_str[xx_num] + dis3 + " " + dis4 + " "
+                    
+                }
+                t++
+            }
+            console.log(xx_str, "str")
+            var end_pl = line_max[xx_num] - dis3
+            d3.select("#path" + line_people[i-1][1]).attr("stroke-dasharray", xx_str[xx_num] + end_pl);
+            last_i = i
+            xx_num++;
+        }
+    }
+
+
+
+
+    // var dis1 = line_array[0][0];
+    // var dis2, dis3, dis4;
+    // for(i=1;i<line_array.length;i++){
+    //     if(line_array[i][4] != line_array[i-1][4]){
+    //         var text_num = line_array[i-1][0] / 50;
+    //         dis2 = line_array[i-1][0]
+    //         console.log(dis2, dis1, line_array[i-1][4], (dis2 - dis1) / 5, line_array[i-1][4].length*1.1);
+
+
+
+    //         for(j=0;j<text_num;j++){
+    //             dis4 = line_array[i-1][4].length*1.2
+    //             dis3 = 50 - dis4;
+
+    //             storyLineG.append("text")
+    //                         .attr("dy", 0.75)
+    //                         .style("background-color", "white")
+    //                         .append("textPath")
+    //                         .attr("xlink:href", "#path" + line_array[i-1][2])
+    //                         .style("text-anchor", "middle") 
+    //                         .attr("startOffset", (j + 1)*50 - dis4/2)
+    //                         .attr("dy", 0.75)
+    //                         .style('font-size', 2)
+    //                         .style('fill', color[line_array[i-1][2]])
+    //                         .text(line_array[i-1][4])
+    //                         .style("background-color", "white")
 
                 
                
-                d3.select("#path" + line_array[i-1][2])
-                    .attr("stroke-dasharray", dis3.toString() + " " + dis4.toString())
-                // storyLineG.append("rect")
-                //             .append("rectPath")
-                //             .attr("xlink:href", "#" + line_array[i-1][2])
-                //             // .style("text-anchor","middle") 
-                //             .attr("startOffset", (j + 1)*24 + "%")
-                //             .attr("width", )
-                //             .attr("width", )
-                //             .text(line_array[i-1][4]);
-            }
-            dis1 = line_array[i][0]
-        }
-        else if(i == line_array.length - 1){
-            var text_num = line_array[i][0] / 50;
-            dis2 = line_array[i][0]
-            console.log(dis2, dis1, line_array[i-1][4], (dis2 - dis1) / 5, line_array[i][4].length *1.1);
-            for(j=0;j<text_num;j++){
-                dis4 = line_array[i][4].length * 1.2
-                dis3 = 50 - dis4
-                storyLineG.append("text")
-                            .attr("dy", 0.75)
-                            .append("textPath")
-                            .attr("xlink:href", "#path" + line_array[i][2])
-                            .style("text-anchor","middle") 
-                            .attr("dy", 1)
-                            .attr("startOffset", (j + 1)*50 - dis4/2)
-                            .style('font-size', 2)
-                            .style('fill', color[line_array[i][2]])
-                            .text(line_array[i][4]);
+    //             d3.select("#path" + line_array[i-1][2])
+    //                 .attr("stroke-dasharray", dis3.toString() + " " + dis4.toString())
+    //             // storyLineG.append("rect")
+    //             //             .append("rectPath")
+    //             //             .attr("xlink:href", "#" + line_array[i-1][2])
+    //             //             // .style("text-anchor","middle") 
+    //             //             .attr("startOffset", (j + 1)*24 + "%")
+    //             //             .attr("width", )
+    //             //             .attr("width", )
+    //             //             .text(line_array[i-1][4]);
+    //         }
+    //         dis1 = line_array[i][0]
+    //     }
+    //     else if(i == line_array.length - 1){
+    //         var text_num = line_array[i][0] / 50;
+    //         dis2 = line_array[i][0]
+    //         console.log(dis2, dis1, line_array[i-1][4], (dis2 - dis1) / 5, line_array[i][4].length *1.1);
+    //         for(j=0;j<text_num;j++){
+    //             dis4 = line_array[i][4].length * 1.2
+    //             dis3 = 50 - dis4
+    //             storyLineG.append("text")
+    //                         .attr("dy", 0.75)
+    //                         .append("textPath")
+    //                         .attr("xlink:href", "#path" + line_array[i][2])
+    //                         .style("text-anchor","middle") 
+    //                         .attr("dy", 1)
+    //                         .attr("startOffset", (j + 1)*50 - dis4/2)
+    //                         .style('font-size', 2)
+    //                         .style('fill', color[line_array[i][2]])
+    //                         .text(line_array[i][4]);
                 
              
-                dis4 = line_array[i][4].length * 1.1
-                dis3 = 50 - dis4
-                d3.select("#path" + line_array[i][2]).attr("stroke-dasharray", dis3.toString() + " " + dis4.toString())
-            }
-        }
-    }
+    //             dis4 = line_array[i][4].length * 1.1
+    //             dis3 = 50 - dis4
+    //             d3.select("#path" + line_array[i][2]).attr("stroke-dasharray", dis3.toString() + " " + dis4.toString())
+    //         }
+    //     }
+    // }
 
 
     var sum = 1;
@@ -2354,125 +2506,9 @@ function drawStoryLine(sessionListSL,menuArray) {
             .on("click", function (d) {
                 var click_key = parseInt(this.id);//记录被点击的rect值
                 if (click_flag[click_key] == 0) {
-                    //词云
-                    // {
-                    //     d3.select("body")
-                    //         .append("div")
-                    //         .attr("id", "WordCloud" + this.id)
-                    //         .attr("class", "WordCloud")
-                    //         .style("opacity", 0)
-                    //         .style("width", "150px")
-                    //         .style("height", "150px");
-                    //     d3.select("#WordCloud" + this.id)
-                    //         .style("opacity", 1)
-                    //         .style("left", d.x - 60 + "px")
-                    //         .style("top", d.y - 180 + "px")
-                    //         .style("position", 'fixed');
-                    //     var line_x = d.x - 35;
-                    //     var line_y = d.y - 120;
-
-
-                    //     var newObj = new Array();
-                    //     //划线字符串
-                    //     CreateWordCloudData(rect_event[parseInt(this.id)][5], 20, 20)
-                    //     //全文字符串
-                    //     var pageStr = ''
-                    //     for (i = rect_event[parseInt(this.id)][1]; i <= rect_event[parseInt(this.id)][2]; i++) {
-                    //         pageStr += textArray[i]
-                    //     }
-                    //     CreateWordCloudData(pageStr, 10, 0)
-                    //     function CreateWordCloudData(str, weight, offset) {
-                    //         var expression = /[\　|\/\r|\/\n\ |\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\n|\t|\，|\。|\！|\？|\：|\；|\“|\”]/g;
-                    //         str = str.replace(expression, ",");
-                    //         var wordList = str.split(',').filter(Boolean);
-                    //         var length = wordList.length;
-                    //         for (i = 0; i < length; i++) {
-                    //             var objectCounter = {};
-                    //             objectCounter.name = wordList[i];
-                    //             objectCounter.value = Math.random() * weight + offset;
-                    //             newObj.push(objectCounter);
-                    //         }
-                    //     }
-                    //     var myChart = echarts.init(document.getElementById("WordCloud" + this.id));
-                    //     var option = {
-                    //         tooltip: {
-                    //             show: false
-                    //         },
-                    //         series: [{
-                    //             type: 'wordCloud',
-                    //             //maskImage: maskImage,
-                    //             sizeRange: [14, 24],
-                    //             rotationRange: [0, 0],
-                    //             rotationStep: 45,
-                    //             gridSize: 2,
-                    //             shape: 'pentagon',
-                    //             width: '100%',
-                    //             height: '80%',
-                    //             left: 'center',
-                    //             top: 'center',
-                    //             textStyle: {
-                    //                 normal: {
-                    //                     color: function () {
-                    //                         return 'rgb(' + [
-                    //                             Math.round(Math.random() * 160),
-                    //                             Math.round(Math.random() * 160),
-                    //                             Math.round(Math.random() * 160)
-                    //                         ].join(',') + ')';
-                    //                     },
-                    //                     fontFamily: 'sans-serif',
-                    //                     fontWeight: 'normal'
-                    //                 },
-                    //                 emphasis: {
-                    //                     shadowBlur: 10,
-                    //                     shadowColor: '#333'
-                    //                 }
-                    //             },
-                    //             data: newObj.slice(0, 20)
-                    //         }]
-                    //     };
-                    //     // 使用刚指定的配置项和数据显示图表。
-                    //     myChart.setOption(option);
-                    //     var defs = storyLineG.append("defs");
-                    //     var arrowMarker = defs.append("marker")
-                    //         .attr("id", "arrow")
-                    //         .attr("markerUnits", "strokeWidth")
-                    //         .attr("markerWidth", 12)
-                    //         .attr("markerHeight", 12)
-                    //         .attr("viewBox", "0 0 12 12")
-                    //         .attr("refX", 6)
-                    //         .attr("refY", 6)
-                    //         .attr("orient", "auto");
-                    //     x2 = parseInt(this.attributes.x.value) + parseInt(this.attributes.width.value);
-                    //     y2 = parseInt(this.attributes.y.value);
-                    //     // console.log(this.attributes);
-                    //     // console.log(d);
-                    //     var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
-                    //     arrowMarker.append("path")
-                    //         .attr("d", arrow_path)
-                    //         .attr("fill", "#000");
-                    //     //指向词云的线
-                    //     var line_append_X = 40;
-                    //     svg_height1 = 0;
-                    //     if(height == 370){
-                    //         svg_height1 = 170;
-                    //     }
-
-                    //     var line = Svg.append("line")
-                    //         .attr("id", "line" + this.id)
-                    //         .attr("x1", line_x + 40)
-                    //         .attr("y1", line_y - 220 - svg_height1)
-                    //         .attr("x2", event.x)
-                    //         .attr("y2", event.y - 313 - svg_height1)
-                    //         .attr("stroke", "blue")
-                    //         .attr("stroke-width", 1)
-                    //         // .attr("marker-start","url(#arrow)")
-                    //         .attr("marker-end", "url(#arrow)");
-                        
-                    //     dragFunc("WordCloud" + this.id, "line" + this.id, scale, SvgTransformK);
-                    // }
-                    //fragment panel
                     
-
+                    
+                                       
 
                     {
                         // closeFragmentPanel()
@@ -2484,13 +2520,15 @@ function drawStoryLine(sessionListSL,menuArray) {
                         session = sessionList.find(elem => {
                             return elem._id === curSessionID
                         })
+                        pageEntityList = new Array()
+                        pageStrokeList = new Array()
                         page = fragment[1]
                         jumpPage(page)
                         var data = [
                             {
                                 event_number:fragment[0],
-                                page_start:page = fragment[1],
-                                page_end:page = fragment[1]+fragment[2],
+                                page_start:fragment[1],
+                                page_end:fragment[1]+fragment[2],
                                 persons:fragment[3],
                                 place:fragment[4],
                                 time:fragment[6],
@@ -2501,20 +2539,64 @@ function drawStoryLine(sessionListSL,menuArray) {
                         var persons_array = entityDict 
                         var page_max = totalPageNum
                         drawFragmentView(data,persons_array,page_max)
+
+                        iconStatus.isOrganize = false
+                        changeIcon()
                         // openFragmentPanel()
                     }
                     //text summarization
-                    {
-                        if(isTsEnable){
-                            var summarizationText = ''
-                            for(var i = fragment[1]; i <= fragment[1]+fragment[2]; i++){
-                                summarizationText+=textArray[i]
-                            }
-                            var summarizationRes = summarization(summarizationText)
-                            console.log(summarizationRes);
-                        }
-                    }
+                    // {
+                    //     if(isTsEnable){
+                    //         var summarizationText = ''
+                    //         for(var i = fragment[1]; i <= fragment[1]+fragment[2]; i++){
+                    //             summarizationText+=textArray[i]
+                    //         }
+                    //         var summarizationRes = summarization(summarizationText)
+                    //         console.log(summarizationRes);
+                    //     }
+                    // }
                     // console.log('openFragmentPanel');
+
+
+                    var div_x = this.attributes.x.value;
+                    var div_y = this.attributes.y.value;
+                    var div_width = this.attributes.width.value;
+                    var end_div_x = parseFloat(div_x) + parseFloat(div_width/2) - 100 + 291 + 400 - 50
+                    var end_div_y = div_y - 100 + 478.5 + 200
+                    d3.select("body")
+                            .append("div")
+                            .attr("id", "WordCloud" + this.id)
+                            .attr("class", "WordCloud1")
+                    d3.select("#WordCloud" + this.id)
+                            .style("opacity", 1)
+                            .style("left", d.x - 100 + "px")
+                            .style("top", d.y - 100 + "px")
+                            .style("position", 'fixed');
+                    var w_svg = d3.select("#WordCloud" + this.id).append("svg").attr("width", 200).attr("height", 90)
+                    path_a = [  {xpoint: 21, ypoint: 4},
+                                {xpoint: 179, ypoint: 4},
+                                // {xpoint: 188, ypoint: 8},
+                                {xpoint: 190, ypoint: 15},
+                                {xpoint: 190, ypoint: 71},
+                                {xpoint: 100, ypoint: 86},
+                                {xpoint: 10, ypoint: 71},
+                                {xpoint: 10, ypoint: 15},
+                                // {xpoint: 12, ypoint: 7},
+                                {xpoint: 21, ypoint: 4},
+                    ]
+                    var Gen2 = d3.line()
+                            .x((p) => p.xpoint)
+                            .y((p) => p.ypoint)
+                            .curve(d3.curveCardinal.tension(0.9));
+                    w_svg.append("path")
+                            .attr("id", "path_a" + i)
+                            .attr("d", Gen2(path_a))
+                            .attr("stroke", d3.rgb(236, 218, 110))
+                            .attr("stroke-dasharray", "7 3")
+                            .attr("stroke-width", "1px")
+                            .attr("stroke-opacity", 1)
+                            .attr("fill",  d3.rgb(254, 251, 242))
+                            .attr("opacity", 1)
                     click_flag[click_key] = 1;
                     // console.log(click_flag,click_key);
 
@@ -2534,7 +2616,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                         textdoms[0].classList.remove('text-bg')
                     }
 
-                    session = new Session()
+                    // session = new Session()
                     // closeFragmentPanel()
                 }
             })
@@ -2571,6 +2653,8 @@ function drawStoryLine(sessionListSL,menuArray) {
             .attr("ry", 1.5 / scale)
             .style("fill", RectFilledColor)
             .style("opacity", 0.2)
+        
+
     }
 
 
@@ -2612,7 +2696,8 @@ function drawStoryLine(sessionListSL,menuArray) {
     // leftLineX = leftX;
     // transformx = -leftX * SvgTransformK
     rightLineX = rightX;
-    transformx = -leftX * SvgTransformK
+    // transformx = -leftX * SvgTransformK
+
     leftBoundary = leftX
     var rectHeight = bottomY - topY;
     d3.select("#minMapBackGround")
@@ -2733,6 +2818,7 @@ function drawStoryLine(sessionListSL,menuArray) {
     }
     function drawFramAndStoryLineMove(k, x) {
         leftLineX = -x / k;
+        // console.log(-x, "kwjehfiuswhflaskjgdflkawshgfiolawhjdfo");
         rightLineX = (width - x) / k;
         d3.select("#leftLine")
             .attr("x", -x / k)
@@ -3128,10 +3214,12 @@ function drawStoryLine(sessionListSL,menuArray) {
         }
     }
     drawFramAndStoryLineMove(SvgTransformK, transformx)
+    console.log(transformx);
     transformx = -leftLineX * SvgTransformK
+    console.log(leftLineX , SvgTransformK, "++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
     reDrawFram()
     reSizeXScale()
-
 } 
 
 
@@ -3154,7 +3242,7 @@ function update1(legend_click){
         .attr("y", 0)
         .attr("width", legendSvg_width * legend_scale)
         .attr("height", legendSvg_height * legend_scale)
-        .attr('transform', 'translate(20,0)');
+        .attr('transform', 'translate(80,0)');
     }
     else{
         var legendSvg = d3.select("#legendSvg");

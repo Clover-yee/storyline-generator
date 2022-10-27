@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-10-20 21:36:28
+ * @LastEditTime: 2022-10-26 20:56:39
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -12,7 +12,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>StoryInOne</title>
+	<title>StoryCreator</title>
 	<!--[if IE]><script src="excanvas.js"></script><![endif]-->
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<!-- 新 Bootstrap5 核心 CSS 文件 -->
@@ -63,10 +63,23 @@
 
 		var sessionList = new Array()
 		var session = new Session()
+		var curEntityId = '' //当前更改或删除的实体ID NLP/DICT
 		var curSessionID =''
-		var curSessionDetail = new Object()
+		var curSessionDetail = new Object() //for Fragment View
+		var sessionTemplate = new Array() //保存自动识别实体的数组
+
+		//状态保存
+		var iconStatus = {
+			isOrganize : true,
+			isModify : false,
+			isDelete : false
+		}
+		var curStart = new Object()
+		var curEnd = new Object()
 
 		var pageEntityList = new Array()
+		var pageStrokeList = new Array()
+
 		//i1,i2...
 		var eventCounter = 0;
 
@@ -92,7 +105,7 @@
 			_strokes = new Array(); // array of point arrays
 			_text = new Array();//array of regonize text
 			_textValue = ''
-			_r = new NDollarRecognizer(false);
+			_r = new NDollarRecognizer(true);
 
 			var canvas = document.getElementById('myCanvas');
 			_g = canvas.getContext('2d');
@@ -135,6 +148,46 @@
 			var top = $("#text").offset().top
 			return document.elementsFromPoint(x+left,y+top)
 		}
+		function getPageEntity() {
+			var pageEntity = pageEntityList.find(item=>{
+				console.log(item.page);
+				return item.page === page
+			})
+			return pageEntity
+		}
+		function getEntity(id) {
+			var pageEntity = pageEntityList.find(item=>{
+				return item.page === page
+			})
+			var entity = pageEntity.entityList.find(item => {
+				return item.id === id 
+			})
+			return entity
+		}
+		function getPageStroke() {
+			var pageStroke = pageStrokeList.find(item=>{
+				return item.page === page
+			})
+			return pageStroke
+		}
+		function getPageStrokeEntity(str) {
+			var pageStroke = pageStrokeList.find(item=>{
+				return item.page === page
+			})
+			var entity = pageStroke.entityList.find(item=>{
+				return item.str === str
+			})
+			return entity
+		}
+		function removePageStrokeEntity(str) {
+			var pageStroke = pageStrokeList.find(item=>{
+				return item.page === page
+			})
+			var entityIndex = pageStroke.entityList.findIndex(item=>{
+				return item.str === str
+			})
+			pageStroke.entityList.splice(entityIndex,1)
+		}
 		//
 		// Mouse Events
 		//
@@ -144,7 +197,7 @@
 			// document.onmousedown = function() { return false; } // disable drag-select
 			if (button <= 1)
 			{
-			console.log(getScrollX(),getScrollY());
+			console.log(x,y);
 
 				_isDown = true;
 				x -= _rc.x - getScrollX();
@@ -157,7 +210,7 @@
 				_points.length = 1; // clear
 				_points[0] = new Point(x, y);
 				// drawText("Recording stroke #" + (_strokes.length + 1) + "...");
-				var clr = "rgb(" + rand(0,0) + "," + rand(0,0) + "," + rand(0,0) + ")";
+				var clr = "rgb(" + 0 + "," + 0 + "," + 0 + ")";
 				_g.strokeStyle = clr;
 				_g.fillStyle = clr;
 				// _g.fillRect(x - 4, y - 3, 3, 3);
@@ -183,6 +236,7 @@
 			document.onmousedown = function() { return true; } // enable drag-select
 
 			const pointDoms = document.elementsFromPoint(x,y)
+			pointDoms[1].click()
 			pointDoms[2].click()
 
 			if (button <= 1)
@@ -202,16 +256,16 @@
 							var text = new Array();
 							var result = _r.Recognize(
 								_strokes,
-								false,
+								true,
 								true,
 								false
 								);
 							// drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
 							console.log(_strokes[0]); //TODO
-							console.log($('#text').offset);
 							console.log(result);
 							switch (result.Name) {
 								case 'line/person':
+									isRecognition = false
 									var textDoms = [{id:''}]
 									var _text = []
 									for(let item of _strokes[0]){
@@ -227,7 +281,27 @@
 										_text[_text.length] = dom.innerText
 										dom.classList.add('text-bg')
 									});
-									_textValue = _text.join('')									
+									_textValue = _text.join('')		
+									//块级作用域用以点击事件
+									var textValueBlock = _textValue
+									textDoms.forEach(dom1=>{
+										//划线点击事件1
+										dom1.addEventListener('click',strokeDeleteClickFuncion)
+										function strokeDeleteClickFuncion(){
+											let curEntity = getPageStrokeEntity(textValueBlock)
+											if(iconStatus.isDelete){
+												//相同元素删除
+												textDoms.forEach(dom2 => {
+													dom2.classList.remove('text-bg')
+													dom2.removeEventListener('click',strokeDeleteClickFuncion)
+												});
+												clearStroke(curEntity.points)
+												removePageStrokeEntity(textValueBlock)
+												console.log(pageStrokeList);
+											}
+										}		
+									})
+
 									//弹出面板
 									const floatPanelChosen = document.getElementById('float-panel-chosen')
 									const chosenText = document.getElementById('chosen-text')	
@@ -348,31 +422,213 @@
 									session.place = place														
 									break;		
 								case 'left/start':
-									var start = new Object()
 									_isStart = true
-									session = new Session();
-									let stroke = _strokes[0].concat(_strokes[1])
-									start.stroke = {
+									
+									var stroke = _strokes[0]
+									curStart.value ={
+										top:{
+											X:_strokes[0][0].X+$("#text").offset().left,
+											Y:_strokes[0][0].Y+$("#text").offset().top
+										},
+										bottom:{
+											X:_strokes[0][parseInt(_strokes[0].length/2)].X+$("#text").offset().left,
+											Y:_strokes[0][parseInt(_strokes[0].length/2)].Y+$("#text").offset().top
+										}
+									}
+									curStart.stroke = {
+										pageNum:page,
+										points:stroke
+									}
+									console.log(curStart);	
+									// session = new Session();
+									// session.start = start	
+									break;
+								case 'right/end':									
+									var stroke = _strokes[0]
+									curEnd.value ={
+										top:{
+											X:_strokes[0][parseInt(_strokes[0].length/2)].X+$("#text").offset().left,
+											Y:_strokes[0][parseInt(_strokes[0].length/2)].Y+$("#text").offset().top
+										},
+										bottom:{
+											X:_strokes[0][_strokes[0].length - 1].X+$("#text").offset().left,
+											Y:_strokes[0][_strokes[0].length - 1].Y+$("#text").offset().top
+										}
+									}
+									curEnd.stroke = {
 										pageNum:page,
 										points:stroke
 									}	
-									session.start = start	
-									break;
-								case 'right/end':
-									_g.clearRect(0, 0, _rc.width, _rc.height);
-									var end = new Object()
-									end.stroke = {
-										pageNum:page,
-										points:_strokes[0]
+									console.log(curEnd);
+									let pageStart = curStart.stroke.pageNum
+									let pageEnd = curEnd.stroke.pageNum	
+									let sessionTemplateOrigin = new Array()
+
+									for (let pageNum = pageStart; pageNum <= pageEnd; pageNum++) {
+										let res
+										var pageEntity = pageEntityList.find(item=>{
+											return item.page === pageNum
+										})
+										var strokeEntity = pageStrokeList.find(item=>{
+											return item.page === pageNum
+										})
+										if(pageNum === pageStart){
+											res = pageEntity.entityList.filter(entity=>{
+												if(entity.top>curStart.value.bottom.Y || 
+												((entity.top >= curStart.value.top.Y && entity.top <= curStart.value.bottom.Y)  
+																						&& entity.left >= curStart.value.top.X)){
+													return true
+												}else{
+													return false
+												}
+											})
+										}else if(pageNum === pageEnd){
+											res = pageEntity.entityList.filter(entity=>{
+												if(entity.bottom<curEnd.value.top.Y || 
+												((entity.bottom >= curEnd.value.top.Y && entity.bottom <= curEnd.value.bottom.Y)  
+																						&& entity.right <= curEnd.value.top.X)){
+													return true
+												}else{
+													return false
+												}
+											})
+										}else{
+											res = pageEntity.entityList
+										}
+										res = res.concat(strokeEntity.entityList)
+										let eachSessionTemplate = {
+											page:pageEntity.page,
+											entityList:res
+										}
+										sessionTemplateOrigin.push(eachSessionTemplate)
 									}
-									session.end = end	
-									session.curtime = transTimestamp()
-									let output = session
-									console.log(output);
-									saveObjectIntoDatabase(output).then((status)=>{
-										if(status === 200)	console.log('Save successfully !!!');
-										getAllObjects()
+									console.log(sessionTemplateOrigin);
+									
+
+									//去重
+									var obj = {}
+									sessionTemplateOrigin.forEach(eachSessionTemplateOrigin => {
+										eachSessionTemplateOrigin.entityList.forEach(entity => {
+											obj[entity.str] = entity
+										});
+									});
+									sessionTemplate = []
+									for (let key in obj) {
+										sessionTemplate.push(obj[key])
+									}
+
+									console.log(sessionTemplate);
+                    
+									//整理故事片段
+									var persons_array = entityDict 
+									var page_max = totalPageNum
+									let templatePersons,templatePlace,templateTime,templateEvent;
+									sessionTemplate.forEach(item=>{
+										let key = item.type.substr(-3)
+										switch (key) {
+											case 'PER':
+												if (templatePersons) {
+													templatePersons = `${templatePersons},${item.str}`
+												}else{
+													templatePersons = item.str
+												}
+												if(persons_array.findIndex(each=>{
+													return each === item.str
+												}) === -1){
+													persons_array.push(item.str)
+												}
+
+												//组织session
+												session.person.value = templatePersons
+												if(item.points){
+													session.person.entities.push({
+														str:item.str,
+														pageNum:item.page,
+														points:item.points
+													})
+												}else{
+													session.person.entities.push({
+														str:item.str,
+														pageNum:item.page
+													})
+												}
+												break;
+											case 'TIM':
+												templateTime = item.str
+												session.time.value = templateTime
+												session.time.stroke={
+													pageNum : item.page,
+													points:item.points
+												}
+												break;
+											case 'LOC':
+												templatePlace = item.str
+												session.place.value = templatePlace
+												if(item.points){
+													session.place.stroke={
+														pageNum : item.page,
+														points:item.points
+													}
+												}else{
+													session.place.stroke={
+														pageNum : item.page
+													}
+												}
+												break;
+											case 'EVT':
+												templateEvent = item.str
+												session.event.value = templateEvent
+												session.event.stroke={
+													pageNum : item.page,
+													points:item.points
+												}
+												break;
+										}
 									})
+									session.start = {
+										value:curStart.stroke.pageNum,
+										stroke:{
+											points:curStart.stroke.points
+										}
+									}
+									session.end = {
+										value:curEnd.stroke.pageNum,
+										stroke:{
+											points:curEnd.stroke.points
+										}
+									}
+									session.curtime = transTimestamp()
+									var data = [
+										{
+											page_start:curStart.stroke.pageNum,
+											page_end:curEnd.stroke.pageNum,
+											persons:templatePersons,
+											place:templatePlace,
+											time:templateTime,
+											event:templateEvent
+										}
+									]
+                        			curSessionDetail = data
+						
+									console.log(curSessionDetail);
+									console.log(session);
+									
+									
+									drawFragmentView(curSessionDetail,persons_array,page_max)    
+
+									//text summarization
+									if(isTsEnable){
+										var summarizationText = textArray[page]
+										summarization(summarizationText).then(summarizationRes=>{
+											var resStr = ''
+											console.log(summarizationRes);
+											summarizationRes.forEach(each => {
+												resStr += each['summary_text']
+											});
+											$('#event_input').val(resStr)
+										})
+									}
+
 									break;
 								default:
 									break;
@@ -431,50 +687,82 @@
 			_g.closePath();
 			_g.stroke();
 		}
-		function drawConnectedPointByPage(){
+		function drawConnectedPointByPage(){	//界面划线
 			var reg = /[\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/;
-			for (const key in session) {
-				var element = session[key]				
-				if(element && element.stroke && element.stroke.points){
-					//stroke color
-					switch (key) {
-						case 'person':
-							clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
-							break;
-						case 'time':
-							clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
-							break;
-						case 'place':
-							clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
-							break;
-						case 'event':
-							clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
-							break;
-						default:
-							clr = "rgb(" + 0 + "," + 0 + "," + 0 + ")";
-							break;
-					}
-					_g.strokeStyle = clr;
-					//textdom bg
-					var textDoms = [{id:''}]
-					if(element.stroke.pageNum === page){
-						var points = element.stroke.points
-						for (let index = 0; index < points.length-1; index++) {
-							//stroke
-							drawConnectedPointByPoints(points,index,index+1)
-							//textdom
-							var point = points[index]
-							const el = getDomElements(point.X,point.Y-10)
-							if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
-								if(el[1].id !== textDoms[textDoms.length-1].id){
-										textDoms[textDoms.length] = el[1]
-								}
-							}
+			let pageStrokeListIndex = pageStrokeList.findIndex(item=>{
+				return item.page === page
+			})
+			let curStrokeList = pageStrokeList[pageStrokeListIndex].entityList
+			
+			curStrokeList.forEach(entity => {
+				//stroke color
+				let key = entity.type.substr(-3)
+				switch (key) {
+					case 'PER':
+						clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
+						break;
+					case 'TIM':
+						clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
+						break;
+					case 'LOC':
+						clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
+						break;
+					case 'EVT':
+						clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
+						break;
+					default:
+						clr = "rgb(" + 0 + "," + 0 + "," + 0 + ")";
+						break;
+				}
+				_g.strokeStyle = clr;
+				//textdom bg
+				var textDoms = [{id:''}]
+				var points = entity.points
+				for (let index = 0; index < points.length-1; index++) {
+					//stroke
+					drawConnectedPointByPoints(points,index,index+1)
+					//textdom
+					var point = points[index]
+					const el = getDomElements(point.X,point.Y-10)
+					if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
+						if(el[1].id !== textDoms[textDoms.length-1].id){
+								textDoms[textDoms.length] = el[1]
 						}
-						textDoms.shift()
-						textDoms.forEach(dom => {
-							dom.classList.add('text-bg')
-						});
+					}
+				}
+				textDoms.shift()
+				textDoms.forEach(dom1 => {
+					dom1.classList.add('text-bg')
+					//划线点击事件2
+					dom1.addEventListener('click',strokeDeleteClickFuncion)
+					function strokeDeleteClickFuncion(e){
+						let curEntity = getPageStrokeEntity(entity.str)
+						if(iconStatus.isDelete){
+							//相同元素删除
+							textDoms.forEach(dom2 => {
+								dom2.classList.remove('text-bg')
+								dom2.removeEventListener('click',strokeDeleteClickFuncion)
+							});
+							clearStroke(curEntity.points)
+							removePageStrokeEntity(entity.str)
+							console.log(pageStrokeList);
+						}
+					}		
+				});
+			});
+			//开始结束括号
+			if(curSessionID){
+				_g.strokeStyle = "rgb(0,0,0)"
+				var startStroke = session.start
+				var endStroke = session.end
+				if(page === startStroke.value){
+					for (let index = 0; index < startStroke.stroke.points.length-1; index++) {
+						drawConnectedPointByPoints(startStroke.stroke.points,index,index+1)
+					}
+				}
+				if(page === endStroke.value){
+					for (let index = 0; index < endStroke.stroke.points.length-1; index++) {
+						drawConnectedPointByPoints(endStroke.stroke.points,index,index+1)
 					}
 				}
 			}
@@ -488,6 +776,7 @@
 		}
 		function clearStroke(stroke)
 		{
+			//清除划线
 			var max_x=-Infinity,max_y=-Infinity;
 			var min_x=Infinity,min_y=Infinity;
 			for (const item of stroke) {
@@ -497,15 +786,23 @@
 				if(item.Y<min_y) min_y = item.Y
 			}
 			_g.clearRect(min_x-10,min_y-10,max_x-min_x+15,max_y-min_y+30);
+
 		}
-		function rand(low, high)
-		{
-			return Math.floor((high - low + 1) * Math.random()) + low;
-		}
-		function round(n, d) // round 'n' to 'd' decimals
-		{
-			d = Math.pow(10, d);
-			return Math.round(n * d) / d;
+		function clearTextBg(stroke) {
+			//清除背景
+			var textDoms = [{id:''}]
+			for(let item of stroke){
+				const el = getDomElements(item.X,item.Y-10)
+				if(el[1].innerText && el[1].innerText.length===1 ){
+					if(el[1].id !== textDoms[textDoms.length-1].id){
+							textDoms[textDoms.length] = el[1]
+					}
+				}
+			}
+			textDoms.shift()
+			textDoms.forEach(dom => {
+				dom.classList.remove('text-bg')
+			});
 		}
 		function onClickClearStrokes()
 		{
@@ -627,35 +924,208 @@
 		var str = ''
 
 		let entityList = []
+		let strokeList = []
+		let pageEntityListIndex = pageEntityList.findIndex(item=>{
+				return item.page === page
+		})
+		let pageStrokeListIndex = pageStrokeList.findIndex(item=>{
+				return item.page === page
+		})
+		if(pageStrokeListIndex === -1){
+			if(curSessionID !== ''){
+				session.person.entities.forEach(entity=>{
+					if (entity.stroke && entity.pageNum === page) {
+						let strokeEntity={
+							page:entity.pageNum,
+							str:entity.str,
+							points:entity.stroke,
+							type:'Stroke-PER'
+						}
+						strokeList.push(strokeEntity)
+					}
+				})
+				if(session.place.stroke.points && session.place.stroke.pageNum === page){
+					strokeList.push({
+						page:session.place.stroke.pageNum,
+						str:session.place.value,
+						points:session.place.stroke.points,
+						type:'Stroke-LOC'
+					})
+				}
+				if(session.time.stroke.pageNum === page){
+					strokeList.push({
+						page:session.time.stroke.pageNum,
+						str:session.time.value,
+						points:session.time.stroke.points,
+						type:'Stroke-TIM'
+					})
+				}
+				if(session.event.stroke.pageNum === page){
+					strokeList.push({
+						page:session.event.stroke.pageNum,
+						str:session.event.value,
+						points:session.event.stroke.points,
+						type:'Stroke-EVT'
+					})
+				}
+			}
+			pageStrokeList.push({
+				page,
+				entityList:strokeList
+			})
+		}
+		 		
 
 		lines.forEach(element => {
 			let entityDictLine = new Array()
-			entityDict.forEach(entity => {
-				let index = element.indexOf(entity)
-				if(index !== -1 ){
-					entityDictLine.push(
-						{
-							str:entity,
-							index,
-							length:entity.length,
-							type:'Dict-PER'
+			//有片段
+			if(curSessionID !== ''){
+				//未初始化
+				if(pageEntityListIndex === -1){
+					if(page >= session.start.value && page <= session.end.value){  //TODO 且在片段范围内
+						session.person.entities.forEach(entity=>{
+							if (!entity.stroke) {
+								let index = element.indexOf(entity.str)
+								if(index !== -1 ){
+									entityDictLine.push(
+										{
+											str:entity.str,
+											index,
+											length:entity.str.length,
+											type:'Dict-PER'
+										}
+									)
+								}
+							}
+						})
+					let index = element.indexOf(session.place.value)
+					if(index !== -1 ){
+						entityDictLine.push(
+							{
+								str:session.place.value,
+								index,
+								length:session.place.value.length,
+								type:'Dict-LOC'
+							}
+						)
+					}	
+					}else{	//在片段范围外
+						entityDict.forEach(entity => {
+						let index = element.indexOf(entity)
+							if(index !== -1 ){
+								entityDictLine.push(
+									{
+										str:entity,
+										index,
+										length:entity.length,
+										type:'Dict-PER'
+									}
+								)
+							}
+						});
+						if(isNerEnable){
+							entityNLP.forEach(entity => {
+								if(entity.word.length > 3){
+									let index = element.indexOf(entity.word)
+									if(index !== -1 ){
+										entityDictLine.push(
+											{
+												str:entity.word,
+												index,
+												length:entity.word.length,
+												type:`NLP-${entity.entity_group}`
+											}
+										)
+									}
+								}
+							});
 						}
-					)
+					}
+				}else{	//有片段-已初始化
+					let curEntityList = pageEntityList[pageEntityListIndex].entityList
+					curEntityList.forEach(entity => {
+						let index = element.indexOf(entity.str)
+						if(index !== -1 ){
+							entityDictLine.push(
+								{
+									str:entity.str,
+									index,
+									length:entity.str.length,
+									type:entity.type
+								}
+							)
+						}			
+					});
+					//去重
+					var obj = {}
+					entityDictLine.forEach(item => {
+						obj[item.str] = item
+					});
+					entityDictLine = []
+					for (let key in obj) {
+						entityDictLine.push(obj[key])
+					}
 				}
-			});
-			entityNLP.forEach(entity => {
-				let index = element.indexOf(entity.word)
-				if(index !== -1 ){
-					entityDictLine.push(
-						{
-							str:entity.word,
-							index,
-							length:entity.word.length,
-							type:`NLP-${entity.entity_group}`
+
+			}else{	//无片段
+				if(pageEntityListIndex === -1){	//无片段-未初始化
+					entityDict.forEach(entity => {
+					let index = element.indexOf(entity)
+						if(index !== -1 ){
+							entityDictLine.push(
+								{
+									str:entity,
+									index,
+									length:entity.length,
+									type:'Dict-PER'
+								}
+							)
 						}
-					)
+					});
+					if(isNerEnable){
+						entityNLP.forEach(entity => {
+							if(entity.word.length > 3){
+								let index = element.indexOf(entity.word)
+								if(index !== -1 ){
+									entityDictLine.push(
+										{
+											str:entity.word,
+											index,
+											length:entity.word.length,
+											type:`NLP-${entity.entity_group}`
+										}
+									)
+								}
+							}
+						});
+					}
+				}else{	//无片段-已初始化
+					let curEntityList = pageEntityList[pageEntityListIndex].entityList
+					curEntityList.forEach(entity => {
+						let index = element.indexOf(entity.str)
+						if(index !== -1 ){
+							entityDictLine.push(
+								{
+									str:entity.str,
+									index,
+									length:entity.str.length,
+									type:entity.type
+								}
+							)
+						}			
+					});
+					//去重
+					var obj = {}
+					entityDictLine.forEach(item => {
+						obj[item.str] = item
+					});
+					entityDictLine = []
+					for (let key in obj) {
+						entityDictLine.push(obj[key])
+					}
 				}
-			});
+			}
+
 			entityDictLine.sort((x,y)=>{
 				return x.index - y.index
 			})
@@ -673,7 +1143,8 @@
 							entityList.push({
 								id:div.id,
 								str:entity.str,
-								type:entity.type
+								type:entity.type,
+								page
 							})
 							while(i< entity.index + entity.length ){
 								const char = element[i];
@@ -702,31 +1173,73 @@
 
 							//click event
 							div.addEventListener('click',function(e){
-								//弹出面板
-								const floatPanelChosen = document.getElementById('float-panel-chosen')
-								const chosenText = document.getElementById('chosen-text')
-								
-								var pageEntity = pageEntityList.find(item=>{
-									return item.page === page
-								})
-								var entity = pageEntity.entityList.find(item => {
-									return item.id === this.id 
-								})
-								var top = entity.top				
-								var left = entity.left
-								console.log(entity);
+								console.log(iconStatus);
+								curEntityId = this.id
+								if(iconStatus.isModify){
+									//弹出面板
+									const floatPanelChosen = document.getElementById('float-panel-chosen')
+									const chosenText = document.getElementById('chosen-text')
+									
+									
+									let entity = getEntity(this.id)
+									var top = entity.top				
+									var left = entity.left
+									console.log(entity);
+	
+									floatPanelChosen.style.display = 'block'
+									floatPanelChosen.style.top = top+25+'px'
+									if(left+250 > document.body.clientWidth){
+										floatPanelChosen.style.left = ''
+										floatPanelChosen.style.right = '10px'
+									}else{
+										floatPanelChosen.style.right = ''
+										floatPanelChosen.style.left = left+'px'
+									}
+									chosenText.value = 	entity.str	
+									isRecognition = true					
+								}else if(iconStatus.isDelete){
+									let pageEntity = getPageEntity()
+									let curEntity = getEntity(this.id)
+									if(curEntity){
+										//相同元素删除
+										for(let i = pageEntity.entityList.length-1;i>=0;i--){
+											if(pageEntity.entityList[i].str === curEntity.str){
+												let index = pageEntity.entityList.findIndex(item=>{
+													return item.id === curEntityId
+												})
+												$('#'+pageEntity.entityList[i].id).removeClass()
+												pageEntity.entityList.splice(i,1)
+											}
+										}		
+										console.log(pageEntity);
+										if(curSessionID !== ''){ //isModify
+											switch (curEntity.type.substr(-3)) {
+												case 'PER':
+													var personIndex = session.person.entities.findIndex(item=>{
+														return item.str === curEntity.str
+													})
+													session.person.entities.splice(personIndex,1)
+													let personList = []
+													session.person.entities.forEach(item=>{
+														personList.push(item.str)
+													})
+													session.person.value = personList.join(',')
+													curSessionDetail[0].persons = session.person.value
 
-								floatPanelChosen.style.display = 'block'
-								floatPanelChosen.style.top = top+25+'px'
-								if(left+250 > document.body.clientWidth){
-									floatPanelChosen.style.left = ''
-									floatPanelChosen.style.right = '10px'
-								}else{
-									floatPanelChosen.style.right = ''
-									floatPanelChosen.style.left = left+'px'
+													break;
+												case 'LOC':
+													session.place.value = curEntity.str
+													curSessionDetail[0].place = session.place.value
+													break;
+											}
+											var persons_array = entityDict 
+											var page_max = totalPageNum
+											drawFragmentView(curSessionDetail,persons_array,page_max)
+											pageEntityList = new Array()
+                        					pageStrokeList = new Array()
+										}
+									}
 								}
-								chosenText.value = 	entity.str	
-								isRecognition = true					
 							})
 							
 							p.appendChild(div)
@@ -753,19 +1266,23 @@
 		entityList.forEach(entity => {
 			entity.left = $('#'+entity.id).offset().left
 			entity.top = $('#'+entity.id).offset().top
-			entity.right = $('#'+entity.id).offset().right
-			entity.bottom = $('#'+entity.id).offset().bottom
+			entity.right = $('#'+entity.id).offset().left+$('#'+entity.id).width()
+			entity.bottom = $('#'+entity.id).offset().top+$('#'+entity.id).height()
 		});
-
-		if(!pageEntityList.find(item=>{
+		
+		let index = pageEntityList.findIndex(item=>{
 			return item.page === page
-		})){
-			pageEntityList.push({
-				page,
-				entityList
-			})
+		})
+		if(index !== -1){
+			pageEntityList.splice(index,1)
 		}
+		pageEntityList.push({
+			page,
+			entityList
+		})
 		console.log(pageEntityList);
+		console.log(pageStrokeList);
+
     }
 
 	function divfuzhi(i)
@@ -827,61 +1344,55 @@
 		}
 	}
 	function jumpPage(page,strategy='max') {
-		if(isNerEnable){
-			classification(textArray[page],strategy).then(res=>{
-				//去重
-				var obj = {}
-				res.forEach(item => {
-					obj[item.word] = item
-				});
-				var entityNLP = []
-				for (let key in obj) {
-					entityNLP.push(obj[key])
-				}
-				console.log(entityNLP);
-	
-				divfuzhiNLP(page,entityNLP)
-				_g.clearRect(0, 0, _rc.width, _rc.height);
-				drawConnectedPointByPage()
-				document.getElementById('curpage').innerText = page+1
-				document.getElementById('pageNumJump').value = page+1
 		
-				//menu update
-				var menuItemIndex = findMenuItem(page)
-				$('.menu-content').children().each(function(){
-					$(this).removeClass('content-item-active')
-				});
-				$(`.content-item:nth-child(${menuItemIndex})`).addClass('content-item-active')
-				
-				if((menuItemIndex - 1) <= 3){
-					var curTransformY = 0
-					$('.menu-content').scrollTop(curTransformY)
-					d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
-				}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
-					var curTransformY = (menuItemIndex - 4) * 40
-					$('.menu-content').scrollTop(curTransformY)
-					d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
-				}
-			})
-			//text summarization
-			if(isTsEnable){
-				var summarizationText = textArray[page]
-				summarization(summarizationText).then(summarizationRes=>{
-					var resStr = ''
-					console.log(summarizationRes);
-					summarizationRes.forEach(each => {
-						resStr += each['summary_text']
-					});
-					$('#event-container').val(resStr)
-				})
+		classification(textArray[page],strategy).then(res=>{
+			//去重
+			var obj = {}
+			res.forEach(item => {
+				obj[item.word] = item
+			});
+			var entityNLP = []
+			for (let key in obj) {
+				entityNLP.push(obj[key])
 			}
-		}else{
-			divfuzhi(page)
+			console.log(entityNLP);
+
+			divfuzhiNLP(page,entityNLP)
 			_g.clearRect(0, 0, _rc.width, _rc.height);
 			drawConnectedPointByPage()
 			document.getElementById('curpage').innerText = page+1
 			document.getElementById('pageNumJump').value = page+1
-		}
+	
+			//menu update
+			var menuItemIndex = findMenuItem(page)
+			$('.menu-content').children().each(function(){
+				$(this).removeClass('content-item-active')
+			});
+			$(`.content-item:nth-child(${menuItemIndex})`).addClass('content-item-active')
+			
+			if((menuItemIndex - 1) <= 3){
+				var curTransformY = 0
+				$('.menu-content').scrollTop(curTransformY)
+				d3.select('#menu-map-g').attr('transform',`translate(60,${curTransformY+15})`)
+			}else if((menuItemIndex - 1) > 3 && (menuItemIndex - 1)<menuArray.length-3){
+				var curTransformY = (menuItemIndex - 4) * 40
+				$('.menu-content').scrollTop(curTransformY)
+				d3.select('#menu-map-g').attr('transform',`translate(70,${curTransformY+15})`)
+			}
+		})
+		
+		//text summarization
+		// if(isTsEnable){
+		// 	var summarizationText = textArray[page]
+		// 	summarization(summarizationText).then(summarizationRes=>{
+		// 		var resStr = ''
+		// 		console.log(summarizationRes);
+		// 		summarizationRes.forEach(each => {
+		// 			resStr += each['summary_text']
+		// 		});
+		// 		$('#event-container').val(resStr)
+		// 	})
+		// }
 	}
 	function findMenuItem(page) {
 		for (const menuItemIndex in menuArray) {
@@ -891,40 +1402,76 @@
 		return menuArray.length
 	}
 
-	function getAllObjects(flag = true) {
+	function getAllObjects() {
 		getObjectFromDatabase().then(res=>{
 			sessionList = res.data
-
+			//更新数据库
+			// sessionList.forEach(session=>{
+			// 	var min = Infinity,max = 0;
+			// 		for (const key in session) {
+			// 			if (Object.hasOwnProperty.call(session, key)) {
+			// 				const element = session[key];
+			// 				if(element.stroke){
+			// 					if(element.stroke.pageNum > max) max = element.stroke.pageNum
+			// 					if(element.stroke.pageNum < min) min = element.stroke.pageNum
+			// 				}
+			// 				// if(key === 'person'){
+			// 				// 	var entities = element.value.split(',')
+			// 				// 	entities.forEach(entity => {
+			// 				// 		if(!entityDict.find(item => item === entity)){
+			// 				// 			entityDict.push(entity)
+			// 				// 		}
+			// 				// 	});
+			// 				// }
+			// 			}
+			// 		}
+			// 	session.start = {
+			// 		value:min,
+			// 		stroke:{
+			// 			points:leftStart
+			// 		}
+			// 	}
+			// 	session.end = {
+			// 		value:max,
+			// 		stroke:{
+			// 			points:rightEnd
+			// 		}
+			// 	}
+			// 	console.log(session);
+			// 	findByIdAndUpdateObjectIntoDatabase(session).then((status)=>{
+			// 		if(status === 200)	console.log('Modify successfully !!!');
+			// 	})
+			// })
+			
 			sessionListSL = new Array()
 			entityDict = new Array()
 			eventCounter = 1
 			//数据转换
-			let str = "event,start,last,members,place,content\n";
 			for (const eachSession of sessionList) {
-				var min = Infinity,max = 0;
-				for (const key in eachSession) {
-					if (Object.hasOwnProperty.call(eachSession, key)) {
-						const element = eachSession[key];
-						if(element.stroke){
-							if(element.stroke.pageNum > max) max = element.stroke.pageNum
-							if(element.stroke.pageNum < min) min = element.stroke.pageNum
-						}
-						// if(key === 'person'){
-						// 	var entities = element.value.split(',')
-						// 	entities.forEach(entity => {
-						// 		if(!entityDict.find(item => item === entity)){
-						// 			entityDict.push(entity)
-						// 		}
-						// 	});
-						// }
-					}
-				}
-				let l=max-min
+				// var min = Infinity,max = 0;
+				// for (const key in eachSession) {
+				// 	if (Object.hasOwnProperty.call(eachSession, key)) {
+				// 		const element = eachSession[key];
+				// 		if(element.stroke){
+				// 			if(element.stroke.pageNum > max) max = element.stroke.pageNum
+				// 			if(element.stroke.pageNum < min) min = element.stroke.pageNum
+				// 		}
+				// 		// if(key === 'person'){
+				// 		// 	var entities = element.value.split(',')
+				// 		// 	entities.forEach(entity => {
+				// 		// 		if(!entityDict.find(item => item === entity)){
+				// 		// 			entityDict.push(entity)
+				// 		// 		}
+				// 		// 	});
+				// 		// }
+				// 	}
+				// }
+				// let l=max-min
 
 				//统计章节交互片段数量
-				menuArray[findMenuItem(min)-1].sessionNum++
+				// menuArray[findMenuItem(min)-1].sessionNum++
 
-				sessionListSL.push([`i${eventCounter}`, min, l, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id])
+				sessionListSL.push([`i${eventCounter}`, eachSession.start.value, eachSession.end.value-eachSession.start.value, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id])
 				eventCounter++
 			}
 
@@ -944,7 +1491,7 @@
 				console.log(curSessionDetail);
 				drawFragmentView(curSessionDetail,persons_array,page_max)
 			}
-			
+			changeIcon()
 		})	
 	}
 	//chosen 选中
@@ -956,67 +1503,119 @@
 		clearStroke(_strokes[0]);
 		//赋予划线颜色
 		var clr = ''
-		switch (id) {
-			case 'chosen-person':
-				var person = new Object()
-				_textValue= detectReg(_textValue)
-				if(session.person.value === ''){
-					person.value = _textValue
-				}
-				else{
-					person.value = `${session.person.value},${_textValue}`
-				}
-				document.getElementById('person').value = person.value
-				person.stroke = {
-					pageNum:page,
-					points:_strokes[0]
-				}
-				session.person = person
-				clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
-				break;
-			case 'chosen-time':
-				var time = new Object()
-				_textValue= detectReg(_textValue)
-				document.getElementById('time').value = _textValue		
-				time.value = _textValue
-				time.stroke = {
-					pageNum:page,
-					points:_strokes[0]
-				}
-				session.time = time
-				clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
-				break;
-			case 'chosen-place':
-				var place = new Object()
-				_textValue= detectReg(_textValue)
-				document.getElementById('place').value = _textValue		
-				place.value = _textValue
-				place.stroke = {
-					pageNum:page,
-					points:_strokes[0]
-				}	
-				session.place = place		
-				clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
-				break;
-			case 'chosen-event':
-				var event = new Object()
-				document.getElementById('event').value = _textValue		
-				event.value = _textValue
-				event.stroke = {
-					pageNum:page,
-					points:_strokes[0]
-				}	
-				session.event = event	
-				clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
-				break;		
-			default:
-				break;
+		if(isRecognition){ //更改识别实体类型
+			let pageEntity =  getPageEntity()
+			let entity = getEntity(curEntityId)
+			switch (id) {
+				case 'chosen-person':
+					entity.type = 'NLP-PER'
+					$('#'+curEntityId).removeClass()
+					$('#'+curEntityId).addClass('entity-nlp-bg')
+					break;
+				case 'chosen-place':
+					entity.type = 'NLP-LOC'
+					$('#'+curEntityId).removeClass()
+					$('#'+curEntityId).addClass('place-nlp-bg')
+					break;
+				default:
+					break;
 			}
-		console.log(session);
-		_g.strokeStyle = clr;
-		for (let index = 0; index < _strokes[0].length-1; index++) {
-			drawConnectedPointByPoints(_strokes[0],index,index+1)
-		}	
+			console.log(pageEntityList);
+		}else{
+			var strokeEntity = new Object()
+			_textValue= detectReg(_textValue)
+			strokeEntity={
+				page,
+				str:_textValue,
+				points:_strokes[0]
+			}
+			switch (id) {
+				case 'chosen-person':		
+					strokeEntity.type = 'Stroke-PER'
+					clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
+					break;
+				case 'chosen-time':
+					strokeEntity.type = 'Stroke-TIM'
+					clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
+					break;
+				case 'chosen-place':
+					strokeEntity.type = 'Stroke-LOC'		
+					clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
+					break;
+				case 'chosen-event':
+					strokeEntity.type = 'Stroke-EVT'
+					clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
+					break;		
+				default:
+					break;
+				}
+			_g.strokeStyle = clr;
+			for (let index = 0; index < _strokes[0].length-1; index++) {
+				drawConnectedPointByPoints(_strokes[0],index,index+1)
+			}	
+
+			var pageStroke = pageStrokeList.find(item=>{
+				return item.page === page
+			})
+			pageStroke.entityList.push(strokeEntity)
+			if(curSessionID !== ''){
+				let tag = strokeEntity.type.substr(-3)
+				switch (tag) {
+					case 'PER':
+						session.person.entities.push({
+							str:strokeEntity.str,
+							points:strokeEntity.points,
+							pageNum:page
+						})
+						let personList = []
+						session.person.entities.forEach(item=>{
+							personList.push(item.str)
+						})
+						session.person.value = personList.join(',')
+						curSessionDetail[0].persons = session.person.value
+						break;
+					case 'TIM':
+						clearTextBg(session.time.stroke.points)
+						clearStroke(session.time.stroke.points)
+						session.time.value = strokeEntity.str
+						session.time.stroke={
+							pageNum:page,
+							points : strokeEntity.points
+						}
+						curSessionDetail[0].time = strokeEntity.str
+						break;
+					case 'LOC':
+						clearTextBg(session.place.stroke.points)
+						clearStroke(session.place.stroke.points)
+						session.place.value = strokeEntity.str
+						session.place.stroke={
+							pageNum:page,
+							points : strokeEntity.points
+						}
+						curSessionDetail[0].place = strokeEntity.str
+						break;
+					case 'EVT':
+						clearTextBg(session.event.stroke.points)
+						clearStroke(session.event.stroke.points)
+						session.event.value = strokeEntity.str
+						session.event.stroke={
+							pageNum:page,
+							points : strokeEntity.points
+						}
+						curSessionDetail[0].event = strokeEntity.str
+						break;
+					default:
+						break;
+				}
+				var persons_array = entityDict 
+				var page_max = totalPageNum
+				drawFragmentView(curSessionDetail,persons_array,page_max)
+				console.log(pageEntityList);
+				console.log(pageStrokeList);
+				pageEntityList = new Array()
+				pageStrokeList = new Array()
+			}
+		}
 	}
 
 	//chosen界面input事件
@@ -1089,6 +1688,55 @@
 
 		function onDragEnd(e) {
 			console.log(e);
+		}
+	}
+	//Text View 事件
+	function onClickStatus(statusName) {
+		switch (statusName) {
+			case 'organize':
+				iconStatus.isOrganize = !iconStatus.isOrganize
+				if(iconStatus.isOrganize){
+					drawFragmentView()
+					curSessionID = ''
+					session = new Session()
+					var curPageEntityList = getPageEntity()
+					var curPageStrokeList = getPageStroke()
+
+					pageEntityList = new Array()
+					pageStrokeList = new Array()
+					pageEntityList.push(curPageEntityList)
+					pageStrokeList.push(curPageStrokeList)
+				}
+				break;
+			case 'modify':
+				iconStatus.isModify = true
+				iconStatus.isDelete = false
+				break;
+			case 'delete':
+				iconStatus.isModify = false
+				iconStatus.isDelete = true
+				break;
+			default:
+				break;
+		}
+	console.log(iconStatus);
+	changeIcon()
+	}
+	function changeIcon(){
+		if(iconStatus.isOrganize){
+			$("#organize").attr('src','/img/organize-chosen.png')
+		}else{
+			$("#organize").attr('src','/img/organize.png')
+		}
+		if(iconStatus.isModify){
+			$("#modify").attr('src','/img/modify-chosen.png')
+		}else{
+			$("#modify").attr('src','/img/modify.png')
+		}
+		if(iconStatus.isDelete){
+			$("#delete").attr('src','/img/delete-chosen.png')
+		}else{
+			$("#delete").attr('src','/img/delete.png')
 		}
 	}
 	</script>
@@ -1206,7 +1854,7 @@
 
 										<div id="operation_panel">
 										</div>
-
+										<img src="/img/click.png" id="click_img">
 										<img src="/img/bj.png" id="bj_img">
 										<img src="/img/ok.png" id="ok_img">
 							
@@ -1231,11 +1879,20 @@
 									</div>
 									<div class="nav-tool-container-right">
 										<div class="page-container">
-											<span class="tool-btn" title="Menu" onclick="onClickOpenMenu()" ><img class="svg-icon" src="/img/menu.png"></span>
+											<span class="tool-btn-long" title="Organize" onclick="onClickStatus('organize')"><img id="organize" class="svg-icon" src="/img/organize.png"></span>
 											<span class="tool-separator"></span>
-											<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" src="/img/add.png"></span>
-											<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" src="/img/clear.png"></span>
-
+											<span class="tool-btn-long" title="Modify" onclick="onClickStatus('modify')"><img id="modify" class="svg-icon" src="/img/modify.png"></span>
+											<span class="tool-separator"></span>
+											<span class="tool-btn-long" title="Delete"  onclick="onClickStatus('delete')"><img id="delete" class="svg-icon" src="/img/delete.png"></span>
+											<span class="tool-separator"></span>
+											<span class="tool-btn" title="Share" style="height: 18px;width: 18px;margin-top: 1px;"><img class="svg-icon" src="/img/share.png"></span>
+											<span class="tool-btn" title="Print" style="height: 18px;width: 18px;margin-top: 1px;"><img class="svg-icon" src="/img/print.png"></span>
+											<span class="tool-separator"></span>
+											<span class="tool-btn" title="Zoom" style="height: 18px;width: 18px;margin-top: 1px;"><img class="svg-icon" src="/img/zoom.png"></span>
+											<span class="tool-btn" title="Menu" onclick="onClickOpenMenu()" ><img class="svg-icon" style="filter: invert(60%);" src="/img/menu.png"></span>
+											<span class="tool-separator"></span>
+											<span class="tool-btn" title="AddFragment" id="addFragment" onclick="onClickAddFragment()"><img class="svg-icon" style="filter: invert(60%);" src="/img/add.png"></span>
+											<span class="tool-btn" title="Clear" id="clear" onclick="onClickClearStrokes()"><img class="svg-icon" style="filter: invert(60%);" src="/img/clear.png"></span>
 										</div>
 									</div>
 								</div>	
@@ -1350,6 +2007,6 @@
 			  ondragend:(e)=>onDragEnd(e)
 		  });
 	  });
-	drawFragmentView();
+	drawFragmentView()
 </script>
 </html>

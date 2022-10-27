@@ -106,15 +106,15 @@ body {
 }
 
 .nav-tool-container-right{
-    margin-right: 21px;
+    margin-right: 15px;
     margin-left: auto;
     display: flex;
 }
 
-.nav-tool-container .tool-separator {
+.nav-tool-container-right .tool-separator {
     float: left;
     height: 16px;
-    margin: 6px 2px;
+    margin: 7px 3px;
     width: 0px;
     border-left: 1px solid var(--gray9);
 }
@@ -155,17 +155,23 @@ body {
     float: left;
     width: var(--nav-content-height);
     height: var(--nav-content-height);
-    padding: 5px 2px;
+    padding: 5px 5px;
     user-select: none;
 }
 
-.page-container .tool-btn .svg-icon{
+.page-container .tool-btn-long{
+    float: left;
+    height: 20px;
+    padding: 5px 5px;
+    user-select: none;
+}
+
+.page-container .tool-btn .svg-icon,.page-container .tool-btn-long .svg-icon{
     width: 100%;
     height: 100%;
     display: inline-block;
     background-repeat: no-repeat;
     background-size: 94%;
-    filter: invert(70%);
 }
 
 .pagination-left{
@@ -418,6 +424,7 @@ body {
     white-space: pre-wrap;	/*设置文本换行*/
     word-wrap:break-word; 
     margin: 5px 33px;
+    font-size: 18px;
 }
 #test0{
 	position:absolute;
@@ -430,11 +437,12 @@ body {
     word-wrap:break-word; 
     z-index: -1;
     margin: 5px 33px;
+    font-size: 18px;
 }
 
 #text div{
 	display: inline;
-	margin: 3px 0 3px 0;
+	margin: 5px 0 5px 0;
 }
 p{
 	margin: auto;
@@ -650,3 +658,14 @@ p{
     user-select: none;
     /* border:1px solid rgb(23, 249, 46); */
     }
+    .WordCloud1{
+          width: 200px;
+          height: 90px;
+          /* background: rgba(254, 251, 242, 1); */
+          position: fixed !important;
+          /* border:2px dashed rgb(236, 218, 110); */
+          /* border-bottom: #e6e6e6; */
+          border-radius: 5px;
+          z-index: 999;
+        }
+
