@@ -1405,7 +1405,7 @@ function drawStoryLine(sessionListSL,menuArray) {
       
     //画线
 
-    console.log(line_array);
+    // console.log(line_array);
     for(i=1;i<line_array.length-1;i++){
         if(line_array[i-1][3] == line_array[i][3] && line_array[i+1][3]){
             if(line_array[i][1] > line_array[i-1][1] && line_array[i][1] > line_array[i+1][1] && line_array[i-1][1] == line_array[i+1][1]){
@@ -1583,21 +1583,23 @@ function drawStoryLine(sessionListSL,menuArray) {
             var mem = line_array[i - 1][4].split('');
             storyLineG.append("text")
                 .attr("id", line_array[i - 1][4])
-                .attr("x", line_array[i - 1][0] - 10)
+                .attr("x", line_array[i - 1][0] - 2.5)
                 .attr("y", line_array[i - 1][1])
                 .style('font-weight', 1)
                 .style('font-family', 'Arial')
                 .style('font-size', 2)
                 .style('fill', color[line_array[i - 1][2]])
+                .attr('dy', 1)
+                .attr('text-anchor',"end")
                 .text(line_array[i - 1][4])
-            minMapG.append("text")
-                .attr("x", (line_array[i - 1][0] - 10) / scale)
-                .attr("y", (line_array[i - 1][1]) / scale)
-                .style('font-weight', 1 / scale)
-                .style('font-family', 'Arial')
-                .style('font-size', 2 / scale)
-                .style('fill', color[line_array[i - 1][2]])
-                .text(line_array[i - 1][4])
+            // minMapG.append("text")
+            //     .attr("x", (line_array[i - 1][0] - 10) / scale)
+            //     .attr("y", (line_array[i - 1][1]) / scale)
+            //     .style('font-weight', 1 / scale)
+            //     .style('font-family', 'Arial')
+            //     .style('font-size', 2 / scale)
+            //     .style('fill', color[line_array[i - 1][2]])
+            //     .text(line_array[i - 1][4])
         }
         else if (line_array[i][2] != line_array[i - 1][2]) {
             //添加后面故事线的名字
@@ -1605,21 +1607,23 @@ function drawStoryLine(sessionListSL,menuArray) {
             var mem = line_array[i][4].split('');
             storyLineG.append("text")
                 .attr("id", line_array[i][4])
-                .attr("x", line_array[i][0] - 10)
+                .attr("x", line_array[i][0] - 2.5)
                 .attr("y", line_array[i][1])
                 .style('font-weight', 1)
                 .style('font-family', 'Arial')
                 .style('font-size', 2)
+                .attr('dy', 1)
+                .attr('text-anchor',"end")
                 .style('fill', color[line_array[i][2]])
                 .text(line_array[i][4])
-            minMapG.append("text")
-                .attr("x", (line_array[i][0] - 10) / scale)
-                .attr("y", (line_array[i][1]) / scale)
-                .style('font-weight', 1 / scale)
-                .style('font-family', 'Arial')
-                .style('font-size', 2 / scale)
-                .style('fill', color[line_array[i][2]])
-                .text(line_array[i][4])
+            // minMapG.append("text")
+            //     .attr("x", (line_array[i][0] - 10) / scale)
+            //     .attr("y", (line_array[i][1]) / scale)
+            //     .style('font-weight', 1 / scale)
+            //     .style('font-family', 'Arial')
+            //     .style('font-size', 2 / scale)
+            //     .style('fill', color[line_array[i][2]])
+            //     .text(line_array[i][4])
         }
     }
 
@@ -1661,7 +1665,7 @@ function drawStoryLine(sessionListSL,menuArray) {
     var line_people = new Array();
     
     console.log(rect_event, "rect");
-    console.log(line_array, "line");
+    // console.log(line_array, "line");
     var x_start_dis = line_array[0][0];
     var x_dis_x1 = line_array[0][0];
     var x_dis_x2 = 0;//事件相隔距离
@@ -1681,7 +1685,7 @@ function drawStoryLine(sessionListSL,menuArray) {
         else if(now_line_mem[0] == 'x' && last_line_mem[0] == 'i'){//
             y_dis_x2 = line_array[i][0];
             x_dis_x2 = line_array[i+1][0];
-            console.log(x_dis_x1, x_dis_x2, y_dis_x1, y_dis_x2)
+            // console.log(x_dis_x1, x_dis_x2, y_dis_x1, y_dis_x2)
             if(x_dis_x2 - x_dis_x1 > line_array[i][4].length * 1.2){
                 line_people.push([x_dis_x1 + (x_dis_x2 - x_dis_x1)/2 - x_start_dis, line_array[i][2], line_array[i][4]])
             }
@@ -1709,7 +1713,7 @@ function drawStoryLine(sessionListSL,menuArray) {
         if(line_people[i][1] != line_people[i-1][1]){
             t = last_i;
             k = 1;
-            console.log(i)
+            // console.log(i)
             while(t < i){
 
                 if(t < i){
@@ -1745,7 +1749,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                 }
                 t++
             }
-            console.log(xx_str, "str")
+            // console.log(xx_str, "str")
             var end_pl = line_max[xx_num] - dis3
             d3.select("#path" + line_people[i-1][1]).attr("stroke-dasharray", xx_str[xx_num] + end_pl);
             last_i = i
@@ -2246,9 +2250,9 @@ function drawStoryLine(sessionListSL,menuArray) {
 
                 if(y2 < y1+h1){
                     
-                    points1[points1_num].push({xpoint: x1+w1, ypoint: y1+h1});
                     points1[points1_num].push({xpoint: x2, ypoint: y2+h2});
-
+                    points1[points1_num].push({xpoint: x1+w1, ypoint: y1+h1});
+                    
                 }
                 else{
                     if(x2 - (x1+w1) <= 0){
@@ -2467,25 +2471,25 @@ function drawStoryLine(sessionListSL,menuArray) {
             .style("fill", function(d){
                 if(rect_event[i][7] == "one day" || rect_event[i][7] == " one day"){
                     
-                    storyLineG.append("rect")
-                        .attr("id", 12)
-                        .attr("x", eventdistance * (rect_event[i][2] + 1) + 100 - 0.5 * rect_event[i][7].length)
-                        .attr("y", rect_event[i][4]-1.1)
-                        .attr("width", rect_event[i][7].length*0.8)
-                        .attr("rx", 0.3)
-                        .attr("ry", 0.3)
-                        .attr("height", 1.5)
-                        .attr("fill", "white")
-                        .attr("opacity", 0.9)
-                    storyLineG.append("text")
-                        .attr("id", rect_event[i][7])
-                        .attr("x", eventdistance * (rect_event[i][2] + 1) + 100 - 0.5 * rect_event[i][7].length)
-                        .attr("y", rect_event[i][4])
-                        .style('font-weight', 1)
-                        .style('font-family', 'Arial')
-                        .style('font-size', 1.5)
-                        .style('fill', "black")
-                        .text(rect_event[i][7]); 
+                    // storyLineG.append("rect")
+                    //     .attr("id", 12)
+                    //     .attr("x", eventdistance * (rect_event[i][2] + 1) + 100 - 0.5 * rect_event[i][7].length)
+                    //     .attr("y", rect_event[i][4]-1.1)
+                    //     .attr("width", rect_event[i][7].length*0.8)
+                    //     .attr("rx", 0.3)
+                    //     .attr("ry", 0.3)
+                    //     .attr("height", 1.5)
+                    //     .attr("fill", "white")
+                    //     .attr("opacity", 0.9)
+                    // storyLineG.append("text")
+                    //     .attr("id", rect_event[i][7])
+                    //     .attr("x", eventdistance * (rect_event[i][2] + 1) + 100 - 0.5 * rect_event[i][7].length)
+                    //     .attr("y", rect_event[i][4])
+                    //     .style('font-weight', 1)
+                    //     .style('font-family', 'Arial')
+                    //     .style('font-size', 1.5)
+                    //     .style('fill', "black")
+                    //     .text(rect_event[i][7]); 
                     
                     // storyLineG.append("rect")
                     //     .attr("id", 1)
@@ -3219,6 +3223,7 @@ function drawStoryLine(sessionListSL,menuArray) {
     console.log(leftLineX , SvgTransformK, "++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     reDrawFram()
+    
     reSizeXScale()
 } 
 

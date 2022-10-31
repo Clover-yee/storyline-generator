@@ -168,7 +168,7 @@
     border: 0px;
     border-radius: 8px;
     pointer-events: none;
-   z-index: 999;
+    z-index: 999;
 }
 
 .panel_tooltip hr {

@@ -407,7 +407,6 @@ body {
     border-radius: 5px;
     margin: 3px 3px 6px;
     width: calc(100% - 6px);
-    user-select: none;
 }
 
 #myCanvas{
@@ -426,6 +425,7 @@ body {
     margin: 5px 33px;
     font-size: 18px;
 }
+
 #test0{
 	position:absolute;
 	width: 1000px;
@@ -444,6 +444,11 @@ body {
 	display: inline;
 	margin: 5px 0 5px 0;
 }
+
+#text div::selection {
+    background: #fff6d0;
+}
+
 p{
 	margin: auto;
 }
@@ -658,14 +663,14 @@ p{
     user-select: none;
     /* border:1px solid rgb(23, 249, 46); */
     }
-    .WordCloud1{
-          width: 200px;
-          height: 90px;
-          /* background: rgba(254, 251, 242, 1); */
-          position: fixed !important;
-          /* border:2px dashed rgb(236, 218, 110); */
-          /* border-bottom: #e6e6e6; */
-          border-radius: 5px;
-          z-index: 999;
-        }
+.WordCloud1{
+        width: 200px;
+        height: 90px;
+        /* background: rgba(254, 251, 242, 1); */
+        position: fixed !important;
+        /* border:2px dashed rgb(236, 218, 110); */
+        /* border-bottom: #e6e6e6; */
+        border-radius: 5px;
+        z-index: 999;
+    }
 
