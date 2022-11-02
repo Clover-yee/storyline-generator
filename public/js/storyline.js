@@ -274,16 +274,16 @@ var sessionListSL1_flag1 = 0
 
 var membercolor = new Array();
 var color = [
-    d3.rgb("#e53935"),
-    d3.rgb("#ef6cd0"),
-    d3.rgb("#cdca33"),
-    d3.rgb("#388e3c"),
-    d3.rgb("#0097a7"),
-    d3.rgb("#1565c0"),
-    d3.rgb("#673ab7"),
-    d3.rgb("#d81b60"),
-    d3.rgb("#a1887f"),
-    d3.rgb("#757575"),
+    d3.rgb(101, 103, 171),
+    d3.rgb(178, 111, 73),
+    d3.rgb(255, 107, 106),
+    d3.rgb(175, 150, 134),
+    d3.rgb(78, 155 , 109),
+    d3.rgb(88, 204, 254),
+    d3.rgb(211, 97, 132),
+    d3.rgb(48, 142, 206),
+    d3.rgb(254, 162, 115),
+    d3.rgb(21, 77, 142),
 ];
 var legend_click = new Array();
 
@@ -452,6 +452,7 @@ function drawStoryLine(sessionListSL,menuArray) {
             object.name = sessionListSL[i][3];
             object.place = sessionListSL[i][4];
             object.time = sessionListSL[i][6];
+            object.key_words = sessionListSL[i][8];
             //生出时间数组
             var time_flag = 0;
             for(k=0;k<time_array.length;k++){
@@ -519,7 +520,7 @@ function drawStoryLine(sessionListSL,menuArray) {
         }
 
         for (j = 0; j < dataresult1[start].length; j++) {
-            dataresult.push([start, end - 1, dataresult1[start][j].event, dataresult1[start][j].name, dataresult1[start][j].place, dataresult1[start][j].time])
+            dataresult.push([start, end - 1, dataresult1[start][j].event, dataresult1[start][j].name, dataresult1[start][j].place, dataresult1[start][j].time, dataresult1[start][j].key_words])
         }
         i = end;
     }
@@ -1749,7 +1750,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                 }
                 t++
             }
-            // console.log(xx_str, "str")
+            console.log(xx_str, "str")
             var end_pl = line_max[xx_num] - dis3
             d3.select("#path" + line_people[i-1][1]).attr("stroke-dasharray", xx_str[xx_num] + end_pl);
             last_i = i
@@ -1788,11 +1789,12 @@ function drawStoryLine(sessionListSL,menuArray) {
                     else{
                         dis3 = line_people[t][0] - line_people[t][2].length * 1.2 / 2
                     }                   
-                    dis4 = line_people[t][2].length * 1.2
+                    dis4 = line_people[t][2].length * 1.2;
+                
                     xx_str[xx_num] = xx_str[xx_num] + dis3 + " " + dis4 + " "
                     
                 }
-                t++
+                t++;
             }
             console.log(xx_str, "str")
             var end_pl = line_max[xx_num] - dis3
@@ -1884,7 +1886,7 @@ function drawStoryLine(sessionListSL,menuArray) {
             if (k == 1) {
                 for (m = 0; m < sessionListSL.length; m++) {
                     if (sessionListSL[m][0] == dataresult[i][2]) {
-                        rect_event.push([dataresult[i][2], dataresult[i][0], dataresult[i][1], 2500, 0, sessionListSL[m][5], sessionListSL[m][4], sessionListSL[m][6]]);
+                        rect_event.push([dataresult[i][2], dataresult[i][0], dataresult[i][1], 2500, 0, sessionListSL[m][5], sessionListSL[m][4], sessionListSL[m][6], sessionListSL[m][8]]);
                     }
                 }
 
@@ -1906,7 +1908,7 @@ function drawStoryLine(sessionListSL,menuArray) {
             if (flag == 0) {
                 for (m = 0; m < sessionListSL.length; m++) {
                     if (sessionListSL[m][0] == dataresult[i][2]) {
-                        rect_event.push([dataresult[i][2], dataresult[i][0], dataresult[i][1], 2500, 0, sessionListSL[m][5], sessionListSL[m][4], sessionListSL[m][6]]);
+                        rect_event.push([dataresult[i][2], dataresult[i][0], dataresult[i][1], 2500, 0, sessionListSL[m][5], sessionListSL[m][4], sessionListSL[m][6], sessionListSL[m][8]]);
                     }
                 }
             }
@@ -2378,25 +2380,101 @@ function drawStoryLine(sessionListSL,menuArray) {
                     }
                 })
                 .attr("opacity", 0.2);
-        storyLineG.append("rect")
-            .attr("id", 12)
-            .attr("x", points1[i][0].xpoint)
-            .attr("y", points1[i][0].ypoint)
-            .attr("width", points1[i][0].name.length * 0.7)
-            .attr("rx", 0.3)
-            .attr("ry", 0.3)
-            .attr("height", 1.5)
-            .attr("fill", "white")
-            .attr("opacity", 0.9)
-        storyLineG.append("text")
-            .attr("id", rect_event[i][7])
-            .attr("x", points1[i][0].xpoint + 0.1)
-            .attr("y", points1[i][0].ypoint + 1)
-            .style('font-weight', 1)
-            .style('font-family', 'Arial')
-            .style('font-size', 1.5)
-            .style('fill', "black")
-            .text(points1[i][0].name);
+        
+                var place_dis = 25;
+                connect_time_path_array = [
+                        {xpoint: points1[i][0].xpoint, ypoint: points1[i][0].ypoint+2},
+                        {xpoint: points1[i][points1[i].length-1].xpoint, ypoint: points1[i][points1[i].length-1].ypoint + place_dis},
+                        {xpoint: points1[i][points1[i].length-1].xpoint + points1[i][0].name.length * 1.5 + 5, ypoint: points1[i][points1[i].length-1].ypoint + place_dis},
+                            ]//线的数据
+                var defs = storyLineG.append("defs");//添加箭头
+                var arrowMarker = defs.append("marker")
+                                        .attr("id", "arrow")
+                                        .attr("markerUnits", "strokeWidth")
+                                        .attr("markerWidth", 5)
+                                        .attr("markerHeight", 5)
+                                        .attr("viewBox", "0 0 12 12")
+                                        .attr("refX", 6)
+                                        .attr("refY", 6)
+                                        .attr("orient", "auto");
+                var arrow_path = "M2,2 L10,6 L2,10  L2,2";
+                arrowMarker.append("path")
+                    .attr("d", arrow_path)
+                    .attr("fill", d3.rgb(95, 219, 162));
+
+                
+             
+
+                storyLineG.append("line")
+                    .attr("id", "line" + this.id)
+                    .attr("x1", connect_time_path_array[0].xpoint)
+                    .attr("y1", connect_time_path_array[0].ypoint)
+                    .attr("x2", connect_time_path_array[1].xpoint)
+                    .attr("y2", connect_time_path_array[1].ypoint)
+                    .attr("stroke", d3.rgb(223, 248, 239))
+                    .attr('stroke-dasharray', '2 0.5')
+                    .attr("stroke-width", 0.5)
+                    // .attr("marker-start","url(#arrow)")
+                    // .attr("marker-end", "url(#arrow)");
+                storyLineG.append("line")
+                    .attr("id", "line" + this.id)
+                    .attr("x1", connect_time_path_array[1].xpoint)
+                    .attr("y1", connect_time_path_array[1].ypoint)
+                    .attr("x2", connect_time_path_array[2].xpoint)
+                    .attr("y2", connect_time_path_array[2].ypoint)
+                    .attr("stroke", d3.rgb(223, 248, 239))
+                    .attr("stroke-width", 0.5)
+                    .attr('stroke-dasharray', '2 0.5')
+                    .attr("marker-end", "url(#arrow)");
+
+                icon_x = connect_time_path_array[1].xpoint + 1;
+                icon_y = connect_time_path_array[1].ypoint - 5;
+
+
+                storyLineG.append("svg:image")
+                        .attr("xlink:href", "/img/place_storyline.png")
+                        .attr("x", connect_time_path_array[1].xpoint + 1)
+                        .attr("y", connect_time_path_array[1].ypoint - 5)   
+                        .attr("height", 4)
+                        .attr("width", 4);
+                text_x = connect_time_path_array[1].xpoint + 1 + 5;
+                storyLineG.append("text")
+                            .attr("id", 'time_storyline_text' + i)
+                            .attr("x",text_x)
+                            .attr("y", icon_y)
+                            .style('font-weight', 700)
+                            .style('font-family', 'Arial')
+                            .style('font-size', 3)
+                            .style('fill', d3.rgb(95, 219, 162))
+                            .attr('dy', 4)
+                            .attr("text-anchor", "start")
+                            .text(points1[i][0].name)
+                storyLineG.append('line')
+                            .attr("x1", text_x)
+                            .attr("y1", icon_y + 4)
+                            .attr("x2", text_x + (points1[i][0].name.length - 1) * 1.5)
+                            .attr("y2", icon_y + 4)
+                            .attr("stroke", d3.rgb(95, 219, 162))
+                            .attr("stroke-width", 0.2)
+        // storyLineG.append("rect")
+        //     .attr("id", 12)
+        //     .attr("x", points1[i][0].xpoint)
+        //     .attr("y", points1[i][0].ypoint)
+        //     .attr("width", points1[i][0].name.length * 0.7)
+        //     .attr("rx", 0.3)
+        //     .attr("ry", 0.3)
+        //     .attr("height", 1.5)
+        //     .attr("fill", "white")
+        //     .attr("opacity", 0.9)
+        // storyLineG.append("text")
+        //     .attr("id", rect_event[i][7])
+        //     .attr("x", points1[i][0].xpoint + 0.1)
+        //     .attr("y", points1[i][0].ypoint + 1)
+        //     .style('font-weight', 1)
+        //     .style('font-family', 'Arial')
+        //     .style('font-size', 1.5)
+        //     .style('fill', "black")
+        //     .text(points1[i][0].name);
         
         
     // }
@@ -2445,19 +2523,19 @@ function drawStoryLine(sessionListSL,menuArray) {
     // }
     var font_weight = 400;
     var font_size = 2;
-
+    console.log(rect_event)
     //事件框生成
     for (i = 0; i < rect_event.length; i++) {
         
-        storyLineG.append("text")
-                    // .attr("id", "legend_Time_text")
-                    .attr("x", eventdistance * (rect_event[i][1] + 1) + 100)
-                    .attr("y", rect_event[i][3] - 2)
-                    .attr("text-anchor", "start")
-                    .attr("font-weight", font_weight)
-                    .attr("font-size", font_size)
-                    .style("fill", "black")
-                    .text(rect_event[i][0]);
+        // storyLineG.append("text")
+        //             // .attr("id", "legend_Time_text")
+        //             .attr("x", eventdistance * (rect_event[i][1] + 1) + 100)
+        //             .attr("y", rect_event[i][3] - 2)
+        //             .attr("text-anchor", "start")
+        //             .attr("font-weight", font_weight)
+        //             .attr("font-size", font_size)
+        //             .style("fill", "black")
+        //             .text(rect_event[i][0]);
         
         
         storyLineG.append("rect")
@@ -2469,9 +2547,123 @@ function drawStoryLine(sessionListSL,menuArray) {
             .attr("rx", 1.5)
             .attr("ry", 1.5)
             .style("fill", function(d){
-                if(rect_event[i][7] == "one day" || rect_event[i][7] == " one day"){
+                if(rect_event[i][6] == "Neterfield Park" || rect_event[i][6] == "Netherfield"){
                     
-                    // storyLineG.append("rect")
+                    //事件内关键词绘制，
+                    color_nnn = RectFilledColor;
+
+                    if(rect_event[i][8][0] != null){
+                        storyLineG.append("rect")
+                                .attr('x', eventdistance * (rect_event[i][1] + 1) + 100)
+                                .attr('y', rect_event[i][3] - 1.5)
+                                .attr('width', eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1) )
+                                .attr('height', rect_event[i][4] - rect_event[i][3] + 3)
+                                .attr('rx', 1.1)
+                                .attr('ry', 1.1)
+                                .style('fill', 'white')
+                                .style("opacity", 0.7)
+                        storyLineG.append('text')
+                                .attr("id", rect_event[i][7])
+                                // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
+                                .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + (eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1)) / 2 )
+                                .attr("y", rect_event[i][3] + (rect_event[i][4] - rect_event[i][3] - 2)/2)
+                                .attr("text-anchor", "start")
+                                .style('font-weight', 1000)
+                                .style('font-family', 'OpenSans')
+                                .style('font-size', 2)
+                                .attr('dy', 1.25)
+                                .style('fill', d3.rgb(165, 118, 207))
+                                .attr('text-anchor', 'middle')
+                                .text(rect_event[i][8][0]);
+                        color_nnn = 'white';
+                    }
+                    
+
+                    var time_dis = 16
+                    
+                    connect_time_path_array = [{xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5, ypoint: rect_event[i][3]},
+                                    {xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5, ypoint: rect_event[i][4] + time_dis},
+                                    {xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5 + (rect_event[i][7].length) * 1.5 + 8, ypoint: rect_event[i][4] + time_dis},
+                                ]//线的数据
+                    var defs = storyLineG.append("defs");//添加箭头
+                    var arrowMarker = defs.append("marker")
+                                            .attr("id", "arrow1")
+                                            .attr("markerUnits", "strokeWidth")
+                                            .attr("markerWidth", 5)
+                                            .attr("markerHeight", 5)
+                                            .attr("viewBox", "0 0 12 12")
+                                            .attr("refX", 6)
+                                            .attr("refY", 6)
+                                            .attr("orient", "auto");
+                    var arrow_path = "M2,2 L10,6 L2,10  L2,2";
+                    arrowMarker.append("path")
+                        .attr("d", arrow_path)
+                        .attr("fill", d3.rgb(214, 141, 145));
+                    
+
+                    
+                    // storyLineG.append("line")
+                    //     .attr("id", "line" + this.id)
+                    //     .attr("x1", connect_time_path_array[0].xpoint)
+                    //     .attr("y1", connect_time_path_array[0].ypoint)
+                    //     .attr("x2", connect_time_path_array[1].xpoint)
+                    //     .attr("y2", connect_time_path_array[1].ypoint)
+                    //     .attr("stroke", d3.rgb(252, 237, 238))
+                    //     .attr('stroke-dasharray', '2 0.5')
+                    //     .attr("stroke-width", 0.5)
+                    //     // .attr("marker-start","url(#arrow)")
+                    //     // .attr("marker-end", "url(#arrow)");
+                    // storyLineG.append("line")
+                    //     .attr("id", "line" + this.id)
+                    //     .attr("x1", connect_time_path_array[1].xpoint)
+                    //     .attr("y1", connect_time_path_array[1].ypoint)
+                    //     .attr("x2", connect_time_path_array[2].xpoint)
+                    //     .attr("y2", connect_time_path_array[2].ypoint)
+                    //     .attr("stroke", d3.rgb(252, 237, 238))
+                    //     .attr("stroke-width", 0.5)
+                    //     .attr('stroke-dasharray', '2 0.5')
+                    //     .attr("marker-end", "url(#arrow1)");
+
+                    // icon_x = connect_time_path_array[1].xpoint + 1;
+                    // icon_y = connect_time_path_array[1].ypoint - 5;
+
+
+                    // storyLineG.append("svg:image")
+                    //         .attr("xlink:href", "/img/time_storyline.png")
+                    //         .attr("x", connect_time_path_array[1].xpoint + 1)
+                    //         .attr("y", connect_time_path_array[1].ypoint - 5)   
+                    //         .attr("height", 4)
+                    //         .attr("width", 4);
+                    // text_x = connect_time_path_array[1].xpoint + 1 + 5;
+                    // storyLineG.append("text")
+                    //             .attr("id", 'time_storyline_text' + i)
+                    //             .attr("x",text_x )
+                    //             .attr("y", icon_y)
+                    //             .style('font-weight', 700)
+                    //             .style('font-family', 'Arial')
+                    //             .style('font-size', 3)
+                    //             .style('fill', d3.rgb(214, 141, 145))
+                    //             .attr('dy', 4)
+                    //             .attr("text-anchor", "start")
+                    //             .text(rect_event[i][7])
+                    // storyLineG.append('line')
+                    //             .attr("x1", text_x)
+                    //             .attr("y1", icon_y + 4)
+                    //             .attr("x2", text_x + (rect_event[i][7].length) * 1.5)
+                    //             .attr("y2", icon_y + 4)
+                    //             .attr("stroke", d3.rgb(214, 141, 145))
+                    //             .attr("stroke-width", 0.2)
+                    
+                    // storyLineG.append("path")
+                    //     .attr('d', Gen_straight(connect_time_path_array))
+                    //     .attr("stroke", d3.rgb(252, 237, 238))
+                    //     .attr("stroke-width", 1)
+                    //     .attr("marker-end", "url(#arrow)")
+                    //     .attr('stroke-dasharray', '2 2')
+                    
+                    
+
+                    // storyLineG.append    ("rect")            
                     //     .attr("id", 12)
                     //     .attr("x", eventdistance * (rect_event[i][2] + 1) + 100 - 0.5 * rect_event[i][7].length)
                     //     .attr("y", rect_event[i][4]-1.1)
@@ -2479,7 +2671,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                     //     .attr("rx", 0.3)
                     //     .attr("ry", 0.3)
                     //     .attr("height", 1.5)
-                    //     .attr("fill", "white")
+                    //     .attr("fill", "white")   
                     //     .attr("opacity", 0.9)
                     // storyLineG.append("text")
                     //     .attr("id", rect_event[i][7])
@@ -2500,19 +2692,162 @@ function drawStoryLine(sessionListSL,menuArray) {
                     //     .attr("rx", 1)
                     //     .attr("ry", 1)
                     //     .style("fill", );
-                    return "red";
+
+                    return color_nnn;
+
+                    // return d3.rgb(253, 189, 189);   
                 }
                 else{
-                    return RectFilledColor;
-                }
+                    color_nnn = 
+                    console.log(rect_event)
+                    if(rect_event[i][7] == 'The evening' || rect_event[i][7] == 'one day'){
+                        
+
+                        if(rect_event[i][8][0] != null){
+                            storyLineG.append("rect")
+                                .attr('x', eventdistance * (rect_event[i][1] + 1) + 100)
+                                .attr('y', rect_event[i][3] - 1.5)
+                                .attr('width', eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1) )
+                                .attr('height', rect_event[i][4] - rect_event[i][3] + 3)
+                                .attr('rx', 1.1)
+                                .attr('ry', 1.1)
+                                .style('fill', 'white')
+                                .style("opacity", 0.7)
+        
+
+                            //事件内关键词绘制，
+                            storyLineG.append('text')
+                                .attr("id", rect_event[i][7])
+                                // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
+                                .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + 1)
+                                .attr("y", rect_event[i][3])
+                                .attr("text-anchor", "start")
+                                .style('font-weight', 1000)
+                                .style('font-family','OpenSans')
+                                .style('font-size', 2.5)
+                                .attr('dy', 1.25)
+                                .style('fill', d3.rgb(165, 118, 207))
+                                .text(rect_event[i][8][0]);
+                        }
+
+
+
+                        var time_dis = 16
+        
+                        connect_time_path_array = [{xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5, ypoint: rect_event[i][3]},
+                                        {xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5, ypoint: rect_event[i][4] + time_dis},
+                                        {xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5 + (rect_event[i][7].length) * 1.5 + 8, ypoint: rect_event[i][4] + time_dis},
+                                    ]//线的数据
+                        var defs = storyLineG.append("defs");//添加箭头
+                        var arrowMarker = defs.append("marker")
+                                                .attr("id", "arrow1")
+                                                .attr("markerUnits", "strokeWidth")
+                                                .attr("markerWidth", 5)
+                                                .attr("markerHeight", 5)
+                                                .attr("viewBox", "0 0 12 12")
+                                                .attr("refX", 6)
+                                                .attr("refY", 6)
+                                                .attr("orient", "auto");
+                        var arrow_path = "M2,2 L10,6 L2,10  L2,2";
+                        arrowMarker.append("path")
+                            .attr("d", arrow_path)
+                            .attr("fill", d3.rgb(214, 141, 145));
+                        
+    
+                        
+                        storyLineG.append("line")
+                            .attr("id", "line" + this.id)
+                            .attr("x1", connect_time_path_array[0].xpoint)
+                            .attr("y1", connect_time_path_array[0].ypoint)
+                            .attr("x2", connect_time_path_array[1].xpoint)
+                            .attr("y2", connect_time_path_array[1].ypoint)
+                            .attr("stroke", d3.rgb(252, 237, 238))
+                            .attr('stroke-dasharray', '2 0.5')
+                            .attr("stroke-width", 0.5)
+                            // .attr("marker-start","url(#arrow)")
+                            // .attr("marker-end", "url(#arrow)");
+                        storyLineG.append("line")
+                            .attr("id", "line" + this.id)
+                            .attr("x1", connect_time_path_array[1].xpoint)
+                            .attr("y1", connect_time_path_array[1].ypoint)
+                            .attr("x2", connect_time_path_array[2].xpoint)
+                            .attr("y2", connect_time_path_array[2].ypoint)
+                            .attr("stroke", d3.rgb(252, 237, 238))
+                            .attr("stroke-width", 0.5)
+                            .attr('stroke-dasharray', '2 0.5')
+                            .attr("marker-end", "url(#arrow1)");
+    
+                        icon_x = connect_time_path_array[1].xpoint + 1;
+                        icon_y = connect_time_path_array[1].ypoint - 5;
+    
+    
+                        storyLineG.append("svg:image")
+                                .attr("xlink:href", "/img/time_storyline.png")
+                                .attr("x", connect_time_path_array[1].xpoint + 1)
+                                .attr("y", connect_time_path_array[1].ypoint - 5)   
+                                .attr("height", 4)
+                                .attr("width", 4);
+                        text_x = connect_time_path_array[1].xpoint + 1 + 5;
+                        storyLineG.append("text")
+                                    .attr("id", 'time_storyline_text' + i)
+                                    .attr("x",text_x )
+                                    .attr("y", icon_y)
+                                    .style('font-weight', 700)
+                                    .style('font-family', 'Arial')
+                                    .style('font-size', 3)
+                                    .style('fill', d3.rgb(214, 141, 145))
+                                    .attr('dy', 4)
+                                    .attr("text-anchor", "start")
+                                    .text(rect_event[i][7])
+                        storyLineG.append('line')
+                                    .attr("x1", text_x)
+                                    .attr("y1", icon_y + 4)
+                                    .attr("x2", text_x + (rect_event[i][7].length) * 1.5)
+                                    .attr("y2", icon_y + 4)
+                                    .attr("stroke", d3.rgb(214, 141, 145))
+                                    .attr("stroke-width", 0.2)
+                        
+                        return d3.rgb(253, 189, 189);  
+                    }
+                    else{
+
+                        if(rect_event[i][8][0] != null){
+                            storyLineG.append("rect")
+                                .attr('x', eventdistance * (rect_event[i][1] + 1) + 100)
+                                .attr('y', rect_event[i][3] - 1.5)
+                                .attr('width', eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1) )
+                                .attr('height', rect_event[i][4] - rect_event[i][3] + 3)
+                                .attr('rx', 1.1)
+                                .attr('ry', 1.1)
+                                .style('fill', 'white')
+                                .style("opacity", 0.7)
+        
+
+                            //事件内关键词绘制，
+                            storyLineG.append('text')
+                                        .attr("id", rect_event[i][7])
+                                        // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
+                                        .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + 1)
+                                        .attr("y", rect_event[i][3])
+                                        .attr("text-anchor", "start")
+                                        .style('font-weight', 1000)
+                                        .style('font-family', 'OpenSans')
+                                        .style('font-size', 2.5)
+                                        .attr('dy', 1.25)
+                                        .style('fill', d3.rgb(165, 118, 207))
+                                        .text(rect_event[i][8][0]);
+                        }
+
+                        return RectFilledColor;
+                        // this.style.opacity = 0.2
+                    }
+
+            }
             })
             .style("opacity", 0.2)
             .on("click", function (d) {
                 var click_key = parseInt(this.id);//记录被点击的rect值
-                if (click_flag[click_key] == 0) {
-                    
-                    
-                                       
+                if (click_flag[click_key] == 0) {         
 
                     {
                         // closeFragmentPanel()
@@ -2525,8 +2860,10 @@ function drawStoryLine(sessionListSL,menuArray) {
                             return elem._id === curSessionID
                         })
                         pageEntityList = new Array()
+                        pageEntityDeleteList = new Array()
+                        pageEntityModifyList = new Array()
                         pageStrokeList = new Array()
-                        page = fragment[1]
+                        page = session.highlight[0].page
                         jumpPage(page)
                         var data = [
                             {
@@ -2546,7 +2883,6 @@ function drawStoryLine(sessionListSL,menuArray) {
 
                         iconStatus.isOrganize = false
                         changeIcon()
-                        // openFragmentPanel()
                     }
                     //text summarization
                     // {
@@ -2574,9 +2910,19 @@ function drawStoryLine(sessionListSL,menuArray) {
                     d3.select("#WordCloud" + this.id)
                             .style("opacity", 1)
                             .style("left", d.x - 100 + "px")
-                            .style("top", d.y - 100 + "px")
+                            .style("top", d.y - 120 + "px")
                             .style("position", 'fixed');
+                    d3.select("#WordCloud" + this.id)
+                        .append("div")
+                        .attr("id", "WordCloudL" + this.id)
+                        .attr("class", "WordCloud2")
+
+                    var ddiv =  document.getElementById("WordCloudL" + this.id);
+                    ddiv.style.left = d.x - 80 + 'px'
+                    ddiv.style.top = d.y - 110 +'px'
+                    document.getElementById("WordCloudL" + this.id).innerText = rect_event[click_key][5]
                     var w_svg = d3.select("#WordCloud" + this.id).append("svg").attr("width", 200).attr("height", 90)
+                    // document.getElementById("WordCloud" + this.id).innerText = rect_event[click_key][5]
                     path_a = [  {xpoint: 21, ypoint: 4},
                                 {xpoint: 179, ypoint: 4},
                                 // {xpoint: 188, ypoint: 8},
@@ -2647,16 +2993,16 @@ function drawStoryLine(sessionListSL,menuArray) {
                 }
                 this.style.opacity = 0.2;
             });
-        minMapG.append("rect")
-            .attr("id", i)
-            .attr("x", (5 * (rect_event[i][1] + 1) + 100 - 2) / scale)
-            .attr("y", (rect_event[i][3] - 2) / scale)
-            .attr("width", (5 * (rect_event[i][2] + 1) - 5 * (rect_event[i][1] + 1) + 4) / scale)
-            .attr("height", (rect_event[i][4] - rect_event[i][3] + 4) / scale)
-            .attr("rx", 1.5 / scale)
-            .attr("ry", 1.5 / scale)
-            .style("fill", RectFilledColor)
-            .style("opacity", 0.2)
+        // minMapG.append("rect")
+        //     .attr("id", i)
+        //     .attr("x", (5 * (rect_event[i][1] + 1) + 100 - 2) / scale)
+        //     .attr("y", (rect_event[i][3] - 2) / scale)
+        //     .attr("width", (5 * (rect_event[i][2] + 1) - 5 * (rect_event[i][1] + 1) + 4) / scale)
+        //     .attr("height", (rect_event[i][4] - rect_event[i][3] + 4) / scale)
+        //     .attr("rx", 1.5 / scale)
+        //     .attr("ry", 1.5 / scale)
+        //     .style("fill", RectFilledColor)
+        //     .style("opacity", 0.2)
         
 
     }
@@ -3143,23 +3489,23 @@ function drawStoryLine(sessionListSL,menuArray) {
         var menuArray_num1 = 0;
         for (var i = 0; i < endPageNum + 1; i++) {
             if(i % jiange == 0){
-                xScaleG.append("rect")
-                .attr("id", "xScaleCircle" + i)
-                .attr("height", rectLineHeight)
-                .attr("width", 1)
-                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", cy)
-                .attr("fill", xScaleColor)
-                .attr('fill-opacity', 0.8)
+                // xScaleG.append("rect")
+                // .attr("id", "xScaleCircle" + i)
+                // .attr("height", rectLineHeight)
+                // .attr("width", 1)
+                // .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                // .attr("y", cy)
+                // .attr("fill", xScaleColor)
+                // .attr('fill-opacity', 0.8)
 
-                xScaleG.append("text")
-                .attr("id", "text" + i)
-                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", textY)
-                .attr('text-anchor', 'middle')
-                .text(i)
-                .attr("fill", xScaleColor)
-                .attr("font-size", fontSize + "px")
+                // xScaleG.append("text")
+                // .attr("id", "text" + i)
+                // .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                // .attr("y", textY)
+                // .attr('text-anchor', 'middle')
+                // .text(i)
+                // .attr("fill", xScaleColor)
+                // .attr("font-size", fontSize + "px")
             }
 
             if(i == Math.round((menuArray[menuArray_num1 + 1].pagenum - menuArray[menuArray_num1].pagenum) / 2) + menuArray[menuArray_num1].pagenum){
@@ -3180,7 +3526,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                 .attr("height", rectLineHeight)
                 .attr("width", 1)
                 .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", cy + rectLineHeight)
+                .attr("y", cy )
                 .attr("fill", xScaleColor)
                 .attr('fill-opacity', 1);
                 menuArray_num++;
@@ -3192,7 +3538,20 @@ function drawStoryLine(sessionListSL,menuArray) {
                 .attr("height", rectLineHeight)
                 .attr("width", 1)
                 .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", cy + rectLineHeight)
+                .attr("y", cy)
+                .attr("fill", xScaleColor)
+                .attr('fill-opacity', 1);
+                menuArray_num++;
+            }
+
+
+            if(i == endPageNum){
+                xScaleG.append("rect")
+                .attr("id", "xScaleCircle" + i)
+                .attr("height", rectLineHeight)
+                .attr("width", 1)
+                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                .attr("y", cy)
                 .attr("fill", xScaleColor)
                 .attr('fill-opacity', 1);
                 menuArray_num++;
@@ -3247,7 +3606,7 @@ function update1(legend_click){
         .attr("y", 0)
         .attr("width", legendSvg_width * legend_scale)
         .attr("height", legendSvg_height * legend_scale)
-        .attr('transform', 'translate(80,0)');
+        .attr('transform', 'translate(-50,0)');
     }
     else{
         var legendSvg = d3.select("#legendSvg");

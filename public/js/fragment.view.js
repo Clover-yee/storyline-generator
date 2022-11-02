@@ -70,16 +70,16 @@ function drawFragmentView(
     console.log(person_click_flag_array)
 
     var persons_color = [
-        d3.rgb("#e53935"),
-        d3.rgb("#ef6cd0"),
-        d3.rgb("#cdca33"),
-        d3.rgb("#388e3c"),
-        d3.rgb("#0097a7"),
-        d3.rgb("#1565c0"),
-        d3.rgb("#673ab7"),
-        d3.rgb("#d81b60"),
-        d3.rgb("#a1887f"),
-        d3.rgb("#757575"),
+        d3.rgb(101, 103, 171),
+        d3.rgb(178, 111, 73),
+        d3.rgb(255, 107, 106),
+        d3.rgb(175, 150, 134),
+        d3.rgb(78, 155 , 109),
+        d3.rgb(88, 204, 254),
+        d3.rgb(211, 97, 132),
+        d3.rgb(48, 142, 206),
+        d3.rgb(254, 162, 115),
+        d3.rgb(21, 77, 142),
     ];//人物颜色数组
 
     var persons_color1 = [
@@ -597,11 +597,17 @@ function drawFragmentView(
                 console.log(params);
                 if(params.data.color === 'rgba(0, 0, 0)'){
                     params.data.color = "rgba(252, 224, 21)";
+                    session.keywords.push(params.data.name)
                 }else{
                     params.data.color = "rgba(0, 0, 0)";
+                    var keywordsIndex = session.keywords.findIndex(item=>{
+                        return item === params.data.name
+                    })
+                    session.keywords.splice(keywordsIndex,1)
                 }
                 dataCloudChart.setOption(drawDataCloud);
                 console.log(params.data.value);
+                console.log(session);
                 // params.data.
             })
             var s = document.getElementById("operation_panel").children[1]
@@ -1159,11 +1165,35 @@ function drawFragmentView(
                 _g.clearRect(0, 0, _rc.width, _rc.height);
         
                 if(curSessionID === ''){ //new session TODO
+                    let newPersonList = []
+                    for(let index in person_click_flag_array){
+                        if (person_click_flag_array[index] === 1) {
+                            newPersonList.push(persons_array[index])
+                        }
+                    }
+                    session.person.entities = new Array()
+                    newPersonList.forEach(item=>{
+                        session.person.entities.push({str:item,pageNum:page})
+                    })
+                    newPersonList = newPersonList.join(',')
+                    curSessionDetail[0].persons = newPersonList
+                    session.person.value = newPersonList
                     console.log(session);
                     saveObjectIntoDatabase(session).then((status)=>{
                         if(status === 200)	console.log('Save successfully !!!');
                         getAllObjects()
                     })
+
+                    session = new Session()
+                    curSessionID =''
+                    curSessionDetail = new Object() //for Fragment View
+                    sessionTemplate = new Array() //保存自动识别实体的数组
+
+                    pageEntityList = new Array()
+                    pageEntityDeleteList = new Array()
+                    pageEntityModifyList = new Array()
+                    pageStrokeList = new Array()
+                    reDrawFragmentView()
                 }else{ // modify session
                                     //动画效果
                     let newPersonList = []
@@ -1184,6 +1214,17 @@ function drawFragmentView(
                         if(status === 200)	console.log('Modify successfully !!!');
                         getAllObjects()
                     })
+
+                    session = new Session()
+                    curSessionID =''
+                    curSessionDetail = new Object() //for Fragment View
+                    sessionTemplate = new Array() //保存自动识别实体的数组
+
+                    pageEntityList = new Array()
+                    pageEntityDeleteList = new Array()
+                    pageEntityModifyList = new Array()
+                    pageStrokeList = new Array()
+                    reDrawFragmentView()
                 }
                 
                 draw_panel();

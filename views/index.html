@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-10-31 11:56:35
+ * @LastEditTime: 2022-11-01 21:16:49
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -71,7 +71,6 @@
 		//状态保存
 		var iconStatus = {
 			isHighLight : true,
-			isSelect:false,
 			isModify : false,
 			isDelete : false
 		}
@@ -114,7 +113,7 @@
 
 			var canvas = document.getElementById('myCanvas');
 			_g = canvas.getContext('2d');
-			_g.lineWidth = 3;
+			_g.lineWidth = 2;
 			_g.lineCap = 'round'
 			_g.lineJoin = 'round'
 			_g.font = "16px Gentilis";
@@ -212,6 +211,7 @@
 			var page_max = totalPageNum
 			let templatePersons,templatePlace,templateTime,templateEvent;
 			console.log(sessionTemplate);
+			session.person.entities=[]
 			sessionTemplate.forEach(item=>{
 				let key = item.type.substr(-3)
 				switch (key) {
@@ -274,19 +274,7 @@
 						break;
 				}
 			})
-			// session.start = {
-			// 	value:curStart.stroke.pageNum,
-			// 	stroke:{
-			// 		points:curStart.stroke.points
-			// 	}
-			// }
-			// session.end = {
-			// 	value:curEnd.stroke.pageNum,
-			// 	stroke:{
-			// 		points:curEnd.stroke.points
-			// 	}
-			// }
-			session.highLight = pageHighLight
+			session.highlight = pageHighLight
 			session.curtime = transTimestamp()
 			var data = [
 				{
@@ -395,7 +383,6 @@
 									textDoms.shift()
 									textDoms.forEach(dom => {
 										_text[_text.length] = dom.innerText
-										dom.classList.add('text-bg')
 									});
 									_textValue = _text.join('')		
 									//块级作用域用以点击事件
@@ -813,23 +800,29 @@
 			curStrokeList.forEach(entity => {
 				//stroke color
 				let key = entity.type.substr(-3)
+				var bg = ''
 				switch (key) {
 					case 'PER':
 						clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
+						bg = 'entity-dict-bg'
 						break;
 					case 'TIM':
 						clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
+						bg = 'time-dict-bg'
 						break;
 					case 'LOC':
 						clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
+						bg = 'place-dict-bg'
 						break;
 					case 'EVT':
 						clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
+						bg = 'event-dict-bg'
 						break;
 					default:
 						clr = "rgb(" + 0 + "," + 0 + "," + 0 + ")";
 						break;
 				}
+				
 				_g.strokeStyle = clr;
 				//textdom bg
 				var textDoms = [{id:''}]
@@ -841,15 +834,23 @@
 					//textdom
 					var point = points[index]
 					const el = getDomElements(point.X,point.Y-10)
-					if(el[1].innerText && el[1].innerText.length===1 && !reg.test(el[1].innerText)){
-						if(el[1].id !== textDoms[textDoms.length-1].id){
-								textDoms[textDoms.length] = el[1]
+					var domText 
+					if(el[0].tagName === 'CANVAS '){
+						domText = el[1]
+					}else{
+						domText = el[0]
+					}
+					// console.log(el[0].tagName,el[1].tagName);
+					if(domText.innerText && domText.innerText.length===1 && !reg.test(domText.innerText)){
+						if(domText.id !== textDoms[textDoms.length-1].id){
+								textDoms[textDoms.length] = domText
 						}
 					}
 				}
 				textDoms.shift()
 				textDoms.forEach(dom1 => {
-					dom1.classList.add('text-bg')
+					dom1.classList.remove('text-bg')
+					dom1.classList.add(bg)
 					//划线点击事件2
 					dom1.addEventListener('click',strokeDeleteClickFuncion)
 					function strokeDeleteClickFuncion(e){
@@ -868,21 +869,69 @@
 				});
 			});
 			//开始结束括号
-			if(curSessionID){
-				_g.strokeStyle = "rgb(0,0,0)"
-				var startStroke = session.start
-				var endStroke = session.end
-				if(page === startStroke.value){
-					for (let index = 0; index < startStroke.stroke.points.length-1; index++) {
-						drawConnectedPointByPoints(startStroke.stroke.points,index,index+1)
+			// if(curSessionID){
+			// 	_g.strokeStyle = "rgb(0,0,0)"
+			// 	var startStroke = session.start
+			// 	var endStroke = session.end
+			// 	if(page === startStroke.value){
+			// 		for (let index = 0; index < startStroke.stroke.points.length-1; index++) {
+			// 			drawConnectedPointByPoints(startStroke.stroke.points,index,index+1)
+			// 		}
+			// 	}
+			// 	if(page === endStroke.value){
+			// 		for (let index = 0; index < endStroke.stroke.points.length-1; index++) {
+			// 			drawConnectedPointByPoints(endStroke.stroke.points,index,index+1)
+			// 		}
+			// 	}
+			// }
+		}
+		function drawHighLightByPage() {
+			session.highlight.forEach(eachHighLight=>{
+				if(page === eachHighLight.page){
+					var startId = eachHighLight.startId
+					var endId = eachHighLight.endId
+					if(endId-startId >= 3){ //解决修改时选中单个字母背景变色问题
+						for (let i = startId; i <= endId; i++) {
+							var dom = document.getElementById(`${page}-${i}`)
+							dom.classList.add('text-bg')
+						}
 					}
+					var pageEntity = pageEntityList.find(item=>{
+						return item.page === page
+					})
+					pageEntity.entityList.forEach(item=>{
+						let entityStartIndex = eachHighLight.str.indexOf(item.str)
+						if(entityStartIndex !== -1){
+							// sessionTemplate.push(item)
+							// console.log(`${page}-${startId+entityStartIndex}`,document.getElementById(`${page}-${startId+entityStartIndex}`));
+							// console.log(document.getElementById(`${page}-${startId+entityStartIndex}`).parentNode);
+							var dom = document.getElementById(`${page}-${startId+entityStartIndex}`).parentNode
+							if(dom.tagName !== 'P'){
+								switch (item.type) {
+									case 'Dict-PER':
+										dom.classList.add('entity-dict-bg')	
+										break;
+									case 'Dict-LOC':
+										dom.classList.add('place-dict-bg')	
+										break;
+									case 'NLP-PER':
+										dom.classList.add('entity-nlp-bg')	
+										break;
+									case 'NLP-LOC':
+										dom.classList.add('place-nlp-bg')	
+										break;
+									default:
+										break;
+								}
+								dom.childNodes.forEach(child=>{
+									child.classList.remove('text-bg')
+								})
+							}
+						
+						}
+					})
 				}
-				if(page === endStroke.value){
-					for (let index = 0; index < endStroke.stroke.points.length-1; index++) {
-						drawConnectedPointByPoints(endStroke.stroke.points,index,index+1)
-					}
-				}
-			}
+			})
 		}
 		function drawText(str)
 		{
@@ -1048,9 +1097,6 @@
 		let pageStrokeListIndex = pageStrokeList.findIndex(item=>{
 				return item.page === page
 		})
-		console.log('pageEntityModifyList',pageEntityModifyList);
-		console.log('pageEntityDeleteList',pageEntityDeleteList);
-
 		if(pageStrokeListIndex === -1){
 			if(curSessionID !== ''){
 				session.person.entities.forEach(entity=>{
@@ -1096,66 +1142,96 @@
 		}
 		 		
 		var divId = 0
+		var counter = 0
 		lines.forEach(element => {
 			let entityDictLine = new Array()
 			//有片段
 			if(curSessionID !== ''){
 				//未初始化
 				if(pageEntityListIndex === -1){
-					if(page >= session.start.value && page <= session.end.value){  //TODO 且在片段范围内
+					var startPage=Infinity , endPage=0
+					session.highlight.forEach(eachHighLight=>{
+						if(eachHighLight.page>endPage) endPage = eachHighLight.page
+						if(eachHighLight.page<startPage) startPage = eachHighLight.page
+					})
+					if(page >= startPage && page <= endPage){  //TODO 且在片段范围内
 						session.person.entities.forEach(entity=>{
 							if (!entity.stroke) {
-								let index = element.indexOf(entity.str)
-								if(index !== -1 ){
-									entityDictLine.push(
-										{
-											str:entity.str,
-											index,
-											length:entity.str.length,
-											type:'Dict-PER'
-										}
-									)
+								counter = 0
+								while (true) {
+									let index = element.indexOf(entity.str,counter)
+									if(index !== -1 ){
+										entityDictLine.push(
+											{
+												str:entity.str,
+												index:counter+index,
+												length:entity.str.length,
+												type:'Dict-PER'
+											}
+										)
+										counter += index + entity.str.length
+									}else{
+										break;
+									}
 								}
 							}
 						})
-					let index = element.indexOf(session.place.value)
-					if(index !== -1 ){
-						entityDictLine.push(
-							{
-								str:session.place.value,
-								index,
-								length:session.place.value.length,
-								type:'Dict-LOC'
-							}
-						)
-					}	
+					counter = 0
+					while (true) {							
+						let index = element.indexOf(session.place.value,counter)
+						if(index !== -1 ){
+							entityDictLine.push(
+								{
+									str:session.place.value,
+									index:counter+index,
+									length:session.place.value.length,
+									type:'Dict-LOC'
+								}
+							)
+							counter += index + session.place.value.length
+						}else{
+							break;
+						}	
+					}
 					}else{	//在片段范围外
 						entityDict.forEach(entity => {
-						let index = element.indexOf(entity)
+						counter = 0
+						while (true) {
+							let index = element.indexOf(entity,counter)
 							if(index !== -1 ){
 								entityDictLine.push(
 									{
 										str:entity,
-										index,
+										index:counter+index,
 										length:entity.length,
 										type:'Dict-PER'
 									}
 								)
+								counter += index + entity.length
+							}else{
+								break;
 							}
+						}	
 						});
 						if(isNerEnable){
 							entityNLP.forEach(entity => {
 								if(entity.word.length > 3){
-									let index = element.indexOf(entity.word)
-									if(index !== -1 ){
-										entityDictLine.push(
-											{
-												str:entity.word,
-												index,
-												length:entity.word.length,
-												type:`NLP-${entity.entity_group}`
-											}
-										)
+									counter = 0
+									while (true) {
+										let index = element.indexOf(entity.word,counter)
+										if(index !== -1 ){
+											entityDictLine.push(
+												{
+													str:entity.word,
+													index:counter+index,
+													length:entity.word.length,
+													type:`NLP-${entity.entity_group}`
+												}
+											)
+											counter += index + entity.word.length
+										}else{
+											break;
+										}
 									}
 								}
 							});
@@ -1164,17 +1240,24 @@
 				}else{	//有片段-已初始化
 					let curEntityList = pageEntityList[pageEntityListIndex].entityList
 					curEntityList.forEach(entity => {
-						let index = element.indexOf(entity.str)
-						if(index !== -1 ){
-							entityDictLine.push(
-								{
-									str:entity.str,
-									index,
-									length:entity.str.length,
-									type:entity.type
-								}
-							)
-						}			
+						counter = 0
+						while (true) {						
+							let index = element.indexOf(entity.str,counter)
+							if(index !== -1 ){
+								entityDictLine.push(
+									{
+										str:entity.str,
+										index:counter+index,
+										length:entity.str.length,
+										type:entity.type
+									}
+								)
+								counter += index + entity.str.length
+							}else{
+								break;
+							}
+						}
+
 					});
 					//去重
 					var obj = {}
@@ -1190,49 +1273,76 @@
 			}else{	//无片段
 				if(pageEntityListIndex === -1){	//无片段-未初始化
 					entityDict.forEach(entity => {
-					let index = element.indexOf(entity)
-						if(index !== -1 ){
-							entityDictLine.push(
-								{
-									str:entity,
-									index,
-									length:entity.length,
-									type:'Dict-PER'
-								}
-							)
+						counter = 0
+						while (true) {					
+							let index = element.indexOf(entity,counter)
+							if(index !== -1 ){
+								entityDictLine.push(
+									{
+										str:entity,
+										index:counter+index,
+										length:entity.length,
+										type:'Dict-PER'
+									}
+								)
+								counter += index + entity.length
+							}else{
+								break;
+							}
 						}
 					});
 					if(isNerEnable){
 						entityNLP.forEach(entity => {
 							if(entity.word.length > 3){
-								let index = element.indexOf(entity.word)
-								if(index !== -1 ){
-									entityDictLine.push(
-										{
-											str:entity.word,
-											index,
-											length:entity.word.length,
-											type:`NLP-${entity.entity_group}`
-										}
-									)
+								counter = 0
+								while (true) {								
+									let index = element.indexOf(entity.word,counter)
+									if(index !== -1 ){
+										entityDictLine.push(
+											{
+												str:entity.word,
+												index:counter+index,
+												length:entity.word.length,
+												type:`NLP-${entity.entity_group}`
+											}
+										)
+										counter += index + entity.word.length
+									}else{
+										break;
+									}
 								}
 							}
 						});
 					}
+					//去重
+					var obj = {}
+					entityDictLine.forEach(item => {
+						obj[item.str] = item
+					});
+					entityDictLine = []
+					for (let key in obj) {
+						entityDictLine.push(obj[key])
+					}
 				}else{	//无片段-已初始化
 					let curEntityList = pageEntityList[pageEntityListIndex].entityList
 					curEntityList.forEach(entity => {
-						let index = element.indexOf(entity.str)
-						if(index !== -1 ){
-							entityDictLine.push(
-								{
-									str:entity.str,
-									index,
-									length:entity.str.length,
-									type:entity.type
-								}
-							)
-						}			
+						counter = 0
+						while (true) {
+							let index = element.indexOf(entity.str,counter)
+							if(index !== -1 ){
+								entityDictLine.push(
+									{
+										str:entity.str,
+										index:counter+index,
+										length:entity.str.length,
+										type:entity.type
+									}
+								)
+								counter += index + entity.str.length
+							}else{
+								break;
+							}			
+						}
 					});
 					//去重
 					var obj = {}
@@ -1265,14 +1375,14 @@
 					}
 				}
 			})
-			// console.log(entityDictLine);
+			console.log(entityDictLine);
 			var p = document.createElement('p')
 			
 			if(element.length >0){
-				let counter = 0 //entityDictLine 计数器
+				let counterI = 0 //entityDictLine 计数器
 				for (let i = 0; i < element.length; i++) {
-					if(entityDictLine[counter]){
-						let entity = entityDictLine[counter]
+					if(entityDictLine[counterI]){
+						let entity = entityDictLine[counterI]
 						if(i === entity.index){
 							var div = document.createElement('div')
 							div.id = guid()
@@ -1360,12 +1470,6 @@
 										}
 										console.log(pageEntity);
 										reDrawFragmentView()
-										//更换模式
-										iconStatus.isHighLight = true
-										iconStatus.isSelect = false
-										iconStatus.isModify = false
-										iconStatus.isDelete = false
-										changeIcon()
 										if(curSessionID !== ''){ //isModify 片段修改
 											switch (curEntity.type.substr(-3)) {
 												case 'PER':
@@ -1397,7 +1501,7 @@
 							})
 							
 							p.appendChild(div)
-							counter++
+							counterI++
 						}
 					}
 					const char = element[i];
@@ -1562,6 +1666,7 @@
 
 			divfuzhiNLP(page,entityNLP)
 			_g.clearRect(0, 0, _rc.width, _rc.height);
+			drawHighLightByPage()
 			drawConnectedPointByPage()
 			document.getElementById('curpage').innerText = page+1
 			document.getElementById('pageNumJump').value = page+1
@@ -1649,6 +1754,19 @@
 			sessionListSL = new Array()
 			entityDict = new Array()
 			eventCounter = 1
+			var pageScaleList = new Array(totalPageNum).fill(0)
+			var pageSupportList = new Array(totalPageNum).fill(0)
+			sessionList.forEach(each=>{
+				var startPage=Infinity , endPage=0
+				each.highlight.forEach(eachHighLight=>{
+					if(eachHighLight.page>endPage) endPage = eachHighLight.page
+					if(eachHighLight.page<startPage) startPage = eachHighLight.page
+				})
+				if(startPage === endPage){ //同一页
+					pageScaleList[startPage]++
+				}
+			})
+			console.log(pageScaleList);
 			//数据转换
 			for (const eachSession of sessionList) {
 				// var min = Infinity,max = 0;
@@ -1674,7 +1792,32 @@
 				//统计章节交互片段数量
 				// menuArray[findMenuItem(min)-1].sessionNum++
 
-				sessionListSL.push([`i${eventCounter}`, eachSession.start.value, eachSession.end.value-eachSession.start.value, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id])
+				var startPage=Infinity , endPage=0
+				eachSession.highlight.forEach(eachHighLight=>{
+					if(eachHighLight.page>endPage) endPage = eachHighLight.page
+					if(eachHighLight.page<startPage) startPage = eachHighLight.page
+				})
+				var realStartPage=startPage,realEndPage=endPage
+
+				for (let i = 0; i < startPage; i++) {
+					if(pageScaleList[i]!==0){
+						realStartPage += 2*pageScaleList[i]-1
+					}
+				}
+				for (let i = 0; i < endPage; i++) {
+					if(pageScaleList[i]!==0){
+						realEndPage += 2*pageScaleList[i]-1
+					}
+				}
+
+				if(startPage === endPage){ //同一页
+					realStartPage = startPage + pageSupportList[i] * 2
+					realEndPage = endPage + pageSupportList[i] * 2 + 1
+					pageSupportList[i] ++ 
+				}
+
+
+				sessionListSL.push([`i${eventCounter}`, realStartPage, realEndPage-realStartPage, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id,eachSession.keywords])
 				eventCounter++
 			}
 
@@ -1702,10 +1845,6 @@
 		var id = dom.id
 		const floatPanelChosen = document.getElementById('float-panel-chosen')
 		floatPanelChosen.style.display = 'none'
-		// //清空划线
-		// clearStroke(_strokes[0]);
-		//赋予划线颜色
-		var clr = ''
 		if(isRecognition){ //更改识别实体类型
 			var pageEntity =  getPageEntity()
 			var entity = getEntity(curEntityId)
@@ -1746,15 +1885,13 @@
 			}
 			reDrawFragmentView()
 			pageEntityModifyList.push(sessionTemplate[sessionTemplateEntityIndex])
-
-			//更换模式
-			iconStatus.isHighLight = true
-			iconStatus.isSelect = false
-			iconStatus.isModify = false
-			iconStatus.isDelete = false
-			changeIcon()
 			console.log(pageEntityList);
-		}else{
+			console.log('pageEntityModifyList',pageEntityModifyList);
+		}else{ //新增划线事件
+			//赋予划线颜色
+			var clr = ''
+			//赋予背景样式
+			var bg = ''
 			var strokeEntity = new Object()
 			_textValue= detectReg(_textValue)
 			strokeEntity={
@@ -1766,18 +1903,22 @@
 				case 'chosen-person':		
 					strokeEntity.type = 'Stroke-PER'
 					clr = "rgb(" + 220 + "," + 96 + "," + 98 + ")";
+					bg = 'entity-dict-bg'
 					break;
 				case 'chosen-time':
 					strokeEntity.type = 'Stroke-TIM'
 					clr = "rgb(" + 69 + "," + 139 + "," + 197 + ")";
+					bg = 'time-dict-bg'
 					break;
 				case 'chosen-place':
 					strokeEntity.type = 'Stroke-LOC'		
 					clr = "rgb(" + 184 + "," + 214 + "," + 140 + ")";
+					bg = 'place-dict-bg'
 					break;
 				case 'chosen-event':
 					strokeEntity.type = 'Stroke-EVT'
 					clr = "rgb(" + 244 + "," + 197 + "," + 21 + ")";
+					bg = 'event-dict-bg'
 					break;		
 				default:
 					break;
@@ -1787,10 +1928,32 @@
 			// 	drawConnectedPointByPoints(_strokes[0],index,index+1)
 			// }	
 			//TODO
+			clearStroke(_strokes[0])
 			drawConnectedPointByPoints(_strokes[0],0,_strokes[0].length-1)
 			var pageStroke = pageStrokeList.find(item=>{
 				return item.page === page
 			})
+
+			//textdom bg
+			var textDoms = [{id:''}]
+			var points = _strokes[0]
+			//stroke
+			for (let index = 0; index < points.length-1; index++) {
+				//textdom
+				var point = points[index]
+				const el = getDomElements(point.X,point.Y-10)
+				if(el[1].innerText && el[1].innerText.length===1){
+					if(el[1].id !== textDoms[textDoms.length-1].id){
+							textDoms[textDoms.length] = el[1]
+					}
+				}
+			}
+			textDoms.shift()
+			textDoms.forEach(dom=>{
+				dom.classList.remove('text-bg')
+				dom.classList.add(bg)
+			})
+
 			pageStroke.entityList.push(strokeEntity)
 			if(curSessionID !== ''){
 				let tag = strokeEntity.type.substr(-3)
@@ -1844,10 +2007,6 @@
 				var persons_array = entityDict 
 				var page_max = totalPageNum
 				drawFragmentView(curSessionDetail,persons_array,page_max)
-				console.log(pageEntityList);
-				console.log(pageStrokeList);
-				pageEntityList = new Array()
-				pageStrokeList = new Array()
 			}else{
 				sessionTemplate.push(strokeEntity)
 				reDrawFragmentView()
@@ -1932,25 +2091,27 @@
 		switch (statusName) {
 			case 'highlight':
 				iconStatus.isHighLight = true
-				iconStatus.isSelect = false
-				iconStatus.isModify = false
-				iconStatus.isDelete = false
+				
+				// drawFragmentView()
+				// curSessionID = ''
+				// session = new Session()
+				// var curPageEntityList = getPageEntity()
+				// var curPageStrokeList = getPageStroke()
+
+				// pageEntityList = new Array()
+				// pageStrokeList = new Array()
+				// pageEntityList.push(curPageEntityList)
+				// pageStrokeList.push(curPageStrokeList)
+				
 				break;
 			case 'select':
 				iconStatus.isHighLight = false
-				iconStatus.isSelect = true
-				iconStatus.isModify = false
-				iconStatus.isDelete = false
 				break;
 			case 'modify':
-				iconStatus.isHighLight = false
-				iconStatus.isSelect = false
 				iconStatus.isModify = true
 				iconStatus.isDelete = false
 				break;
 			case 'delete':
-				iconStatus.isHighLight = false
-				iconStatus.isSelect = false
 				iconStatus.isModify = false
 				iconStatus.isDelete = true
 				break;
@@ -1964,26 +2125,21 @@
 		if(iconStatus.isHighLight){
 			$("#highlight").attr('src','/img/organize-chosen.png')
 			$("#select").attr('src','/img/organize.png')
-			$("#modify").attr('src','/img/modify.png')
-			$("#delete").attr('src','/img/delete.png')
 			$('#myCanvas').attr('style','pointer-events:none')
-		}else if(iconStatus.isSelect){
+		}else{
 			$("#highlight").attr('src','/img/organize.png')
 			$("#select").attr('src','/img/organize-chosen.png')
-			$("#modify").attr('src','/img/modify.png')
-			$("#delete").attr('src','/img/delete.png')
 			$('#myCanvas').attr('style','pointer-events:auto')
 		}
-		else if(iconStatus.isModify){
-			$("#highlight").attr('src','/img/organize.png')
-			$("#select").attr('src','/img/organize.png')
+		if(iconStatus.isModify){
 			$("#modify").attr('src','/img/modify-chosen.png')
-			$("#delete").attr('src','/img/delete.png')
-		}else if(iconStatus.isDelete){
-			$("#highlight").attr('src','/img/organize.png')
-			$("#select").attr('src','/img/organize.png')
+		}else{
 			$("#modify").attr('src','/img/modify.png')
+		}
+		if(iconStatus.isDelete){
 			$("#delete").attr('src','/img/delete-chosen.png')
+		}else{
+			$("#delete").attr('src','/img/delete.png')
 		}
 	}
 	</script>
@@ -2257,7 +2413,8 @@
 		  });
 	  });
 	drawFragmentView()
-
+	changeIcon()
+	
 	$('#text').mouseup(function() {
 		getSelectedText();
 	});
@@ -2273,7 +2430,7 @@
 			endId = startId
 			startId = temp
 		}
-		if(!iconStatus.isModify){ //解决修改时选中单个字母背景变色问题
+		if(endId-startId >= 3){ //解决修改时选中单个字母背景变色问题
 			for (let i = startId; i <= endId; i++) {
 				var dom = document.getElementById(`${page}-${i}`)
 				dom.classList.add('text-bg')
@@ -2290,38 +2447,67 @@
 				// console.log(`${page}-${startId+entityStartIndex}`,document.getElementById(`${page}-${startId+entityStartIndex}`));
 				// console.log(document.getElementById(`${page}-${startId+entityStartIndex}`).parentNode);
 				var dom = document.getElementById(`${page}-${startId+entityStartIndex}`).parentNode
-				switch (item.type) {
-					case 'Dict-PER':
-						dom.classList.add('entity-dict-bg')	
-						break;
-					case 'Dict-LOC':
-						dom.classList.add('place-dict-bg')	
-						break;
-					case 'NLP-PER':
-						dom.classList.add('entity-nlp-bg')	
-						break;
-					case 'NLP-LOC':
-						dom.classList.add('place-nlp-bg')	
-						break;
-					default:
-						break;
+				if(dom.tagName !== 'P'){
+					switch (item.type) {
+						case 'Dict-PER':
+							dom.classList.add('entity-dict-bg')	
+							break;
+						case 'Dict-LOC':
+							dom.classList.add('place-dict-bg')	
+							break;
+						case 'NLP-PER':
+							dom.classList.add('entity-nlp-bg')	
+							break;
+						case 'NLP-LOC':
+							dom.classList.add('place-nlp-bg')	
+							break;
+						default:
+							break;
+					}
+					dom.childNodes.forEach(child=>{
+						child.classList.remove('text-bg')
+					})
 				}
-				dom.childNodes.forEach(child=>{
-					child.classList.remove('text-bg')
-				})
 			
 			}
 		})
-		
-		pageHighLight.push({
-			page,
-			startId,
-			endId,
-			str:window.getSelection().toString()
-		})
+		if(endId-startId >= 3){
+			pageHighLight.push({
+				page,
+				startId,
+				endId,
+				str:window.getSelection().toString()
+			})
+		}
 		console.log(pageHighLight);
 
-		reDrawFragmentView()
+		//text summarization
+		var isEVT = sessionTemplate.findIndex(item=>{
+			return item.type.substr(-3) === 'EVT'
+		})
+		var summarizationText = ''
+		pageHighLight.forEach(eachHighLight=>{
+			summarizationText += eachHighLight.str
+		})
+		if(isTsEnable && isEVT === -1){
+			summarization(summarizationText).then(summarizationRes=>{
+				var resStr = ''
+				console.log(summarizationRes);
+				summarizationRes.forEach(each => {
+					resStr += each['summary_text']
+				});
+				sessionTemplate.push({
+					page,
+					points:[],
+					str:resStr,
+					type:"TS-EVT"
+				})
+				reDrawFragmentView()
+			})
+		}else{
+			reDrawFragmentView()
+		}
+
 
 		window.getSelection().empty()
 	}

@@ -30,6 +30,8 @@
     --selected-entity-nlp-bg : #eec0c1;
     --selected-place-dict-bg : #a2da4e;
     --selected-place-nlp-bg : #B8D68C;
+    --selected-time-dict-bg : #a6cceb;
+    --selected-event-dict-bg : #fce47a;
     --person : #DC6062;
     --time:#458BC5;
     --place:#B8D68C;
@@ -414,6 +416,11 @@ body {
     margin: 5px 33px;
 }
 
+@font-face {
+    font-family: 'OpenSans';
+    src: url('/font/OpenSans-Regular.ttf');
+}
+
 #text{
 	position:absolute;
 	width: 1000px;
@@ -424,6 +431,7 @@ body {
     word-wrap:break-word; 
     margin: 5px 33px;
     font-size: 18px;
+    font-family: 'OpenSans';
 }
 
 #test0{
@@ -470,6 +478,14 @@ p{
 
 .place-nlp-bg {
     background-color: var(--selected-place-nlp-bg);
+}
+
+.time-dict-bg{
+    background-color: var(--selected-time-dict-bg);
+}
+
+.event-dict-bg{
+    background-color: var(--selected-event-dict-bg);
 }
 
 .text-bg {
@@ -673,4 +689,22 @@ p{
         border-radius: 5px;
         z-index: 999;
     }
+.WordCloud2{
+        width: 168px;
+        height: 60px;
+        /* background: rgba(254, 251, 242, 1); */
+        position: fixed !important;
+        /* border:2px dashed rgb(236, 218, 110); */
+        /* border-bottom: #e6e6e6; */
+        border-radius: 5px;
+        z-index: 1000;
+        overflow-y: scroll;
+        color:rgb(236, 218, 110);
+        font-size:14px;
+        /* font-style:oblique; */
+}
+        
+.WordCloud2::-webkit-scrollbar {
+    display: none;
+}
 
