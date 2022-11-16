@@ -284,6 +284,11 @@ var color = [
     d3.rgb(48, 142, 206),
     d3.rgb(254, 162, 115),
     d3.rgb(21, 77, 142),
+    d3.rgb(234, 115, 177),
+    d3.rgb(148, 198, 40),
+    d3.rgb(22, 193, 173),
+    d3.rgb(244, 200, 17),
+    d3.rgb(216, 162, 54),
 ];
 var legend_click = new Array();
 
@@ -1798,7 +1803,7 @@ function drawStoryLine(sessionListSL,menuArray) {
             }
             console.log(xx_str, "str")
             var end_pl = line_max[xx_num] - dis3
-            d3.select("#path" + line_people[i-1][1]).attr("stroke-dasharray", xx_str[xx_num] + end_pl);
+            d3.select("#path" + line_people[i][1]).attr("stroke-dasharray", xx_str[xx_num] + end_pl);
             last_i = i
             xx_num++;
         }
@@ -1960,11 +1965,14 @@ function drawStoryLine(sessionListSL,menuArray) {
                 place_group[i].push([rect_event[j][0], rect_event[j][1], rect_event[j][2], rect_event[j][3], rect_event[j][4], rect_event[j][5], rect_event[j][6], rect_event[j][7]]);
                 place_group[i].sort(function(x, y){
                     if(x[1] - y[2] > 1){
-                        return x[1] - y[1];
+                        if(x[1] - y[1]){
+                            return x[3] - y[3];
+                        }
+                        else{
+                            return x[1] - y[1];
+                        }
                     }
-                    else{
-                        return x[3] - y[3];
-                    }
+                    
                 });
             }
         }
@@ -2225,7 +2233,8 @@ function drawStoryLine(sessionListSL,menuArray) {
     }
 
     //尝试新思路绘制多边形 
-    var points1 = new Array();   
+    var points1 = new Array();  
+    console.log(points1); 
     var points1_num = 0;
     for(i=0;i<place_group.length;i++){
         if(place_group[i].length > 1){
@@ -2252,9 +2261,10 @@ function drawStoryLine(sessionListSL,menuArray) {
 
                 if(y2 < y1+h1){
                     
-                    points1[points1_num].push({xpoint: x2, ypoint: y2+h2});
+                    // points1[points1_num].push({xpoint: x2, ypoint: y2+h2});
                     points1[points1_num].push({xpoint: x1+w1, ypoint: y1+h1});
-                    
+                    points1[points1_num].push({xpoint: x2, ypoint: y2+h2});
+                    points1[points1_num].push({xpoint: x2 + w2, ypoint: y2+h2});
                 }
                 else{
                     if(x2 - (x1+w1) <= 0){
@@ -2319,8 +2329,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                         points1[points1_num].push({xpoint: x2, ypoint: y2})
                         points1[points1_num].push({xpoint: x1+w1, ypoint: y1+h1});
                         points1[points1_num].push({xpoint: x1+w1, ypoint: y1});
-                        points1[points1_num].push({xpoint: x1+w1, ypoint: y1+h1});
-                        points1[points1_num].push({xpoint: x1+w1, ypoint: y1});
+                   
                     }
                 }
                 if(j == 0){
@@ -2567,7 +2576,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                                 // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
                                 .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + (eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1)) / 2 )
                                 .attr("y", rect_event[i][3] + (rect_event[i][4] - rect_event[i][3] - 2)/2)
-                                .attr("text-anchor", "start")
+                                // .attr("text-anchor", "start")
                                 .style('font-weight', 1000)
                                 .style('font-family', 'OpenSans')
                                 .style('font-size', 2)
@@ -2714,20 +2723,32 @@ function drawStoryLine(sessionListSL,menuArray) {
                                 .style('fill', 'white')
                                 .style("opacity", 0.7)
         
-
-                            //事件内关键词绘制，
                             storyLineG.append('text')
                                 .attr("id", rect_event[i][7])
                                 // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
-                                .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + 1)
-                                .attr("y", rect_event[i][3])
-                                .attr("text-anchor", "start")
+                                .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + (eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1)) / 2 )
+                                .attr("y", rect_event[i][3] + (rect_event[i][4] - rect_event[i][3] - 2)/2)
+                                // .attr("text-anchor", "start")
                                 .style('font-weight', 1000)
-                                .style('font-family','OpenSans')
-                                .style('font-size', 2.5)
+                                .style('font-family', 'OpenSans')
+                                .style('font-size', 2)
                                 .attr('dy', 1.25)
                                 .style('fill', d3.rgb(165, 118, 207))
+                                .attr('text-anchor', 'middle')
                                 .text(rect_event[i][8][0]);
+                            // //事件内关键词绘制，
+                            // storyLineG.append('text')
+                            //     .attr("id", rect_event[i][7])
+                            //     // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
+                            //     .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + 1)
+                            //     .attr("y", rect_event[i][3])
+                            //     .attr("text-anchor", "start")
+                            //     .style('font-weight', 1000)
+                            //     .style('font-family','OpenSans')
+                            //     .style('font-size', 2.5)
+                            //     .attr('dy', 1.25)
+                            //     .style('fill', d3.rgb(165, 118, 207))
+                            //     .text(rect_event[i][8][0]);
                         }
 
 
@@ -2825,17 +2846,18 @@ function drawStoryLine(sessionListSL,menuArray) {
 
                             //事件内关键词绘制，
                             storyLineG.append('text')
-                                        .attr("id", rect_event[i][7])
-                                        // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
-                                        .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + 1)
-                                        .attr("y", rect_event[i][3])
-                                        .attr("text-anchor", "start")
-                                        .style('font-weight', 1000)
-                                        .style('font-family', 'OpenSans')
-                                        .style('font-size', 2.5)
-                                        .attr('dy', 1.25)
-                                        .style('fill', d3.rgb(165, 118, 207))
-                                        .text(rect_event[i][8][0]);
+                                .attr("id", rect_event[i][7])
+                                // .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + eventdistance * (rect_event[i][2] + 1) / 2 - eventdistance * (rect_event[i][1] + 1) / 2)
+                                .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + (eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1)) / 2 )
+                                .attr("y", rect_event[i][3] + (rect_event[i][4] - rect_event[i][3] - 2)/2)
+                                // .attr("text-anchor", "start")
+                                .style('font-weight', 1000)
+                                .style('font-family', 'OpenSans')
+                                .style('font-size', 2)
+                                .attr('dy', 1.25)
+                                .style('fill', d3.rgb(165, 118, 207))
+                                .attr('text-anchor', 'middle')
+                                .text(rect_event[i][8][0]);
                         }
 
                         return RectFilledColor;
@@ -3588,6 +3610,7 @@ function drawStoryLine(sessionListSL,menuArray) {
 
 
 
+
 //更新图例
 function update1(legend_click){
 
@@ -3606,7 +3629,7 @@ function update1(legend_click){
         .attr("y", 0)
         .attr("width", legendSvg_width * legend_scale)
         .attr("height", legendSvg_height * legend_scale)
-        .attr('transform', 'translate(-50,0)');
+        .attr('transform', 'translate(-90,0)');
     }
     else{
         var legendSvg = d3.select("#legendSvg");
@@ -3639,6 +3662,7 @@ function update1(legend_click){
             .attr("rx", 4)
             .attr("ry", 4)
             .on("click", function(d){
+
                 //判断状态
                 var classname = this.id.split('l_rect')[1];
                 // console.log(classname,"classname");
@@ -3674,6 +3698,8 @@ function update1(legend_click){
                     sessionListSL1[i][5],
                     sessionListSL1[i][6],
                     sessionListSL1[i][7],
+                    sessionListSL1[i][8],
+
                 ]
                 }
 
@@ -3701,7 +3727,7 @@ function update1(legend_click){
                                 sessionListSL2[j][3] = text_results;
                             }
                             else{
-                                sessionListSL2.splice(j, 1);
+                                sessionListSL2[j][3] = ''
                             }
                         }
                         
@@ -3711,8 +3737,8 @@ function update1(legend_click){
                 console.log(sessionListSL2,"sessionListSL2");
 
                 //开始重新渲染
-                drawStoryLine(sessionListSL2);
-
+                drawStoryLine(sessionListSL2, menuArray);
+                drawFragmentView();
             });
 
 
