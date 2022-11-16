@@ -80,6 +80,12 @@ function drawFragmentView(
         d3.rgb(48, 142, 206),
         d3.rgb(254, 162, 115),
         d3.rgb(21, 77, 142),
+        d3.rgb(234, 115, 177),
+        d3.rgb(148, 198, 40),
+        d3.rgb(22, 193, 173),
+        d3.rgb(244, 200, 17),
+        d3.rgb(216, 162, 54),
+        
     ];//人物颜色数组
 
     var persons_color1 = [
@@ -456,22 +462,25 @@ function drawFragmentView(
             if(person_click_flag_array[i] == 1){
                 draw_num += 1;
                 if(circle_num1 == 10){
-                    dis5 = 10
+                    dis5 = 0
                 }
                 else if(circle_num1 == 9){
-                    dis5 = 8
+                    dis5 = 3
+                }
+                else if(circle_num1 == 8){
+                    dis5 = -3
                 }
                 else if(circle_num1 == 2){
-                    dis5 = -15
+                    dis5 = -10
                 }
                 else if(circle_num1 == 1){
-                    dis5 = -5
+                    dis5 = -10
                 }
                 else{
-                    dis5 = 0;
+                    dis5 = -10;
                 }
                 console.log(circle_num1, dis5)
-                draw_x = circle_x + 8 - circle3_r * Math.sin(angle * draw_num *(Math.PI / 180));
+                draw_x = circle_x + 4 - circle3_r * Math.sin(angle * draw_num *(Math.PI / 180));
                 draw_y = circle_y + dis5 - circle3_r * Math.cos(angle * draw_num *(Math.PI / 180));
                 // draw_circle(persons_array[i], draw_x, draw_y, circle6_r, i);
                 draw_circle1(persons_array[i], draw_x, draw_y, circle6_r, i);
@@ -1196,6 +1205,7 @@ function drawFragmentView(
                     reDrawFragmentView()
                 }else{ // modify session
                                     //动画效果
+                    // sessionListSL1_flag = 0;
                     let newPersonList = []
                     for(let index in person_click_flag_array){
                         if (person_click_flag_array[index] === 1) {

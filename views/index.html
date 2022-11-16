@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-11-01 21:16:49
+ * @LastEditTime: 2022-11-16 12:51:14
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -209,7 +209,7 @@
 			//整理故事片段
 			var persons_array = entityDict 
 			var page_max = totalPageNum
-			let templatePersons,templatePlace,templateTime,templateEvent;
+			let templatePersons='',templatePlace='',templateTime='',templateEvent='';
 			console.log(sessionTemplate);
 			session.person.entities=[]
 			sessionTemplate.forEach(item=>{
@@ -276,10 +276,18 @@
 			})
 			session.highlight = pageHighLight
 			session.curtime = transTimestamp()
+			let startPage,endPage
+			if(pageHighLight.length === 0){
+				startPage = 0
+				endPage = 20
+			}else{
+				startPage = pageHighLight[0].page
+				endPage = pageHighLight[pageHighLight.length-1].page
+			}
 			var data = [
 				{
-					page_start:pageHighLight[0].page,
-					page_end:pageHighLight[pageHighLight.length-1].page,
+					page_start:startPage,
+					page_end:endPage,
 					persons:templatePersons,
 					place:templatePlace,
 					time:templateTime,
@@ -827,63 +835,49 @@
 				//textdom bg
 				var textDoms = [{id:''}]
 				var points = entity.points
-				//stroke
-				drawConnectedPointByPoints(points,0,points.length-1)
-
-				for (let index = 0; index < points.length-1; index++) {
-					//textdom
-					var point = points[index]
-					const el = getDomElements(point.X,point.Y-10)
-					var domText 
-					if(el[0].tagName === 'CANVAS '){
-						domText = el[1]
-					}else{
-						domText = el[0]
-					}
-					// console.log(el[0].tagName,el[1].tagName);
-					if(domText.innerText && domText.innerText.length===1 && !reg.test(domText.innerText)){
-						if(domText.id !== textDoms[textDoms.length-1].id){
-								textDoms[textDoms.length] = domText
+				if(points.length!==0){
+					//stroke
+					drawConnectedPointByPoints(points,0,points.length-1)
+	
+					for (let index = 0; index < points.length-1; index++) {
+						//textdom
+						var point = points[index]
+						const el = getDomElements(point.X,point.Y-10)
+						var domText 
+						if(el[0].tagName === 'CANVAS '){
+							domText = el[1]
+						}else{
+							domText = el[0]
+						}
+						// console.log(el[0].tagName,el[1].tagName);
+						if(domText.innerText && domText.innerText.length===1 && !reg.test(domText.innerText)){
+							if(domText.id !== textDoms[textDoms.length-1].id){
+									textDoms[textDoms.length] = domText
+							}
 						}
 					}
+					textDoms.shift()
+					textDoms.forEach(dom1 => {
+						dom1.classList.remove('text-bg')
+						dom1.classList.add(bg)
+						//划线点击事件2
+						dom1.addEventListener('click',strokeDeleteClickFuncion)
+						function strokeDeleteClickFuncion(e){
+							let curEntity = getPageStrokeEntity(entity.str)
+							if(iconStatus.isDelete){
+								//相同元素删除
+								textDoms.forEach(dom2 => {
+									// dom2.classList.remove('text-bg')
+									dom2.removeEventListener('click',strokeDeleteClickFuncion)
+								});
+								clearStroke(curEntity.points)
+								removePageStrokeEntity(entity.str)
+								console.log(pageStrokeList);
+							}
+						}		
+					});
 				}
-				textDoms.shift()
-				textDoms.forEach(dom1 => {
-					dom1.classList.remove('text-bg')
-					dom1.classList.add(bg)
-					//划线点击事件2
-					dom1.addEventListener('click',strokeDeleteClickFuncion)
-					function strokeDeleteClickFuncion(e){
-						let curEntity = getPageStrokeEntity(entity.str)
-						if(iconStatus.isDelete){
-							//相同元素删除
-							textDoms.forEach(dom2 => {
-								// dom2.classList.remove('text-bg')
-								dom2.removeEventListener('click',strokeDeleteClickFuncion)
-							});
-							clearStroke(curEntity.points)
-							removePageStrokeEntity(entity.str)
-							console.log(pageStrokeList);
-						}
-					}		
-				});
 			});
-			//开始结束括号
-			// if(curSessionID){
-			// 	_g.strokeStyle = "rgb(0,0,0)"
-			// 	var startStroke = session.start
-			// 	var endStroke = session.end
-			// 	if(page === startStroke.value){
-			// 		for (let index = 0; index < startStroke.stroke.points.length-1; index++) {
-			// 			drawConnectedPointByPoints(startStroke.stroke.points,index,index+1)
-			// 		}
-			// 	}
-			// 	if(page === endStroke.value){
-			// 		for (let index = 0; index < endStroke.stroke.points.length-1; index++) {
-			// 			drawConnectedPointByPoints(endStroke.stroke.points,index,index+1)
-			// 		}
-			// 	}
-			// }
 		}
 		function drawHighLightByPage() {
 			session.highlight.forEach(eachHighLight=>{
@@ -1828,6 +1822,7 @@
 			$('#statistic-sessions').text(sessionListSL.length)
 
 			drawMenuMap(menuArray)
+			sessionListSL1 = sessionListSL
 			drawStoryLine(sessionListSL,menuArray)
 			if(curSessionID === ''){
 				drawFragmentView()
@@ -2123,12 +2118,12 @@
 	}
 	function changeIcon(){
 		if(iconStatus.isHighLight){
-			$("#highlight").attr('src','/img/organize-chosen.png')
-			$("#select").attr('src','/img/organize.png')
+			$("#highlight").attr('src','/img/Highlight-chosen.png')
+			$("#select").attr('src','/img/select.png')
 			$('#myCanvas').attr('style','pointer-events:none')
 		}else{
-			$("#highlight").attr('src','/img/organize.png')
-			$("#select").attr('src','/img/organize-chosen.png')
+			$("#highlight").attr('src','/img/Highlight.png')
+			$("#select").attr('src','/img/select-chosen.png')
 			$('#myCanvas').attr('style','pointer-events:auto')
 		}
 		if(iconStatus.isModify){
@@ -2282,9 +2277,9 @@
 									</div>
 									<div class="nav-tool-container-right">
 										<div class="page-container">
-											<span class="tool-btn-long" title="HighLight" onclick="onClickStatus('highlight')"><img id="highlight" class="svg-icon" src="/img/organize-chosen.png"></span>
+											<span class="tool-btn-long" title="HighLight" onclick="onClickStatus('highlight')"><img id="highlight" class="svg-icon" src="/img/Highlight-chosen.png"></span>
 											<span class="tool-separator"></span>
-											<span class="tool-btn-long" title="Select" onclick="onClickStatus('select')"><img id="select" class="svg-icon" src="/img/organize.png"></span>
+											<span class="tool-btn-long" title="Select" onclick="onClickStatus('select')"><img id="select" class="svg-icon" src="/img/select.png"></span>
 											<span class="tool-separator"></span>
 											<span class="tool-btn-long" title="Modify" onclick="onClickStatus('modify')"><img id="modify" class="svg-icon" src="/img/modify.png"></span>
 											<span class="tool-separator"></span>
@@ -2480,6 +2475,70 @@
 			})
 		}
 		console.log(pageHighLight);
+
+		//词频统计
+		var wordFrequency = new Array()
+		var originText,highLightText,strokeText
+		var startPage=Infinity , endPage=0
+		pageHighLight.forEach(eachHighLight=>{
+			if(eachHighLight.page>endPage) endPage = eachHighLight.page
+			if(eachHighLight.page<startPage) startPage = eachHighLight.page
+			highLightText += eachHighLight.str
+		})
+		for(var pageIndex = startPage;pageIndex<=endPage;pageIndex++){
+			originText += textArray[pageIndex]
+		}
+		strokeText = session.event.value
+		originText = originText.split(' ')
+		highLightText = highLightText.split(' ')
+		strokeText = strokeText.split(' ')
+		originText.forEach(itemText=>{
+			var wfIndex = wordFrequency.findIndex(itemWF=>{
+				return itemWF.name === itemText
+			})
+			if( wfIndex === -1){
+				wordFrequency.push({
+                    "name": itemText,
+                    "value": 1,
+                    "color":"rgba(0, 0, 0)"
+				})
+			}else{
+				wordFrequency[wfIndex].value++
+			}
+		})
+		highLightText.forEach(itemText=>{
+			var wfIndex = wordFrequency.findIndex(itemWF=>{
+				return itemWF.name === itemText
+			})
+			if( wfIndex === -1){
+				wordFrequency.push({
+                    "name": itemText,
+                    "value": 5,
+                    "color":"rgba(0, 0, 0)"
+				})
+			}else{
+				wordFrequency[wfIndex].value += 5
+			}
+		})
+		strokeText.forEach(itemText=>{
+			var wfIndex = wordFrequency.findIndex(itemWF=>{
+				return itemWF.name === itemText
+			})
+			if( wfIndex === -1){
+				wordFrequency.push({
+                    "name": itemText,
+                    "value": 15,
+                    "color":"rgba(0, 0, 0)"
+				})
+			}else{
+				wordFrequency[wfIndex].value += 15
+			}
+		})
+		wordFrequency = wordFrequency.filter(item=>{
+			return item.value >= 5 && item.name.length > 3
+		})
+		console.log('wf',wordFrequency);
+
 
 		//text summarization
 		var isEVT = sessionTemplate.findIndex(item=>{
