@@ -103,7 +103,7 @@ function drawFragmentView(
 
     var click_flag = 1;
 
-    var bj_flag = 0
+    var bj_flag = 1;
 
     var transform_x = 0;
 
@@ -490,73 +490,73 @@ function drawFragmentView(
     var dataCloudChart = echarts.init(document.getElementById('operation_panel'), null, {
         renderer: 'svg'
     });
-
+    //词云
     function drawDataCloud() {
         dataCloudChart.off("click")
         var data = {
             value: [{
-                    "name": "surprised",
-                    "value": 1446,
+                    "name": "soldiers",
+                    "value": 1500,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "meditated",
-                    "value": 928,
+                    "name": "people",
+                    "value": 1200,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "a quick return",
-                    "value": 906,
+                    "name": "request",
+                    "value": 800,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "Eliabeth",
-                    "value": 825,
+                    "name": "tobacco",
+                    "value": 600,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "completely",
-                    "value": 514,
+                    "name": "tinder-box",
+                    "value": 423,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "busness",
-                    "value": 486,
+                    "name": "dogs",
+                    "value": 235,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "impossible",
+                    "name": "rescue",
                     "value": 53,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "invitationto",
+                    "name": "punishment",
                     "value": 163,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "daughters",
+                    "name": "wedding",
                     "value": 86,
                     "color":"rgba(0, 0, 0)"
                 },
                 {
-                    "name": "potested",
+                    "name": "celebration",
                     "value": 17,
                     "color":"rgba(0, 0, 0)"
                 },
+                // {
+                //     "name": "examination",
+                //     "value": 6,
+                //     "color":"rgba(0, 0, 0)"
+                // },
+                // {
+                //     "name": "objection",
+                //     "value": 1,
+                //     "color":"rgba(0, 0, 0)"
+                // },
                 {
-                    "name": "Elzaethtoo",
-                    "value": 6,
-                    "color":"rgba(0, 0, 0)"
-                },
-                {
-                    "name": "attention",
-                    "value": 1,
-                    "color":"rgba(0, 0, 0)"
-                },
-                {
-                    "name": "cordialy",
-                    "value": 1437,
+                    "name": "Gallows",
+                    "value": 2100,
                     "color":"rgba(0, 0, 0)"
                 },
 
@@ -581,7 +581,7 @@ function drawFragmentView(
                 series: [{
                     type: 'wordCloud',
                     gridSize: 1,
-                    sizeRange: [10, 30],
+                    sizeRange: [10, 22],
                     rotationRange: [0, 0, 0, 0],
                     // maskImage: maskImage,
                     textStyle: {
@@ -596,7 +596,7 @@ function drawFragmentView(
                 
                     // width: 300,
                     // height: 200,
-                    top: -140,
+                    top: -150,
                     left: -70,
                     data: data.value
                 }]

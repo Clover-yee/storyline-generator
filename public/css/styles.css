@@ -30,6 +30,7 @@
     --selected-entity-nlp-bg : #eec0c1;
     --selected-place-dict-bg : #a2da4e;
     --selected-place-nlp-bg : #B8D68C;
+    --selected-time-nlp-bg : #b8d8f1;
     --selected-time-dict-bg : #a6cceb;
     --selected-event-dict-bg : #fce47a;
     --person : #DC6062;
@@ -478,6 +479,10 @@ p{
 
 .place-nlp-bg {
     background-color: var(--selected-place-nlp-bg);
+}
+
+.time-nlp-bg{
+    background-color: var(--selected-time-nlp-bg);
 }
 
 .time-dict-bg{

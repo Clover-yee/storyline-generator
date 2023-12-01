@@ -2709,7 +2709,7 @@ function drawStoryLine(sessionListSL,menuArray) {
                 else{
                     color_nnn = 
                     console.log(rect_event)
-                    if(rect_event[i][7] == 'The evening' || rect_event[i][7] == 'one day'){
+                    if(rect_event[i][7] == 'The evening' || rect_event[i][7] == 'one day' || rect_event[i][7] == 'evening'){
                         
 
                         if(rect_event[i][8][0] != null){
@@ -2729,9 +2729,9 @@ function drawStoryLine(sessionListSL,menuArray) {
                                 .attr("x", eventdistance * (rect_event[i][1] + 1) + 100 + (eventdistance * (rect_event[i][2] + 1) - eventdistance * (rect_event[i][1] + 1)) / 2 )
                                 .attr("y", rect_event[i][3] + (rect_event[i][4] - rect_event[i][3] - 2)/2)
                                 // .attr("text-anchor", "start")
-                                .style('font-weight', 1000)
+                                .style('font-weight', 800)
                                 .style('font-family', 'OpenSans')
-                                .style('font-size', 2)
+                                .style('font-size', 1.5)
                                 .attr('dy', 1.25)
                                 .style('fill', d3.rgb(165, 118, 207))
                                 .attr('text-anchor', 'middle')
@@ -2753,7 +2753,7 @@ function drawStoryLine(sessionListSL,menuArray) {
 
 
 
-                        var time_dis = 16
+                        var time_dis = 12
         
                         connect_time_path_array = [{xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5, ypoint: rect_event[i][3]},
                                         {xpoint: eventdistance * (rect_event[i][1] + 1) + 100 - 1.5, ypoint: rect_event[i][4] + time_dis},
@@ -3529,17 +3529,18 @@ function drawStoryLine(sessionListSL,menuArray) {
                 // .attr("fill", xScaleColor)
                 // .attr("font-size", fontSize + "px")
             }
-
-            if(i == Math.round((menuArray[menuArray_num1 + 1].pagenum - menuArray[menuArray_num1].pagenum) / 2) + menuArray[menuArray_num1].pagenum){
-                xScaleG.append("text")
-                .attr("id", "text" + i)
-                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", textY + fontSize * 2)
-                .attr('text-anchor', 'middle')
-                .text(menuArray[menuArray_num1].title)
-                .attr("fill", xScaleColor)
-                .attr("font-size", fontSize / 1.1 + "px");
-                menuArray_num1++;
+            if(menuArray_num1 < menuArray.length - 1){
+                if(i == Math.round((menuArray[menuArray_num1 + 1].pagenum - menuArray[menuArray_num1].pagenum) / 2) + menuArray[menuArray_num1].pagenum){
+                    xScaleG.append("text")
+                    .attr("id", "text" + i)
+                    .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                    .attr("y", textY + fontSize * 2)
+                    .attr('text-anchor', 'middle')
+                    .text(menuArray[menuArray_num1].title)
+                    .attr("fill", xScaleColor)
+                    .attr("font-size", fontSize / 1.1 + "px");
+                    menuArray_num1++;
+                }
             }
 
             if(i == 0){
@@ -3554,16 +3555,18 @@ function drawStoryLine(sessionListSL,menuArray) {
                 menuArray_num++;
             }
 
-            if(i == menuArray[menuArray_num].pagenum){
-                xScaleG.append("rect")
-                .attr("id", "xScaleCircle" + i)
-                .attr("height", rectLineHeight)
-                .attr("width", 1)
-                .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
-                .attr("y", cy)
-                .attr("fill", xScaleColor)
-                .attr('fill-opacity', 1);
-                menuArray_num++;
+            if(menuArray_num <= menuArray.length){
+                if(i == menuArray[menuArray_num-1].pagenum){
+                    xScaleG.append("rect")
+                    .attr("id", "xScaleCircle" + i)
+                    .attr("height", rectLineHeight)
+                    .attr("width", 1)
+                    .attr("x", keytips[0] * SvgTransformK + i * circleDistance)
+                    .attr("y", cy)
+                    .attr("fill", xScaleColor)
+                    .attr('fill-opacity', 1);
+                    menuArray_num++;
+                }
             }
 
 

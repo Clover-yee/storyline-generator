@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 11:53:13
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-11-16 12:51:14
+ * @LastEditTime: 2023-05-15 22:01:06
  * @FilePath: \storyline-generator\views\index.html
  * @Description: 
  * 
@@ -1750,16 +1750,23 @@
 			eventCounter = 1
 			var pageScaleList = new Array(totalPageNum).fill(0)
 			var pageSupportList = new Array(totalPageNum).fill(0)
+			// let sessionCurEndPage = 0;
 			sessionList.forEach(each=>{
 				var startPage=Infinity , endPage=0
 				each.highlight.forEach(eachHighLight=>{
 					if(eachHighLight.page>endPage) endPage = eachHighLight.page
 					if(eachHighLight.page<startPage) startPage = eachHighLight.page
 				})
+				console.log(startPage,endPage,each.person.value);
 				if(startPage === endPage){ //同一页
 					pageScaleList[startPage]++
 				}
+				// if(sessionCurEndPage === startPage){
+				// 	pageScaleList[startPage]++
+				// }
+				// sessionCurEndPage = endPage
 			})
+
 			console.log(pageScaleList);
 			//数据转换
 			for (const eachSession of sessionList) {
@@ -1814,6 +1821,152 @@
 				sessionListSL.push([`i${eventCounter}`, realStartPage, realEndPage-realStartPage, eachSession.person.value,eachSession.place.value,eachSession.event.value,eachSession.time.value,eachSession._id,eachSession.keywords])
 				eventCounter++
 			}
+
+			// sessionListSL = [
+								// [
+								// 	"i1",
+								// 	0,
+								// 	2,
+								// 	"soldier,witch",
+								// 	"on the way",
+								// 	" He met with an old witch: she was very hideous, and her under lip hung down upon her breast . She said , “",
+								// 	"to be determined",
+								// 	"645c57fb67fb074d277ac0e3",
+								// 	[]
+								// ],
+								// [
+								// 	"i2",
+								// 	3,
+								// 	1,
+								// 	"soldier,dog",
+								// 	"great hall",
+								// 	" The soldier climbed up into the tree, let himself slip down into the hole, and stood in the great hall where the many hundred lamps",
+								// 	"to be determined",
+								// 	"645c5c4867fb074d277ac0ef",
+								// 	['great hall']
+								// ],
+								// [
+								// 	"i3",
+								// 	5,
+								// 	1,
+								// 	"soldier,witch",
+								// 	"to be determined1",
+								// 	" “Have you the tinder-box?” asked the witch . ‘Have you been the  tinder box?",
+								// 	"to be determined",
+								// 	"645c5dc467fb074d277ac0f7",
+								// 	[]
+								// ],
+								// [
+								// 	"i6",
+								// 	11,
+								// 	1,
+								// 	"soldier,dog,princess",
+								// 	"to be determined2",
+								// 	" “It is midnight, certainly,” said the soldier,    ‘It’s midnight. ‘",
+								// 	"to be determined",
+								// 	"645c61be67fb074d277ac104",
+								// 	['meet']
+								// ],
+								// [
+								// 	"i4",
+								// 	7,
+								// 	1,
+								// 	"soldier",
+								// 	"town",
+								// 	" \"That was a splendid town. That was a wonderful town,\" says the author . \"That's a splendid place to go\"",
+								// 	"to be determined",
+								// 	"645c5f4467fb074d277ac0fb",
+								// 	[]
+								// ],
+								// [
+								// 	"i5",
+								// 	9,
+								// 	1,
+								// 	"soldier,dog",
+								// 	"town",
+								// 	"That's a famous tinder-box, if I can get everything with it that I want!",
+								// 	"evening",
+								// 	"645c600567fb074d277ac100",
+								// 	[]
+								// ],
+								// [
+								// 	"i8",
+								// 	15,
+								// 	1,
+								// 	"soldier,dog,princess, old lady",
+								// 	"to be determined4",
+								// 	" The soldier had a great longing to see the lovely princess again; so the dog came in the night, took her away, and ran",
+								// 	"in the night",
+								// 	"645c62bd67fb074d277ac10d",
+								// 	[]
+								// ],
+								// [
+								// 	"i7",
+								// 	13,
+								// 	1,
+								// 	"princess,King and Queen",
+								// 	"to be determined5",
+								// 	" The princess said she had a strange dream the night before, about a dog and a soldier . Then the dog ran back again with the",
+								// 	"to be determined",
+								// 	"645c625f67fb074d277ac109",
+								// 	[]
+								// ],
+								// [
+								// 	"i10",
+								// 	19,
+								// 	1,
+								// 	"soldier,dog,princess",
+								// 	"to be determined6",
+								// 	" In the night the dog came again, took the princess on his back , and ran with her to the soldier, who loved her very",
+								// 	"In the night",
+								// 	"645c64c667fb074d277ac116",
+								// 	[]
+								// ],
+								// [
+								// 	"i12",
+								// 	23,
+								// 	1,
+								// 	"soldier,boy",
+								// 	"to be determined7",
+								// 	" In the morning he could see, through the iron grating of the little window, the little boy could see through the grating .",
+								// 	"In the morning1",
+								// 	"645c673667fb074d277ac11e",
+								// 	[]
+								// ],
+								// [
+								// 	"i9",
+								// 	17,
+								// 	1,
+								// 	"King and Queen, old lady",
+								// 	"to be determined8",
+								// 	"along all the way which the princess should take",
+								// 	"In the morning1",
+								// 	"645c635967fb074d277ac112",
+								// 	[]
+								// ],
+								// [
+								// 	"i11",
+								// 	21,
+								// 	1,
+								// 	"soldier,King and Queen",
+								// 	"to be determined9",
+								// 	" In the morning the King and the Queen saw well enough where their daughter had been, and they took the soldier and put him in prison",
+								// 	"In the morning1",
+								// 	"645c651067fb074d277ac11a",
+								// 	['in prison']
+								// ],
+								// [
+								// 	"i13",
+								// 	25,
+								// 	2,
+								// 	"soldier,dog,King and Queen",
+								// 	"to be determined10",
+								// 	"A soldier facing execution requests a final smoke and uses a magical tinderbox to summon dogs that save him, overthrow the king and queen, and make him the new king, marrying the princess in a joyous celebration.",
+								// 	"In the morning",
+								// 	"645c677e67fb074d277ac122",
+								// 	[]
+								// ]
+							// ]
 
 			console.log(entityDict,'entityDict');
 			console.log(sessionListSL,'sessionListSL');

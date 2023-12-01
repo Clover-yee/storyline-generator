@@ -2,7 +2,7 @@
  * @Author: Clover 304363641@qq.com
  * @Date: 2022-07-21 14:15:18
  * @LastEditors: Clover 304363641@qq.com
- * @LastEditTime: 2022-07-29 11:24:47
+ * @LastEditTime: 2023-05-15 22:05:54
  * @FilePath: \storyline-generator\models\Fragment.js
  * @Description: 
  * 
@@ -23,7 +23,7 @@ const FragmentSchema = new Schema({
 
 }, {
     minimize: false,
-    collection:'fragments'
+    collection:'fragments-hali'
 });
 
 var Fragment = mongoose.model('Fragment', FragmentSchema);
